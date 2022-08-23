@@ -1,0 +1,58 @@
+<h4><%= @cg.group_type %> Component Group for <b><i><%= link_to @cg.title.title_text, title_path(@cg.title), target: '_blank' %></i></b></h4>
+<%= form_for @cg, url: best_copy_selection_update_url, method: :post, html: {id: 'best_copy_update_form'} do |f| %>
+	<%= f.hidden_field :id  %>
+	<%= hidden_field_tag 'pos' %>
+	<table>
+		<tr>
+			<th>IU Barcode</th>
+			<th>Location</th>
+			<th>Action</th>
+		</tr>
+		<% all_here = @cg.all_present? %>
+		<% @cg.physical_objects.each do |p| %>
+			<tr>
+				<td><%= link_to p.iu_barcode, edit_physical_object_path(p), target: '_blank' %></td>
+				<td><%= p.current_workflow_status.type_and_location %></td>
+				<td>
+					<% if all_here %>
+						Reformating (MDPI) Component Group<%= check_box_tag "po_#{p.acting_as.id}", "po_#{p.acting_as.id}", false, class: 'best_copy_check' %>
+					<% else %>
+					  Cannot create reformating group. Not all physical objects are present.
+					<% end %>
+				</td>
+			</tr>
+		<% end %>
+		<tr>
+			<th colspan="2">Scan Resolution</th>
+			<td>
+				2k <%= check_box_tag '2k', '2k', false, class: 'mutually_exclusive' %> | 4k <%= check_box_tag '4k', '4k', false, class: 'mutually_exclusive' %>
+			</td>
+		</tr>
+		<tr>
+			<th colspan="2">Color Space</th>
+			<td>
+				<%= f.select :color_space, options_for_select(ComponentGroup::COLOR_SPACES.collect{ |cs| [cs,cs]}, 'Linear 10 bit') %>
+			</td>
+		</tr>
+		<tr>
+			<th colspan="2">Clean</th>
+			<td>
+				<%= f.select :clean, options_for_select([['Yes', 'Yes'],['No', 'No'],['Hand clean only', 'Hand clean only']]) %>
+			</td>
+		</tr>
+		<tr>
+			<th colspan="2">Return on Reel</th>
+			<td>
+				<%= f.select :return_on_reel, options_for_select([['Yes', 'Yes'],['No', 'No']], 'No') %>
+			</td>
+		</tr>
+		<tr>
+			<th colspan="2"></th>
+			<td>
+				<% if all_here %>
+					<%= f.submit "Create Component Group" %> (Remaining Physical Objects will be returned to their storage location)
+				<% end %>
+			</td>
+		</tr>
+	</table>
+<% end %>

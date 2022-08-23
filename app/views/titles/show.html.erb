@@ -1,0 +1,27 @@
+<div>
+  <%= link_to 'Edit', edit_title_path(@title) %>  |
+  <%= link_to 'Back', url_for(:back) %>  |
+	<%= link_to 'Split', show_split_title_path(@title) %>
+	<% if policy(Title).destroy? %>
+		| <%= link_to 'Destroy', @title, method: :delete, data: { confirm: 'Are you sure?' } %> |
+	<% end %>
+  <%= link_to "Create Component Group", new_title_component_group_path(@title.id) %>
+</div>
+<%= render partial: "titles/show" %>
+
+<%= render partial: 'titles/physical_objects' %>
+<BR>
+<%= render partial: 'titles/component_groups' %>
+<script type="text/javascript" charset="utf-8">
+  let visible = false;
+    $(document).ready(function() {
+       $('#showModifications').click(function() {
+           if (visible) {
+               $('#modifications').hide();
+           } else {
+               $('#modifications').show();
+           }
+           visible = !visible;
+       })
+    })
+</script>

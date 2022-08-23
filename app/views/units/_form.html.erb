@@ -1,0 +1,48 @@
+<%= form_for(@unit) do |f| %>
+  <% if @unit.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@unit.errors.count, "error") %> prohibited this unit from being saved:</h2>
+
+      <ul>
+        <% @unit.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <table>
+    <tr>
+      <th>Abbreviation</th>
+      <td>
+        <%= f.text_field :abbreviation %>
+      </td>
+    </tr>
+    <tr>
+      <th>Unit Name</th>
+      <td>
+	      <%= f.text_field :name %>
+      </td>
+    </tr>
+    <tr>
+      <th>Instituion</th>
+      <td>
+        <%= f.text_field :institution %>
+      </td>
+    </tr>
+    <tr>
+      <th>Campus</th>
+      <td>
+        <%= f.text_field :campus %>
+      </td>
+    </tr>
+    <tr>
+      <th>Menu Index</th>
+      <td>
+        <%= f.text_field :menu_index %>
+      </td>
+    </tr>
+  </table>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

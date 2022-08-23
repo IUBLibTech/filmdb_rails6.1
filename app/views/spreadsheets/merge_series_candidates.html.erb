@@ -1,0 +1,91 @@
+<div id="existing_series" class="selectable">
+  <h4>Series Not Created in Spreadsheet: <i><%= @spreadsheet.filename %></i></h4>
+  <ul class="">
+    <% @existing_series.each do |es| %>
+        <li class="ajax_series_hover  ui-widget-content" series_id="<%= es.id%>">
+          <%= es.title %>
+        </li>
+    <% end %>
+  </ul>
+  <br/>
+  <h4>Series Created in Spreadsheet: <i><%= @spreadsheet.filename %></i></h4>
+  <ul class="">
+    <% @series_candidates.each do |sc| %>
+        <li class="ajax_series_hover ui-widget-content" series_id="<%= sc.id%>">
+          <%= sc.title %>
+        </li>
+    <% end %>
+  </ul>
+  <div class="clear">
+    <%= form_tag merge_series_path do %>
+        <%= hidden_field_tag 'master'%>
+        <%= hidden_field_tag 'selected' %>
+        <%= submit_tag 'Merge Series' %>
+    <% end %>
+  </div>
+</div>
+<div id="pop_up" class="left">
+
+</div>
+<script type="text/javascript">
+  $(".ajax_series_hover").hoverIntent(
+      //hoverIn handler
+      function() {
+        var series_id = $(this).attr('series_id');
+        var url = '../../../series/ajax/show/'+series_id;
+        $.ajax({
+          url: url,
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+          success: function(result) {
+            el = $('#pop_up');
+            el.html(result);
+            el.show();
+          }
+        })
+      },
+      //hoverOut handler
+      function() {
+        el = $('#pop_up');
+        el.hide();
+      }
+  );
+  var master = null;
+  var selectedIDs = [];
+  $('.selectable').selectable({
+    filter: "ul li",
+    selected: function(event, ui) {
+      if (master == null) {
+        master = $(ui.selected).attr('series_id');
+        $('#master').attr('value', master);
+        $(ui.selected).attr('id', 'master_selection');
+      } else {
+        if (ui.selected != master) {
+          selectedIDs = selectedIDs.concat($(ui.selected).attr('series_id'))
+        }
+        $('#selected').attr('value', selectedIDs.toString());
+      }
+    },
+    unselected: function(event, ui) {
+      var id = $(ui.unselected).attr('series_id');
+      if (id == master) {
+        master = null;
+        $('#master').attr('value', '');
+        $(ui.unselected).removeAttr('id');
+      } else {
+        id = $(ui.unselected).attr('series_id');
+        selectedIDs.splice(selectedIDs.indexOf(id), 1);
+        $('#selected').attr('value', selectedIDs.toString());
+      }
+    }
+  });
+  $('.selectable').on('selectablestart', function(event, ui) {
+    event.originalEvent.ctrlKey = true;
+  });
+</script>

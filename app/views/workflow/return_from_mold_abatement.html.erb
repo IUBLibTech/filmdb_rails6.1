@@ -1,0 +1,53 @@
+<table>
+	<tr>
+		<th>Scan Barcode:</th>
+		<td>
+			<input type="text" id="barcode_text"/>
+		</td>
+	</tr>
+</table>
+<div id="result_div" class="m_top_10px">
+
+</div>
+<div class="m_top_10px">
+<h4>Physical Objects at Mold Abatement</h4>
+	<table>
+		<tr>
+			<th>Title</th>
+			<th>IU Barcode</th>
+			<th>Reason Pulled</th>
+		</tr>
+		<% @physical_objects.each do |p| %>
+			<tr>
+				<td><%= p.titles_text %></td>
+				<td><%= link_to "#{p.iu_barcode}", physical_object_path(p) %></td>
+				<td><%= p.active_component_group ? p.active_component_group.group_type : p.current_workflow_status.previous_sibling&.status_name %></td>
+			</tr>
+		<% end %>
+	</table>
+</div>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('#barcode_text').bind('input', function() {
+			$('#result_div').html('')
+			valid = validateIUBarcode($(this));
+			if (valid) {
+			    var url = './ajax_mold_abatement_barcode/'+$(this).val();
+				$.ajax({
+					url: url,
+					error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+					success: function(result) {
+						$('#result_div').html(result)
+					}
+				});
+			}
+		})
+	});
+</script>

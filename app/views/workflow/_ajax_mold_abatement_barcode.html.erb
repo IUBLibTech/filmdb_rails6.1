@@ -1,0 +1,45 @@
+<% if @physical_object.specific.has_attribute?(:mold) && @physical_object.current_location == WorkflowStatus::MOLD_ABATEMENT %>
+  <%= form_for @physical_object, url: update_return_from_mold_abatement_path(id: @physical_object.acting_as.id), method: :post do |f| %>
+  <table>
+    <tr>
+      <th>Title</th>
+      <td>
+        <%= @physical_object.titles_text %>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        IU Barcode
+      </th>
+      <td>
+        <%= @physical_object.iu_barcode %>
+      </td>
+    </tr>
+    <tr>
+      <th>Mold Status</th>
+      <td>
+        <%= f.select :mold, options_for_select(ControlledVocabulary.physical_object_cv(@physical_object.medium)[:mold]) %>
+      </td>
+    </tr>
+    <tr>
+      <th>Reason Pulled</th>
+      <td>
+        <%= @physical_object.active_component_group ? @physical_object.active_component_group.group_type : @physical_object.current_workflow_status.previous_sibling.status_name %>
+      </td>
+    </tr>
+    <tr>
+      <th>Update Workflow To:</th>
+      <td>
+        <%= f.select :current_workflow_status, options_for_select(WorkflowStatus::STATUSES_TO_NEXT_WORKFLOW[@physical_object.current_workflow_status.previous_sibling.status_name]) %>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><%= f.submit "Update Status" %></td>
+    </tr>
+  </table>
+  <% end %>
+<% else %>
+  <p class="warning">
+    <%= link_to @physical_object.iu_barcode, physical_object_path(@physical_object.acting_as.id) %> is not a Medium that has a mold attribute.
+  </p>
+<% end %>

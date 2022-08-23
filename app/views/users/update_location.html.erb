@@ -1,0 +1,16 @@
+<h4>Where Are You Working?</h4>
+<%= form_for @user, url: show_worksite_location_url do |f| %>
+<table>
+	<tr>
+		<th>Location</th>
+		<td>
+			<%= f.select :worksite_location, options_for_select(WorkflowStatus::WORK_LOCATIONS.collect{ |s| [s, s] }) %>
+		</td>
+	</tr>
+</table>
+	<tr>
+		<td colspan="2">
+			<%= f.submit 'Set Location' %>
+		</td>
+	</tr>
+<% end %>

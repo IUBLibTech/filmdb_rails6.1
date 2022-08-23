@@ -1,0 +1,10 @@
+<div style="margin-bottom: 20px;">
+	<% if @cg_pos.size > 0 %>
+		<h4 class="notice">The Following Physical Objects Have Been Added to a Reformating (MDPI) Component Group.</h4>
+		<%= @cg_pos.collect{ |p| p.iu_barcode}.join(', ') %>
+	<% end %>
+	<% if @returned.size > 0 %>
+		<h4 class="notice">The Following Physical Objects Should be Returned to:</h4>
+		<%= @returned.collect{ |p| "#{p.iu_barcode}: #{p.storage_location}"}.join(', ') %>
+	<% end %>
+</div>

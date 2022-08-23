@@ -1,0 +1,173 @@
+<% if flash[:merge] == true %>
+  <%= render partial: 'merge_message' %>
+<% elsif flash[:split] == true %>
+  <%= render partial: 'split_message' %>
+<% elsif flash[:inject] == true %>
+  <%= render partial: 'component_groups/move_to_mdpi_workflow_create' %>
+<% end %>
+<div class="hmm">
+  <% if @title.fully_cataloged? %>
+    <div class="cat">
+      <%= image_tag("paw.png") %>
+    </div>
+  <% end %>
+  <div id="whodoneit">
+    <div><b>Creator</b> <%= @title.creator&.name %></div>
+    <div id='showModifications'><b>Last Modified By</b> <%= @title.modifier&.name %></div>
+    <div id="modifications">
+      <h5 style="padding: auto 1em">Edit History</h5>
+      <ul>
+        <% @title.modifications.each do |m| %>
+          <% unless m.user.nil? %>
+            <li>
+              <%= "#{m.user.username} - #{I18n.l m.created_at, format: :long}" %>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+<% if @title.digitized? %>
+  <div class="m_bottom_10px">
+    <div class="clear">
+      <h4 class="clean">Digitized</h4>
+      <% if @title.stream_url %>
+        <div class="_25 left m_bottom_10px">
+          <a href="<%= url_for @title.stream_url %>" target="_blank">Stream URL</a>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<div id="main">
+  <div class="left_div">
+    <div class="label"><b>Title</b></div><div class="field"><h2><%= @title.title_text %></h2></div>
+    <div class="label"><b>Series Title</b></div><div class="field"><%= link_to @title.series_title_text, series_path(@title.series), target: '_blank' unless @title.series.nil? %></div>
+    <div class="label"><b>Series Part</b></div><div class="field"><%= @title.series_part %></div>
+    <div class="label"><b>Country of Origin</b></div><div class="field"><%= @title.country_of_origin %></div>
+    <% if @title.fully_cataloged %>
+      <div class="label"><b>Fully Cataloged</b></div><div class="field">Yes</div>
+    <% end  %>
+  </div>
+  <div class="left _50">
+    <h5>Title Summary</h5>
+    <div class="simple_text" style="margin-bottom: .5rem">
+      <%= format_newlines(@title.summary) %>
+    </div>
+  </div>
+</div>
+<h4 class="clear">Alternative Titles</h4>
+<div>
+  <% @title.alternative_titles.each do |at| %>
+      <%= at %>&nbsp;&nbsp;
+  <% end %>
+</div>
+
+<% tos = @title.associated_titles %>
+<div>
+  <h4>Associated Titles</h4>
+  <% if tos.size == 0 %>
+    None
+  <% else %>
+    <% tos.each_with_index do |t, i| %>
+      <%= link_to t.title_text, title_path(t), class: 'title_link' %><% if tos.size > i+1 %>|<% end %>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="clear">
+  <% unless @title.title_original_identifiers.empty? %>
+      <h4>Orginal Identifiers</h4>
+      <% @title.title_original_identifiers.each do |toi| %>
+          <div class="left_div creator_div">
+            <div class="label"><b>Identifier</b></div>
+            <div class="field"><%= toi.identifier %></div>
+            <div class="label"><b>Type</b></div>
+            <div class="field"><%= toi.identifier_type %></div>
+          </div>
+      <% end %>
+  <% end %>
+  <% unless @title.title_creators.empty? %>
+      <h4>Creators</h4>
+      <% @title.title_creators.each do |tc| %>
+          <div class="left_div creator_div">
+            <div class="label"><b>Creator</b></div>
+            <div class="field">
+              <%= tc.name %>
+            </div>
+            <div class="label"><b>Role</b></div>
+            <div class="field">
+              <%= tc.role %>
+            </div>
+          </div>
+      <% end %>
+  <% end %>
+  <% unless @title.title_publishers.empty? %>
+      <h4>Publishers</h4>
+      <% @title.title_publishers.each do |tp| %>
+          <div class="left_div creator_div">
+            <div class="label"><b>Name</b></div>
+            <div class="field"><%= tp.name %></div>
+            <div class="label"><b>Role</b></div>
+            <div class="field"><%= tp.publisher_type %></div>
+          </div>
+      <% end %>
+  <% end %>
+  <% unless @title.title_genres.empty? %>
+      <h4>Genres</h4>
+      <% @title.title_genres.each do |tg| %>
+          <div class="left_div creator_div">
+            <div class="field"><%= tg.genre %></div>
+          </div>
+      <% end %>
+  <% end %>
+  <% unless @title.title_forms.empty? %>
+      <h4>Forms</h4>
+      <% @title.title_forms.each do |tf| %>
+        <div class="left_div creator_div">
+          <div class="field"><%= tf.form %></div>
+        </div>
+      <% end %>
+  <% end %>
+  <% unless @title.title_dates.empty? %>
+    <h4>Dates</h4>
+    <% @title.title_dates.each do |td| %>
+      <div class="date"><b><%= td.date_type %>:</b> <%= td.date_to_s %></div>
+    <% end %>
+  <% end %>
+  <h4>Copyright</h4>
+  <div class="cp_info">
+    <div class="left _50">
+      <div class=""><b>In Copyright? </b><%= @title.in_copyright %></div>
+      <div><b>Copyright Expiration Date</b> <%= @title.copyright_end_date_edtf %></div>
+      <div class=""><b>Copyright Verified by</b><br><%= @title.copyright_verify_by_text %></div>
+    </div>
+    <div class="left _50">
+      <div class=""><b>Copyright Notes</b><br><%= @title.copyright_notes %></div>
+    </div>
+
+  </div>
+  <% unless @title.title_locations.empty? %>
+      <h4>Locations</h4>
+      <% @title.title_locations.each do |tl| %>
+        <div class="left_div creator_div">
+          <div class="field"><%= tl.location %></div>
+        </div>
+      <% end %>
+  <% end %>
+  <h4>Notes</h4>
+	<div class="simple_text">
+    <%= format_newlines(@title.notes) %>
+  </div>
+	<h4>Subject</h4>
+	<div class="simple_text">
+		<%= format_newlines(@title.subject) %>
+	</div>
+	<h4>Name Authority</h4>
+	<div class="name_authority">
+		<%= format_newlines(@title.name_authority) %>
+	</div>
+</div>
+
+

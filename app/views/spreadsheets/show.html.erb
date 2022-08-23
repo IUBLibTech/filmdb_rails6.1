@@ -1,0 +1,83 @@
+<% if @spreadsheet.successful_upload %>
+    <br>
+    <h4>Physical Objects Created in this spreadsheet</h4>
+    <%= @spreadsheet.physical_objects.size %>
+
+    <% if @spreadsheet.created_users.size > 0 %>
+    <h4>Users Created in This Spreadsheet</h4>
+    <table>
+      <tr>
+        <th>Email Address</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Actions</th>
+      </tr>
+      <% @users.each do |u| %>
+          <tr>
+            <td><%= u.email_address %></td>
+            <td><%= u.first_name %></td>
+            <td><%= u.last_name %></td>
+            <td>
+              <%= link_to "Show", user_path(u) %>
+              <%= link_to "Edit", edit_user_path(u) %>
+              <%= link_to 'Destroy', u, method: :delete, data: { confirm: 'Are you sure?' } %>
+            </td>
+          </tr>
+      <% end %>
+    </table>
+    <% end %>
+
+    <% if @spreadsheet.series.size > 0 %>
+        <h4>Seriese Created in this Spreadsheet</h4>
+        <table>
+          <tr>
+            <th>Series Title</th>
+            <th>Created in Spreadsheet</th>
+            <th>Created Elsewhere</th>
+            <th>Actions</th>
+          </tr>
+          <% @series_count_in_spreadsheet.keys.sort.each do |series| %>
+              <tr>
+                <td><%= series %></td>
+                <td><%= @series_count_in_spreadsheet[series] %></td>
+                <td><%= @series_count_not_in_spreadsheet[series].nil? ? 0 : @series_count_not_in_spreadsheet[series] %></td>
+                <td>
+	                <% if (@series_count_in_spreadsheet[series] + (@series_count_not_in_spreadsheet[series].nil? ? 0 : @series_count_not_in_spreadsheet[series])) > 1%>
+	                 <%= link_to "Merge Series", merge_series_candidates_path(id: @spreadsheet.id, series: Series.where(title: series).first.id) %>
+	                <% end %>
+                </td>
+              </tr>
+          <% end %>
+        </table>
+    <% end %>
+
+    <% if @spreadsheet.titles.size > 0 %>
+    <h4>Titles Created in This Spreadsheet</h4>
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Created in Spreadsheet</th>
+        <th>Created Elsewhere</th>
+        <th>Actions</th>
+      </tr>
+      <% @title_count_in_spreadsheet.keys.sort.each do |title| %>
+          <tr>
+            <td><%= title %></td>
+            <td><%= @title_count_in_spreadsheet[title] %></td>
+            <td><%= @title_count_not_in_spreadsheet[title].nil? ? 0 : @title_count_not_in_spreadsheet[title] %></td>
+            <td>
+	            <% if (@title_count_in_spreadsheet[title] + (@title_count_not_in_spreadsheet[title].nil? ? 0 : @title_count_not_in_spreadsheet[title]) > 1)%>
+		            <%= link_to "Merge Titles", merge_title_candidates_path(id: @spreadsheet.id, title: Title.where(title_text: title).first.id) %>
+	            <% end %>
+            </td>
+          </tr>
+      <% end %>
+    </table>
+    <% end %>
+<% else %>
+	<h2>Spreadsheet upload failed for the following reasons:</h2>
+	<p>
+	<%= @spreadsheet.spreadsheet_submissions.last.failure_message.html_safe %>
+	</p>
+<% end %>
+<%= link_to 'Back', spreadsheets_path %>

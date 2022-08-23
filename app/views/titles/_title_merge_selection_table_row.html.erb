@@ -1,0 +1,38 @@
+<tr id="<%= @title.id %>" class="title_row">
+	<td>
+    <% if @title.fully_cataloged %> <%= image_tag('paw.png') %> <% end %>
+  </td>
+  <td>
+		<%= link_to @title.title_text, title_path(@title), target: '_blank' %>
+	</td>
+	<td>
+		<%= @title.in_active_workflow? ? 'Yes' : 'No' %>
+	</td>
+	<td>
+		<%= @title.title_original_identifiers.collect{ |i| "#{i.identifier} (#{i.identifier_type})"}.join(',') %>
+	</td>
+	<td>
+		<%= @title.title_creators.collect{ |c| "#{c.name} (#{c.role})"}.join(',') %>
+	</td>
+	<td>
+		<%= @title.title_publishers.collect{ |p| "#{p.name} (#{p.publisher_type})"}.join(',') %>
+	</td>
+	<td>
+		<%= @title.title_dates.collect { |d| d.date_to_s }.join(',') %>
+	</td>
+	<td>
+		<%= @title.summary %>
+	</td>
+	<td>
+		<%= @title.notes %>
+	</td>
+	<td>
+		<%= @title.subject %>
+	</td>
+	<td>
+		<%= @title.name_authority %>
+	</td>
+	<td>
+		<b class="title_merge_remove" tid="<%= @title.id %>">Remove</b>
+	</td>
+</tr>

@@ -1,0 +1,311 @@
+  <p id="notice"><%= notice %></p>
+  <%= link_to 'Edit', edit_cage_path(@cage) %> |
+  <%= link_to 'Back', url_for(:back) %>
+  <div class="clear"></div>
+  <div id="digi_staging">
+  </div>
+  <h2><%= "#{@cage.identifier}" %></h2>
+  <table id="cage_table" class="left">
+    <tr>
+      <th>Cage Identifier</th>
+      <td><%= @cage.identifier %></td>
+    </tr>
+    <tr>
+      <th>Cage Notes</th>
+      <td><%= @cage.notes %></td>
+    </tr>
+    <tr>
+      <th class='shelf' colspan="2" id="shelf_<%= @cage.top_shelf.id %>">Top Shelf</th>
+    </tr>
+    <tr>
+      <th>Identifier</th>
+      <td><%= @cage.top_shelf.identifier %></td>
+    </tr>
+    <tr>
+      <th>MDPI Barcode</th>
+      <td><%= @cage.top_shelf.mdpi_barcode %></td>
+    </tr>
+    <tr>
+      <th>Notes</th>
+      <td><%= @cage.top_shelf.notes %></td>
+    </tr>
+    <tr>
+      <th class='shelf' colspan="2" id="shelf_<%= @cage.middle_shelf.id %>">Middle Shelf</th>
+    </tr>
+    <tr>
+      <th>Identifier</th>
+      <td><%= @cage.middle_shelf.identifier %></td>
+    </tr>
+    <tr>
+      <th>MDPI Barcode</th>
+      <td><%= @cage.middle_shelf.mdpi_barcode %></td>
+    </tr>
+    <tr>
+      <th>Notes</th>
+      <td><%= @cage.middle_shelf.notes %></td>
+    </tr>
+
+    <tr>
+      <th class='shelf' colspan="2" id="shelf_<%= @cage.bottom_shelf.id %>">Bottom Shelf</th>
+    </tr>
+    <tr>
+      <th>Identifier</th>
+      <td><%= @cage.bottom_shelf.identifier %></td>
+    </tr>
+    <tr>
+      <th>MDPI Barcode</th>
+      <td><%= @cage.bottom_shelf.mdpi_barcode %></td>
+    </tr>
+    <tr>
+      <th>Notes</th>
+      <td><%= @cage.bottom_shelf.notes %></td>
+    </tr>
+  </table>
+  <% unless @cage.ready_to_ship %>
+  <div id="shelf_content_form">
+    <%= form_for @cage, remote: true, html: {id: 'add_cage_shelf_form'} do |f| %>
+        <%= f.hidden_field :cage_shelf_id %>
+        <table>
+          <tr>
+            <th colspan="2">Scan IU and MDPI barcodes to add object to select Cage Shelf</th>
+          </tr>
+          <tr>
+            <th>IU Barcode</th>
+            <td><%= f.text_field :physical_object_iu_barcode %></td>
+          </tr>
+          <tr>
+            <th>MDPI Barcode</th>
+            <td><%= f.text_field :physical_object_mdpi_barcode %></td>
+          </tr>
+          <tr>
+            <td colspan="2"><%= f.submit 'Add Physical Object' %></td>
+          </tr>
+        </table>
+    <% end %>
+  <% end %>
+  </div>
+  <% if !@cage.all_shelves_returned? %>
+	  <div class="left" style="width: 25%; margin: 0 0 10px 15px">
+		  <table>
+			  <tr>
+				  <th>Physical Object Count</th>
+				  <td id="po_count"></td>
+			  </tr>
+			  <tr>
+				  <th>2k Count</th>
+				  <td id="2k_count"></td>
+			  </tr>
+			  <tr>
+				  <th>4k Count</th>
+				  <td id="4k_count"></td>
+			  </tr>
+			  <tr>
+				  <th>2K Percentage</th>
+				  <td id="2k_percentage"></td>
+			  </tr>
+			  <tr>
+				  <th>4K Percentage</th>
+				  <td id="4k_percentage"></td>
+			  </tr>
+			  <tr>
+				  <th>Estimated Reel Duration</th>
+				  <td id="total_duration"></td>
+			  </tr>
+		  </table>
+	  </div>
+<% end %>
+  <div id="shelf_content">
+    <p><i>Click a shelf on the left to see its contents, or add physical objects.</i></p>
+  </div>
+  <% if @cage.ready_to_ship && !@cage.shipped? %>
+    <div class="clear">
+      <%= form_for @cage, url: unmark_ready_to_ship_path(@cage.id), method: :post do |f| %>
+        <%= f.submit "Mark Not Ready to Ship" %>
+      <% end  %>
+    </div>
+  <% elsif @cage.can_be_shipped? && !@cage.shipped? %>
+    <div class="clear">
+      <%= form_for @cage, url: mark_ready_to_ship_path(@cage.id), method: :post do |f| %>
+        <%= f.submit "Mark Ready to Ship" %>
+      <% end  %>
+    </div>
+  <% end  %>
+  <script type="text/javascript" charset="utf-8">
+    var id = null;
+    $('.shelf').click(function() {
+      id = $(this).attr('id').substring(6);
+      var url = './cage_shelf/'+id+'/ajax_physical_objects';
+      $.ajax({
+        url: './cage_shelf/'+id+'/ajax_physical_objects',
+        error: function(jqXHR, exception) {
+            swal({
+                title: 'Ajax Error',
+                text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+            }, function() {
+                window.location.replace(url)
+            });
+        },
+        success: function(result) {
+          setShelfContent(result);
+          $('#cage_cage_shelf_id').attr('value', id)
+        }
+      });
+	    update_shelf_stats();
+    });
+
+    $('#cage_physical_object_iu_barcode').bind('input', function() {
+	    cage_id = $('#cage_cage_shelf_id').attr('value');
+	    if (cage_id == null || cage_id.length < 1) {
+		    swal('You must first select a shelf on the left');
+	    } else if (isValidBarcode($(this).val())) {
+	        var url = './ajax_add_physical_object_iu_barcode_scan/'+$(this).val();
+		    $.ajax({
+			    url: url,
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              })
+			    },
+			    success: function(result) {
+				    h = $('#shelf_objects_header');
+				    h.prevAll().remove();
+				    h.before(result);
+			    }
+		    });
+	    }
+    });
+
+    $('#add_cage_shelf_form').submit(function(event) {
+      event.preventDefault();
+      cage_id = $('#cage_cage_shelf_id').attr('value');
+      mdpi_bc = $('#cage_physical_object_mdpi_barcode').val();
+      iu_bc = $('#cage_physical_object_iu_barcode').val();
+      if (cage_id == null || cage_id.length < 1) {
+        swal('You must first select a shelf on the left');
+      } else if (mdpi_bc == null || mdpi_bc == '') {
+        swal('You did not specify an MDPI barcode')
+      } else if (iu_bc == null || iu_bc == '') {
+        swal('You did not specify an IU barcode')
+      }	else {
+          var url = './cage_shelf/'+id+'/ajax_physical_objects/';
+        $.ajax({
+          url: url,
+          method: 'POST',
+          data: $('#add_cage_shelf_form').serializeArray(),
+          error: function(result) {
+            $('#cage_physical_object_mdpi_barcode').val('');
+            swal({
+              title: 'Ajax Error',
+              text: 'Something unexpected happened while trying to add the physical object to the shelf',
+              type: 'error'
+            })
+          },
+          success: function(result) {
+            setShelfContent(result);
+	          update_shelf_stats();
+	          update_digi_stats();
+          }
+        });
+      }
+      return false;
+    });
+
+    function validate_shippable(iu_barcode) {
+
+    }
+
+    function update_shelf_stats() {
+        var url = './cage_shelf/'+id+'/ajax_cage_shelf_stats';
+	    $.ajax({
+		    url: url,
+		    error: function (jqXHR, textStatus, errorThrown) {
+            swal({
+                title: 'Ajax Error',
+                text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+            }, function() {
+                window.location.replace(url)
+            })
+		    },
+		    success: function(result) {
+			    $('#po_count').html(result['count']);
+			    $('#2k_count').html(result['count_2k']);
+			    $('#2k_percentage').html(result['percent_2k'] * 100);
+			    $('#4k_count').html(result['count_4k']);
+			    $('#4k_percentage').html(result['percent_4k'] * 100);
+			    $('#total_duration').html(result['total_duration']);
+		    }
+	    });
+    }
+
+    function update_digi_stats() {
+        var url = "<%= digitization_staging_stats_path %>";
+	    $.ajax({
+		    url: url,
+		    error: function(jqXHR, status, error) {
+            swal({
+                title: 'Ajax Error',
+                text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+            }, function() {
+                window.location.replace(url)
+            })
+		    },
+		    success: function(result) {
+			    $('#digi_staging').html(result)
+		    }
+	    })
+    }
+
+    function setShelfContent(content) {
+      $('#shelf_content').html(content);
+      $('#cage_physical_object_mdpi_barcode').val('')
+      installAjaxDelete();
+    }
+    function installAjaxDelete() {
+      $('.cage_shelf_po_delete_link').click(function(event) {
+        event.preventDefault();
+        cage_id = $('#cage_cage_shelf_id').attr('value');
+        po_id = $(this).attr('id').substring(3);
+        swal({
+          title: 'Remove Physical Object from Shelf',
+          text: 'Are you sure?',
+          type: 'info',
+          showCancelButton: 'true'
+        },
+        function() {
+            var url = './cage_shelf/'+cage_id+'/ajax_remove_physical_object_from_shelf/'+po_id;
+          $.ajax({
+            url: url,
+            method: 'DELETE',
+            error: function(jqXHR, textStatus, errorThrown) {
+                swal({
+                    title: 'Ajax Error',
+                    text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                }, function() {
+                    window.location.replace(url)
+                })
+            },
+            success: function(result) {
+              setShelfContent(result);
+	            update_shelf_stats();
+	            update_digi_stats();
+            }
+          });
+        });
+        return false;
+        }
+      );
+    }
+
+    $("#cage_physical_object_iu_barcode").bind("change keyup", function () {
+      validateIUBarcode($(this));
+    });
+    $("#cage_physical_object_mdpi_barcode").bind("change keyup", function () {
+      validateMdpiBarcode($(this));
+    });
+	  $(document).ready(function() {
+		  update_digi_stats();
+	  });
+  </script>

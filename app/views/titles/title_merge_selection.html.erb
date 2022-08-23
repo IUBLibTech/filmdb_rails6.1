@@ -1,0 +1,43 @@
+<h4>Title Merge</h4>
+<div id="title_selection">
+<table>
+	<tr>
+		<th>Title</th>
+		<td>
+			<%= text_field_tag :title_text %>
+		</td>
+	</tr>
+</table>
+</div>
+<div id="title_summary" class="left _75 ml_10" >
+
+</div>
+<%= form_tag title_autocomplete_selection_merge_path, id: 'title_autocomplete_select_form' do %>
+	<%= hidden_field_tag :master_title_id %>
+	<%= hidden_field_tag :mergees %>
+	<div id="selected_titles" class="clear">
+		<h4 class="m_top_10px">Titles To Merge</h4>
+		<p class="warning">Click to select the master Title record - all other titles will be merged into this record</p>
+		<table id="title_table">
+			<tr>
+        <th></th>
+				<th>Title</th>
+				<th>In Active Workflow</th>
+				<th>Original Identifiers</th>
+				<th>Creators</th>
+				<th>Publishers</th>
+				<th>Dates</th>
+				<th>Summary</th>
+				<th>Notes</th>
+				<th>Subject</th>
+				<th>Name Authority</th>
+				<th></th>
+			</tr>
+		</table>
+	</div>
+	<div id="physical_objects">
+
+	</div>
+	<%= submit_tag 'Merge Titles' %>
+<% end %>
+<%= render partial: 'title_merge_js' %>

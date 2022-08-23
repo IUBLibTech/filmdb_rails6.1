@@ -1,0 +1,173 @@
+<table id="pull_stats">
+	<tbody>
+	<tr>
+		<th>Total Pullable Physical Objects</th>
+		<th>Total Reformatting Reels</th>
+		<th>Total Best Copy Reels (ALF)</th>
+		<th>Total Best Copy Reels (Wells)</th>
+	</tr>
+
+	<tr>
+		<td><%= @physical_objects.size %></td>
+		<td><%= @physical_objects.size - @best_copy_alf_count - @best_copy_wells_count %></td>
+		<td><%= @best_copy_alf_count %></td>
+		<td><%= @best_copy_wells_count %></td>
+	</tr>
+	<tr>
+		<th>Count Selected</th>
+		<th>Count Reformatting Selected</th>
+		<th>Count Best Copy ALF Select</th>
+		<th>Count Best Copy Wells Select</th>
+	</tr>
+	<tr>
+		<td id="selected_count">0</td>
+		<td id="selected_reformatting">0</td>
+		<td id="selected_bc_alf">0</td>
+		<td id="selected_bc_wells">0</td>
+	</tr>
+	</tbody>
+</table>
+<br>
+<table id="physical_objects_table">
+	<tr>
+		<th>Select To Pull</th>
+		<th>Title(s)</th>
+		<th>IU Barcode</th>
+		<th>Can Size</th>
+		<th>Gauge/Format</th>
+		<th>Location</th>
+		<th>Pulled For</th>
+		<th>Cancel</th>
+	</tr>
+	<% if @ingested.size > 0 %>
+	<tr>
+		<th colspan="8">Queued Physical Objects (Ingested)</th>
+	</tr>
+	<% end %>
+	<% @ingested.each do |p| %>
+    <% p = p.specific %>
+	<tr>
+		<td><%= check_box_tag "po_#{p.acting_as.id}", '', false, {class: "cg_#{p.active_component_group.group_type.tr('()','').tr(' ','_').downcase}"}%></td>
+		<td>
+			<% p.titles.each do |t| %>
+				<%= link_to "#{t.title_text}", title_path(t) %> <br>
+			<% end %>
+		</td>
+		<td><%=  p.iu_barcode %></td>
+		<td><%= p.has_attribute?(:can_size) ? p.can_size : ''%></td>
+		<td><%= p.medium_name %></td>
+		<td><%=  p.storage_location %></td>
+		<td><%= p.active_component_group&.group_type %></td>
+		<td><%= link_to "Remove from Queue", '#', id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
+	</tr>
+	<% end %>
+	<% if @not_ingested.size > 0 %>
+	<tr>
+		<th colspan="8">Queued Physical Objects (Not Ingested)</th>
+	</tr>
+	<% end %>
+	<% @not_ingested.each do |p| %>
+    <% p = p.specific %>
+		<tr>
+			<td><%= check_box_tag "po_#{p.acting_as.id}", '', false, {class: "cg_#{p.active_component_group.group_type.tr('()','').tr(' ','_').downcase}"}%></td>
+			<td>
+				<% p.titles.each do |t| %>
+					<%= link_to "#{t.title_text}", title_path(t) %> <br>
+				<% end %>
+			</td>
+			<td><%=  p.iu_barcode %></td>
+			<td><%= p.has_attribute?(:can_size) ? p.can_size : '' %></td>
+			<td><%= p.medium_name %></td>
+			<td><%=  p.current_location %></td>
+			<td><%= p.active_component_group&.group_type %></td>
+			<td><%= link_to "Remove from Queue", '#', id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
+		</tr>
+	<% end %>
+	<tr>
+		<td colspan="2">
+			<%= form_tag(process_pull_requested_path) do %>
+				<%= hidden_field_tag 'ids', '' %>
+				<%= submit_tag 'Submit Pull Request' %>
+			<% end %>
+		</td>
+	</tr>
+</table>
+<script type="text/javascript">
+	var lastChecked = null;
+	$(document).ready(function() {
+		$('input:checkbox').click(function(e) {
+			if (!lastChecked) {
+				lastChecked = this;
+				setChecked();
+				return;
+			}
+			if (e.shiftKey) {
+				var start = $('input:checkbox').index(this);
+				var end = $('input:checkbox').index(lastChecked);
+				$('input:checkbox').slice(Math.min(start, end), Math.max(start,end) + 1).prop('checked', lastChecked.checked)
+			}
+			setChecked();
+			lastChecked = this;
+		});
+		$('.remove_from_queue').click(function(event) {
+			event.preventDefault();
+			clicked = $(this);
+			swal({
+					title: 'Remove from Queue',
+					text: 'Are you sure you want to remove this Physical Object from the Queue?',
+					type: 'warning',
+					showCancelButton: true,
+					confirmButtonText: 'Remove from Queue',
+					closeOnConfirm: false
+				},
+				function(isConfirm){
+					if (isConfirm) {
+						id = clicked.attr('id').substring(3);
+						var url = './ajax_cancel_queued_pull_request/' + id;
+						$.ajax({
+							url: url,
+							method: 'POST',
+							error: function(jqXHR, textStatus, errorThrown) {
+                  swal({
+                      title: 'Ajax Error',
+                      text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                  }, function() {
+                      window.location.replace(url)
+                  });
+              },
+							success: function (result) {
+								swal({
+										title: 'Reponse',
+										text: "Queued pull requests were cancelled for the following physical objects: "+result,
+										html: true
+									},
+									function() {
+										location.reload();
+									})
+							}
+						})
+					}
+				})
+		});
+	})
+	// sets the hidden po ids attribute on the form
+	function setChecked() {
+		var po_ids = [];
+		$(':checked').each(function() {
+			var x = this;
+			po_ids.push(this.id.substring(3))
+		});
+		$('#ids').val(po_ids.join(','));
+		updateCounts();
+	}
+	function updateCounts() {
+		all = $(':checked').size();
+		ref = $(':checked.cg_reformatting_mdpi').size();
+		bc_alf = $(':checked.cg_best_copy_mdpi').size();
+		bc_wells = $(':checked.cg_best_copy_mdpi_-_wells').size();
+		$("#selected_count").html(all)
+		$("#selected_reformatting").html(ref)
+		$("#selected_bc_alf").html(bc_alf)
+		$("#selected_bc_wells").html(bc_wells)
+	}
+</script>

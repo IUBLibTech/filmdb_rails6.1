@@ -1,0 +1,67 @@
+<% if @error_msg %>
+  <p class="warning"><%= @error_msg %></p>
+<% else %>
+  <div class="m_top_10px">
+    <%= form_for @physical_object, {url: update_mark_found_path, method: :post} do |f| %>
+      <%= f.hidden_field :id %>
+    <table style="width: 100%">
+      <tbody>
+      <tr>
+        <th colspan="8"><%= @physical_object.titles_text %></th>
+      </tr>
+      <tr>
+        <td colspan="8">
+          <input type="radio" id="return_to_storage" name="return_to_storage" value="true">
+          <label for="return_to_storage" class="wtf"><b>Return to Storage</b> (This PhysicalObject should be returned to <b><%= @physical_object.storage_location %></b>)</label>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="8">
+          <input type="radio" id="insert_into_workflow" name="return_to_storage" value="false" class="radio">
+          <label for="insert_into_workflow" class="wtf"><b>Insert into Workflow</b></label>
+        </td>
+      </tr>
+      <tr class="hidden">
+        <th>Select Title the CG belongs to:</th>
+        <td colspan="7">
+          <ul>
+            <% @physical_object.titles.each do |t| %>
+              <li>
+                <input type="radio" id="title_<%= t.id %>" name="title" value="<%= t.id %>" class="radio" <%= "checked='checked'" if @physical_object.titles.size == 1  %>>
+                <label for="title_<%= t.id %>" class="wtf"><b><%= t.title_text %></b></label>
+              </li>
+            <% end %>
+          </ul>
+        </td>
+      </tr>
+      <tr class="hidden">
+        <th>Component Group Type</th>
+        <td colspan="7"><%= select_tag "group_type", options_for_select(@component_group_cv[:group_type]) %></td>
+      </tr>
+      <tr class="hidden">
+        <th colspan="8">Settings</th>
+      </tr>
+      <tr class="hidden">
+        <td>Scan Resolution</td>
+        <td><%= select_tag "scan_resolution", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]})  %></td>
+        <td>Color Space</td>
+        <td><%= select_tag "color_space", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}) %></td>
+        <td>Clean</td>
+        <td><%= select_tag "clean", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}) %></td>
+        <td>Return on Reel</td>
+        <td><%= select_tag "return_on_reel", options_for_select([["No", false], ["Yes", true]]) %></td>
+      </tr>
+      <tr class="hidden">
+        <th>Workflow Status Location</th>
+        <td colspan="7"><%= select_tag 'status', options_for_select(@statuses) %></td>
+      </tr>
+      </tbody>
+      <tr>
+        <td colspan="2">
+        <%= f.submit "Update Location", {data: { disable_with: false }} %>
+        </td>
+      </tr>
+    </table>
+    <% end %>
+</div>
+<% end %>

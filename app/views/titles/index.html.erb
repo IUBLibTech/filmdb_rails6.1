@@ -1,0 +1,208 @@
+<%= link_to 'Create New Title', new_title_path %> | <%= link_to 'Merge Titles', title_merge_selection_path %> | <%= link_to "Merge In Storage Titles", merge_in_storage_path %>
+<h4>Title Search</h4>
+<%= form_tag titles_search_path, method: :post do %>
+  <%= hidden_field_tag :ts, Process.clock_gettime(Process::CLOCK_MONOTONIC) %>
+<table>
+	<tr>
+		<th>Title Text</th>
+		<td>
+      <%= text_field_tag :title_text, params[:title_text] %>
+		</td>
+	</tr>
+  <tr>
+    <th>Series Name</th>
+    <td>
+      <%= text_field_tag :series_name_text, params[:series_name_text] %>
+    </td>
+  </tr>
+	<tr>
+		<th>Date</th>
+		<td>
+			<%= text_field_tag :date, params[:date] %>
+		</td>
+	</tr>
+	<tr>
+		<th>Publisher</th>
+		<td>
+			<%= text_field_tag :publisher_text, params[:publisher_text] %>
+		</td>
+	</tr>
+	<tr>
+		<th>Creator</th>
+		<td>
+      <%= text_field_tag :creator_text, params[:creator_text] %>
+		</td>
+	</tr>
+  <tr>
+    <th>Summary</th>
+    <td><%= text_field_tag :summary_text, params[:summary_text] %></td>
+  </tr>
+  <tr>
+    <th>Location</th>
+    <td><%= text_field_tag :location_text, params[:location_text] %></td>
+  </tr>
+  <tr>
+    <th>Subject</th>
+    <td><%= text_field_tag :subject_text, params[:subject_text] %></td>
+  </tr>
+	<tr>
+		<th>Search Within Collection</th>
+		<td>
+			<%= select_tag :collection_id, options_for_select([['All', "0"]] + Collection.all.order(:name).collect{ |c| [c.name, c.id]}, params[:collection_id]) %>
+		</td>
+	</tr>
+  <tr>
+    <th>Digitized Status</th>
+    <td>
+      <%= radio_button_tag :digitized_status, "all", checked='checked'  %>All<br>
+      <%= radio_button_tag :digitized_status, "digitized"  %>Digitized<br>
+      <%= radio_button_tag :digitized_status, "not_digitized"  %>Not Digitized<br>
+    </td>
+  </tr>
+	<tr>
+		<td colspan="2">
+      <div class="left _50">
+        <%= submit_tag 'Search' %>
+      </div>
+      <div>
+        <% if @titles && @titles.size > 0 %>
+          <%= link_to "Download Search Results", title_xls_search_path(params.symbolize_keys.merge)  %>
+        <% end %>
+      </div>
+		</td>
+	</tr>
+</table>
+<% end %>
+<% if params[:title_text] %>
+<h4>Search Results for:</h4>
+<table>
+	<tr>
+		<th>Title Text:</th>
+		<td><%= params[:title_text] %></td>
+    <th>Series Name:</th>
+    <td><%= params[:series_name_text] %></td>
+		<th>Date</th>
+		<td><%= params[:date] %></td>
+		<th>Publisher</th>
+		<td><%= params[:publisher_text] %></td>
+		<th>Creator</th>
+		<td><%= params[:creator_text] %></td>
+		<th>Collection:</th>
+		<td><%= params[:collection_id] == '0' ? 'All' : "#{Collection.find(params[:collection_id].to_i).name}" %></td>
+    <th>Digitized Status</th>
+    <td><%= params[:digitized_status].upcase %></td>
+	</tr>
+</table>
+<% end %>
+<% if @titles %>
+<br>
+<br>
+<% if @paginate %>
+		<%= render partial: 'paginator' %>
+<% end %>
+<table>
+	<tr>
+		<th>Title</th>
+    <th>Series Title</th>
+		<th>Date(s)</th>
+		<th>Publisher(s)</th>
+		<th>Creator(s)</th>
+		<th>Physical Object(s) Summary</th>
+	</tr>
+	<% @titles.each do |t| %>
+    <% if t.digitized? %>
+      <tr class="digitized_tr">
+    <% else %>
+      <% c = t.count_selected_for_digitization %>
+      <tr class="<%= c > 0 ? '' : 'not_digitized' %>">
+    <% end %>
+		<td>
+      <% if t.fully_cataloged %>
+        <%= image_tag('paw.png', class: 'cat') %>
+      <% end %>
+      <%= link_to t.title_text, title_path(t) %>
+    </td>
+    <td>
+      <%= t.series_title_text %>
+    </td>
+		<td>
+			<ul>
+			<% t.title_dates.each do |td| %>
+				<li>
+					<b><%= td.date_type %>: <%= td.date_to_s %></b>
+				</li>
+			<% end %>
+			</ul>
+		</td>
+		<td>
+			<ul>
+			<% t.title_publishers.each do |tp| %>
+				<li>
+					<b><%= tp.publisher_type %></b>: <%= tp.name %>
+				</li>
+			<% end %>
+			</ul>
+		</td>
+		<td>
+			<ul>
+				<% t.title_creators.each do |tc| %>
+				<li>
+					<b><%= tc.role %></b>: <%= tc.name %>
+				</li>
+				<% end %>
+			</ul>
+		</td>
+		<td>
+			<ul>
+				<li>
+					<b>Physical Object Count</b>: <%= t.physical_objects.size %>
+				</li>
+				<li>
+					<b>Generations</b>: <%= t.physical_objects.collect{ |p| p.humanize_boolean_generation_fields }.flatten.sort.uniq.join(', ') %>
+				</li>
+				<li>
+					<b>Gauges/Formats</b>: <%= t.physical_objects.collect{ |p| p.specific.medium_name }.uniq.join(', ') %>
+				</li>
+				<li>
+					<b>Physical Objects Selected for Digitization</b>: <%= c %>
+				</li>
+			</ul>
+		</td>
+	</tr>
+	<% end %>
+</table>
+<% end %>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#date').bind('input',function() {
+			var y = /^[0-9]{4}$/;
+			var yy = /^[0-9]{4}\s{0,1}-\s{0,1}[0-9]{4}$/
+			if (y.test($(this).val()) || yy.test($(this).val()) || $(this).val().length == 0) {
+				$(this).removeClass('bad_barcode');
+			} else {
+				$(this).addClass('bad_barcode')
+			}
+		});
+		// hook in the checkboxes to be range selectable
+		checks = $('input:checkbox')
+		var lastChecked = null;
+		checks.click(function(e) {
+			if (!lastChecked) {
+				lastChecked = this;
+			} else if (e.shiftKey) {
+				var start = $('input:checkbox').index(this);
+				var end = $('input:checkbox').index(lastChecked);
+				$('input:checkbox').slice(Math.min(start, end), Math.max(start, end) + 1).prop('checked', lastChecked.checked)
+			}
+			lastChecked = this;
+
+			var ids = [];
+			$(':checked.title_check').each(function() {
+				var x = this;
+				ids.push(this.id)
+			});
+			$('#title_ids').val(ids.join(','));
+			return true;
+		});
+	});
+</script>

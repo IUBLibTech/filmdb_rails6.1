@@ -1,0 +1,52 @@
+<div class="">
+	<h1>Upload Spreadsheet</h1>
+  <%= form_for @file, url: spreadsheet_upload_path do |f| %>
+    <table>
+      <tr>
+        <td>
+          <%= f.file_field :xls_file %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <%= f.submit "Upload Inventory File" %>
+        </td>
+      </tr>
+    </table>
+  <% end %>
+</div>
+<div class="">
+	<h1>Listing Spreadsheets</h1>
+
+	<table>
+	  <thead>
+	    <tr>
+	      <th>Filename</th>
+	      <th>Successful Upload</th>
+	      <th>Actions</th>
+	    </tr>
+	  </thead>
+
+	  <tbody>
+	    <% @spreadsheets.each do |spreadsheet| %>
+	      <tr>
+	        <td><%= spreadsheet.filename %></td>
+	        <td>
+						<% if spreadsheet.current_submission.submission_progress == 100 %>
+	        		<%= link_to "#{spreadsheet.successful_upload}", spreadsheet_path(spreadsheet.id) %>
+	        	<% else %>
+	        		<%= "#{spreadsheet.current_submission.submission_progress.nil? ? 0 : spreadsheet.current_submission.submission_progress}% complete" %>
+	        	<% end %>
+	        </td>
+	        <td>
+	          <%= link_to_unless !spreadsheet.successful_upload, 'Show', spreadsheet %>
+		        <% if policy(Spreadsheet).destroy? %>
+			        <%= link_to_unless false, 'Destroy', spreadsheet, method: :delete, data: { confirm: 'Are you sure?' } %>
+		        <% end %>
+	        </td>
+	      </tr>
+	    <% end %>
+	  </tbody>
+	</table>
+</div>
+

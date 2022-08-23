@@ -1,0 +1,31 @@
+<h2><%= @series.title %></h2>
+<div id="fields">
+  <table>
+    <tbody>
+    <tr>
+      <th>Series Production Number</th>
+      <td><%= @series.production_number %></td>
+    </tr>
+    <tr>
+      <th>Series Dates</th>
+      <td><%= @series.date %></td>
+    </tr>
+    <tr>
+      <th>Total Episodes</th>
+      <td><%= @series.total_episodes %></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div id="sum_div">
+  <div><b>Summary</b></div>
+  <div>
+    <%= @series.summary %>
+  </div>
+</div>
+<h4>Titles in Series</h4>
+<ul>
+  <% @series.titles.each do |t| %>
+  <li><%= t.title_text %></li>
+  <% end %>
+</ul>

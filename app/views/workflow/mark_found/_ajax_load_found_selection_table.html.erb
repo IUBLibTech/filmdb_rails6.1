@@ -1,0 +1,34 @@
+<% bad = [] %>
+<div id="finder_table">
+  <%= form_tag update_mark_found_path do %>
+    <table>
+      <tbody>
+        <tr>
+          <th>Barcode</th>
+          <th>Title(s)</th>
+          <th>Action</th>
+        </tr>
+        <% @pos.each do |p| %>
+          <% if p.current_location == WorkflowStatus::MISSING %>
+            <tr id="po_<%= p.id %>">
+              <td class="bc"><%= p.iu_barcode %></td>
+              <td><%= p.titles_text %></td>
+              <td class="choice">
+                <%= label_tag "Inject into Workflow" %>
+                <%= radio_button_tag "pos[#{p.id}][inject]", "inject", false, {class: "injectable", 'data-po-id': p.id } %>&nbsp;&nbsp;&nbsp;
+                <%= label_tag "Return to Storage" %>
+                <%= radio_button_tag "pos[#{p.id}][return]", "return", false, {class: 'returnable', 'data-po-id': p.id}  %>
+              </td>
+              <td><button type="button" onclick="removePO(<%= p.id %>)">Remove</button></td>
+            </tr>
+          <% else %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+    <div id="cg_div">
+
+    </div>
+    <%= submit_tag "Update" %>
+  <% end %>
+</div>

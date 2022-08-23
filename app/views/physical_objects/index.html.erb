@@ -1,0 +1,26 @@
+<%= link_to 'New Physical object', new_physical_object_path %>
+<%= form_tag physical_objects_path, method: :get do %>
+    <table>
+      <tr><th colspan="2">Filter Physical Objects</th></tr>
+      <tr>
+        <th>Status</th>
+        <td>
+          <%= select_tag 'status', options_for_select(@statuses), include_blank: true %>
+        </td>
+      </tr>
+      <tr>
+        <th>Digitized</th>
+        <td><%= check_box_tag 'digitized' %></td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <%= submit_tag 'Filter Results' %>
+        </td>
+      </tr>
+    </table>
+<% end %>
+<br>
+<h2><%= "#{@count} " if (@count && @count > 0) %>Physical Objects: <%= params[:status].blank? ? 'All' : params[:status]  %> <%= params[:digitized] ? "(Digitized)" : "" %></h2>
+<%= render partial: 'physical_objects_table' %>
+<br>
+

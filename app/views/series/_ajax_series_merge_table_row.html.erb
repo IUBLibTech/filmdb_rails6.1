@@ -1,0 +1,17 @@
+<tr id="<%= @series.id %>" class="title_row">
+  <td>
+    <%= link_to @series.title, series_path(@series), target: '_blank' %>
+  </td>
+  <td>
+    <%= @series.production_number %>
+  </td>
+  <td>
+    <%= @series.date %>
+  </td>
+  <td>
+    <%= @series.total_episodes %>
+  </td>
+  <td>
+    <b class="series_merge_remove" sid="<%= @series.id %>">Remove</b>
+  </td>
+</tr>

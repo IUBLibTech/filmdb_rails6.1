@@ -1,0 +1,93 @@
+<div id="existing_titles" class="selectable">
+  <h4>Titles Not Created in Spreadsheet: <i><%= @spreadsheet.filename %></i></h4>
+  <ul class="">
+    <% @existing_titles.each do |et| %>
+    <li class="ajax_title_hover  ui-widget-content" title_id="<%= et.id%>">
+      <%= et.title_text %>
+    </li>
+    <% end %>
+  </ul>
+  <br/>
+  <h4>Titles Created in Spreadsheet: <i><%= @spreadsheet.filename %></i></h4>
+  <ul class="">
+    <% @title_candidates.each do |tc| %>
+        <li class="ajax_title_hover ui-widget-content" title_id="<%= tc.id%>">
+          <%= tc.title_text %>
+        </li>
+    <% end %>
+  </ul>
+  <div class="clear">
+    <%= form_tag merge_spreadsheet_titles_path do %>
+        <%= hidden_field_tag 'master'%>
+        <%= hidden_field_tag 'selected' %>
+        <%= submit_tag 'Merge Titles' %>
+    <% end %>
+  </div>
+</div>
+<div id="pop_up" class="left">
+
+</div>
+
+<script type="text/javascript">
+  $(".ajax_title_hover").hoverIntent(
+      //hoverIn handler
+      function() {
+        var title_id = $(this).attr('title_id');
+        var url = '../../../titles/ajax/'+title_id;
+        $.ajax({
+          url: url,
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+          success: function(result) {
+            el = $('#pop_up');
+            el.html(result);
+            el.show();
+          }
+        })
+      },
+      //hoverOut handler
+      function() {
+        el = $('#pop_up');
+        el.hide();
+      }
+  );
+  var master = null;
+  var selectedIDs = [];
+  $('.selectable').selectable({
+    filter: "ul li",
+    selected: function(event, ui) {
+      if (master == null) {
+        master = $(ui.selected).attr('title_id');
+        $('#master').attr('value', master);
+        $(ui.selected).attr('id', 'master_selection');
+      } else {
+        if (ui.selected != master) {
+          selectedIDs = selectedIDs.concat($(ui.selected).attr('title_id'))
+        }
+        $('#selected').attr('value', selectedIDs.toString());
+      }
+    },
+    unselected: function(event, ui) {
+      var id = $(ui.unselected).attr('title_id');
+      if (id == master) {
+        master = null;
+        $('#master').attr('value', '');
+        $(ui.unselected).removeAttr('id');
+      } else {
+        id = $(ui.unselected).attr('title_id');
+        selectedIDs.splice(selectedIDs.indexOf(id), 1);
+        $('#selected').attr('value', selectedIDs.toString());
+      }
+    }
+  });
+  $('.selectable').on('selectablestart', function(event, ui) {
+    event.originalEvent.ctrlKey = true;
+  });
+
+</script>

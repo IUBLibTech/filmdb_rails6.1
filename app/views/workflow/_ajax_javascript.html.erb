@@ -1,0 +1,34 @@
+<script type="text/javascript" charset="utf-8">
+	function hookAjax() {
+		$('.action_link').click(function(event) {
+			event.preventDefault();
+			el = $(this);
+			var url = $(this).attr('href');
+			$.ajax({
+				url: url,
+				method: 'POST',
+				error: function(jqXHR, textStatus, errorThrown) {
+            swal({
+                title: 'Ajax Error',
+                text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+            }, function() {
+                window.location.replace(url)
+            });
+        },
+				success: function(result) {
+					swal({
+						title: "Workflow Status",
+						text: 'Workflow Status successfully updated.'
+						},
+						function() {
+							$('#physical_objects_table').replaceWith(result)
+							// need to hook in the event listeners on the new table being rendered
+							hookAjax();
+						}
+					)
+				}
+			});
+			return false;
+		});
+	}
+</script>

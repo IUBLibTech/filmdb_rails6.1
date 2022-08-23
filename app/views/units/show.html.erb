@@ -1,0 +1,38 @@
+<%= link_to 'Edit', edit_unit_path(@unit) %> |
+<%= link_to 'Back', url_for(:back) %>
+<table>
+  <tr>
+    <th>Abbreviation</th>
+    <td><%= @unit.abbreviation %>
+    </td>
+  </tr>
+  <tr>
+    <th>Unit Name</th>
+    <td><%= @unit.name %></td>
+  </tr>
+  <tr>
+    <th>Institution</th>
+    <td><%= @unit.institution %></td>
+  </tr>
+  <tr>
+    <th>Campus</th>
+    <td><%= @unit.campus %></td>
+  </tr>
+  <tr>
+    <th>Menu Index</th>
+    <td>
+      <%= @unit.menu_index %>
+    </td>
+  </tr>
+</table>
+
+<h4>Collections Belonging to this Unit</h4>
+<table>
+  <% @unit.collections.each do |col| %>
+      <tr>
+        <td>
+          <%= link_to "#{col.name}", collection_path(col) %>
+        </td>
+      </tr>
+  <% end %>
+</table>

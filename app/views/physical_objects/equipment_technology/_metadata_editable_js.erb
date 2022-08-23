@@ -1,0 +1,66 @@
+<script type="text/javascript" id="metadata_js">
+  let money_regex = /^\s*-?(\d+(\.\d{2})?|\.\d{1,2})\s*$/;
+
+  // fields for handling UI functionality of the Related Media Format select
+  let original_format = '<%= @physical_object.related_media_format.blank? ? '' : @physical_object.related_media_format.downcase.parameterize.underscore %>';
+  let selected = '<%= @physical_object.related_media_format.blank? ? '' : @physical_object.related_media_format.downcase.parameterize.underscore %>';
+  let checked = <%= @physical_object.selected_related_media_format_gauges.to_json.html_safe %>;
+	let return_event = true;
+
+	function hookMetadataListeners() {
+		$("#equipment_technology_type_other").change(function () {
+			if (this.checked) {
+				$("#equipment_technology_type_other_text").val('').fadeIn();
+			} else {
+				$("#equipment_technology_type_other_text").fadeOut().val('');
+			}
+		});
+		$("#equipment_technology_cost_estimate").on('input', function () {
+			let val = $(this).val();
+			if (val === '' || (money_regex.test($(this).val()) === true)) {
+				$(this).removeClass('bad_barcode');
+			} else {
+				$(this).addClass('bad_barcode');
+			}
+		});
+		$('#equipment_technology_related_media_format').focus(function () {
+			selected = $(this).val().toLowerCase();
+		}).change(function () {
+			let val = $(this).find("option:selected").attr('value')
+			if ((original_format !== '' && val.toLowerCase().replace(/ /g, "_") !== original_format)) {
+				swal({
+					title: 'Warning',
+					text: "You are changing the Related Media Format type. Are you sure you wish to continue?",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: 'Yes'
+				}, function(result) {
+					if (result) {
+            show(val);
+					} else {
+            $(this).val(selected);
+						return_event = false;
+					}
+				})
+      } else if (original_format === '' || original_format === val.toLowerCase().replace(/ /g, "_")) {
+				show(val);
+      }
+		})
+    return return_event;
+	}
+  function show(val) {
+	  // make sure to clear ALL previously selected checboxes
+	  $('.related_medium').find("input:checkbox").removeAttr('checked')
+	  $(".related_medium").children().hide();
+
+		// if the select is being SET to the original_format, we need to re-check checkboxes before toggling
+    if (val.toLowerCase().replace(/ /g, "_") === original_format) {
+      for (let i = 0; i < checked.length; i++) {
+				$("#equipment_technology_"+checked[i]).prop('checked', true)
+      }
+    }
+	  $("." + val.toLowerCase().replace(/ /g, "_")).toggle();
+  }
+</script>

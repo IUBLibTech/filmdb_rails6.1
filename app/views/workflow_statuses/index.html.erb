@@ -1,0 +1,33 @@
+<div class="clear" style="margin-bottom: 20px">
+	<table>
+		<tr>
+			<th style="background: #496d89; color: white">Spreadsheet Locations</th>
+		</tr>
+		<% WorkflowStatus::SPREADSHEET_START_LOCATIONS.each do |l| %>
+			<tr>
+				<td><%= l %></td>
+			</tr>
+		<% end %>
+	</table>
+</div>
+<div class="left">
+	<table>
+		<tr>
+			<th colspan="2" style="background: #496d89; color: white">All Workflows</th>
+		</tr>
+		<tr>
+			<th>Physical Location</th>
+			<th>Can Move To</th>
+		</tr>
+		<% WorkflowStatus::STATUSES_TO_NEXT_WORKFLOW.keys.sort.each do |status| %>
+				<%  WorkflowStatus::STATUSES_TO_NEXT_WORKFLOW[status].sort.each_with_index do |match, index| %>
+					<tr>
+						<td><%= index == 0 ? "#{status}" : ''  %></td>
+						<td>
+							<%= match %>
+						</td>
+					</tr>
+			<% end %>
+		<% end %>
+	</table>
+</div>

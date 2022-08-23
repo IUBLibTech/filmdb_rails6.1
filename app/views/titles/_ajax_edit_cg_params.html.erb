@@ -1,0 +1,24 @@
+<%= form_for @cg do |f| %>
+	<table>
+		<tr>
+			<th>Scan Resolution</th>
+			<th>Color Space</th>
+			<th>Clean</th>
+			<th>Return On Reel</th>
+		</tr>
+		<tr>
+			<td>
+				<%= f.select :scan_resolution, ['2k', '4k', '5k', 'HD'].collect{|v| [v,v]} %>
+			</td>
+			<td>
+				<%= f.select :color_space, options_for_select(ComponentGroup::COLOR_SPACES.collect{ |cs| [cs,cs]}) %>
+			</td>
+			<td>
+				<%= f.select :clean, [['Yes', 'Yes'],['No', 'No'],['Hand clean only', 'Hand clean only']] %>
+			</td>
+			<td>
+				<%= f.select :return_on_reel, [['Yes', 'Yes'],['No', 'No']] %>
+			</td>
+		</tr>
+	</table>
+<% end %>

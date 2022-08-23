@@ -1,0 +1,19 @@
+// Place all the styles related to the Collections controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+.radioDiv {
+  width: 1.5rem;
+  max-width: 5%;
+  float: left;
+  clear: both;
+  margin-bottom: 5px;
+}
+
+.radioLabel {
+  max-width: 94%;
+  float: left;
+  margin-bottom: 5px;
+}
+.hidden {
+  display: none;
+}

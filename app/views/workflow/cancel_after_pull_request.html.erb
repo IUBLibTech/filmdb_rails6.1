@@ -1,0 +1,15 @@
+<h4>Physical Objects in transit from storage</h4>
+<table>
+	<tr>
+		<th>Barcode</th>
+		<th>Title</th>
+		<th>Action</th>
+	</tr>
+	<% @physical_objects.each do |p| %>
+		<tr>
+			<td><%= p.iu_barcode %></td>
+			<td><%= p.titles_text %></td>
+			<td><%= link_to 'Cancel Pull Request', process_cancel_after_pull_request_path(p), method: :post %> | <%= link_to 'Requeue Pull Request', process_requeue_after_pull_request_path(p), method: :post %></td>
+		</tr>
+	<% end %>
+</table>

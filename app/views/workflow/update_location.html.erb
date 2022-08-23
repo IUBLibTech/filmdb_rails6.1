@@ -1,0 +1,40 @@
+<h4>Change a Workflow Status Location</h4>
+<table>
+	<tr>
+		<th colspan="2">Scan a barcode to change the location of a Physical Object</th>
+	</tr>
+	<tr>
+		<th>Barcode</th>
+		<td>
+			<input type="text" id="scanned_barcode">
+		</td>
+	</tr>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('#scanned_barcode').bind('input', function() {
+			var val = $('#scanned_barcode').val();
+			$('#ajax').html('')
+			if (isValidBarcode(val) || isValidBarcode(val, true)) {
+			    var url = './ajax_update_location_get/' + val;
+				$.ajax({
+					url: url,
+					error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+					success: function(result){
+						$('#ajax').html(result);
+					}
+				});
+			}
+		});
+	});
+</script>
+<div id="ajax" style="margin-top: 20px;">
+
+</div>

@@ -1,0 +1,81 @@
+<%= form_for(@user) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+
+      <ul>
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <table>
+    <tr>
+      <th>Username</th>
+      <td>
+	      <%= f.text_field :username %>
+      </td>
+    </tr>
+    <tr>
+      <th>Email Address</th>
+      <td>
+	      <%= f.text_field :email_address %>
+      </td>
+    </tr>
+    <tr>
+      <th>First Name</th>
+      <td>
+	      <%= f.text_field :first_name %>
+      </td>
+    </tr>
+    <tr>
+      <th>Last Name</th>
+      <td>
+	      <%= f.text_field :last_name %>
+      </td>
+    </tr>
+    <tr>
+      <th>Active</th>
+      <td>
+        <%= f.check_box :active %>
+      </td>
+    </tr>
+    <tr>
+      <th>Can Delete?</th>
+      <td>
+	      <%= f.check_box :can_delete %>
+      </td>
+    </tr>
+	  <tr>
+		  <th>Can Update Physical Object Location?</th>
+	    <td><%= f.check_box :can_update_physical_object_location %></td>
+	  </tr>
+    <tr>
+      <th>Can Edit Users</th>
+      <td>
+        <%= f.check_box :can_edit_users %>
+      </td>
+    </tr>
+    <tr>
+      <th>Can Add Controlled Vocabulary</th>
+      <td><%= f.check_box :can_add_cv %></td>
+    </tr>
+	  <tr>
+		  <th>Worksite</th>
+		  <td>
+			  <%= f.select :worksite_location, options_for_select(WorkflowStatus::WORK_LOCATIONS.collect{ |l| [l,l]}, User.current_user_object.worksite_location) %>
+		  </td>
+	  </tr>
+	  <tr>
+		  <th>Works at Wells and Alf?</th>
+		  <td>
+			  <%= f.check_box :works_in_both_locations %>
+		  </td>
+	  </tr>
+  </table>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

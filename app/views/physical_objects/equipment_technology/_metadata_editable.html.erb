@@ -1,0 +1,237 @@
+<div id="core_metadata" class="metadata_section">
+  <h4>Core Metadata</h4>
+  <div class="left _50">
+    <div class="label"><b>* Medium</b></div>
+    <div class="field"><%= f.select :medium, PhysicalObject::NEW_MEDIUMS, {}, {id: 'medium_types'} %></div>
+    <div class="label">
+      <b>* Unit</b>
+    </div>
+    <div class="field">
+      <% if @collection %>
+        <%= @collection.unit.abbreviation %>
+        <%= f.hidden_field :unit_id %>
+      <% else %>
+        <%= f.collection_select :unit_id, Unit.order('menu_index').all, :id, :abbreviation %>
+      <% end %>
+    </div>
+    <div class="label">
+      <b>Collection</b>
+    </div>
+    <div class="field">
+      <% if @collection %>
+        <%= @collection.name%>
+      <% else %>
+        <%= f.text_field :collection_text%>
+        <div>
+          No Collection? <input id="physical_object_no_collection" type="checkbox" name="no_collection" value="no_collection" <%= (action_name == 'edit' && @collection.nil?) ? 'checked' : '' %>>
+        </div>
+      <% end %>
+      <%= f.hidden_field :collection_id %>
+    </div>
+  </div>
+  <div class="left _50">
+    <div class="label">
+      <b>* IU Barcode</b>
+    </div>
+    <div class="field">
+      <%= f.text_field :iu_barcode %>
+    </div>
+    <div class="label">
+      <b>Storage Location</b>
+    </div>
+    <div class="field">
+      <%= f.object.storage_location %>
+    </div>
+    <div class="label">
+      <b>Alf Shelf/Freezer Location</b>
+    </div>
+    <div class="field">
+      <%= f.text_field :alf_shelf %>
+    </div>
+  </div>
+</div>
+<div id="accompanying_documentation_metadata" class="metadata_section">
+  <h4>Accompanying Documentation</h4>
+  <div>
+    <%= f.text_area :accompanying_documentation, {style: "width: 99.4%"} %> <br>
+    <b>Accompanying Documentation Location</b> <%= f.text_field :accompanying_documentation_location, size: 75 %>
+  </div>
+</div>
+
+<h4>Equipment/Technology Metadata Fields</h4>
+<div>
+  <div id="version_div" class="clear">
+    <b class="block">Type</b>
+    <div class="check_box wide"><%= f.check_box :type_camera %><div>Camera</div></div>
+    <div class="check_box wide"><%= f.check_box :type_camera_accessory %><div>Camera Accessory</div></div>
+    <div class="check_box wide"><%= f.check_box :type_editor %><div>Editor</div></div>
+    <div class="check_box wide"><%= f.check_box :type_flatbed %><div>Flatbed</div></div>
+    <div class="check_box wide"><%= f.check_box :type_lens %><div>Lens</div></div>
+    <div class="check_box wide"><%= f.check_box :type_light_reader %><div>Light Reader</div></div>
+    <div class="check_box wide"><%= f.check_box :type_photo_equipment %><div>Photo Equipment</div></div>
+    <div class="check_box wide"><%= f.check_box :type_projection_screen %><div>Projection Screen</div></div>
+    <div class="check_box wide"><%= f.check_box :type_projector %><div>Projector</div></div>
+    <div class="check_box wide"><%= f.check_box :type_rewind %><div>Rewind</div></div>
+    <div class="check_box wide"><%= f.check_box :type_shrinkage_gauge %><div>Shrinkage Gauge</div></div>
+    <div class="check_box wide"><%= f.check_box :type_squawk_box %><div>Squawk Box</div></div>
+    <div class="check_box wide"><%= f.check_box :type_splicer %><div>Splicer</div></div>
+    <div class="check_box wide"><%= f.check_box :type_supplies %><div>Supplies</div></div>
+    <div class="check_box wide"><%= f.check_box :type_synchronizer %><div>Synchronizer</div></div>
+    <div class="check_box wide"><%= f.check_box :type_viewer %><div>Viewer</div></div>
+    <div class="check_box wide"><%= f.check_box :type_video_deck %><div>Video Deck</div></div>
+    <div class="left _40">
+      <div class="left"><%= f.check_box :type_other %></div>
+      <div class="left">Other&nbsp;</div>
+      <div class="left">
+        <%= f.text_field :type_other_text, {class: 'hidden'} %>
+      </div>
+    </div>
+  </div>
+  <div class="clear m_top_10px">
+    <div class="et_flex_row">
+      <div class="">
+        <div><b>Manufacturer</b></div>
+        <div><%= f.text_field :manufacturer %></div>
+      </div>
+      <div class="">
+        <div><b>Model</b></div>
+        <div><%= f.text_field :model %></div>
+      </div>
+      <div class="">
+        <div><b>Serial #</b></div>
+        <div><%= f.text_field :serial_number %></div>
+      </div>
+    </div>
+    <div class="et_flex_row m_top_5px">
+      <div>
+        <div>
+          <b>Box #</b>
+        </div>
+        <div>
+          <%= f.text_field :box_number %>
+        </div>
+      </div>
+      <div>
+        <div>
+          <b>Production Year</b>
+        </div>
+        <div>
+          <%= f.text_field :production_year %>
+        </div>
+      </div>
+      <div>
+        <div>
+          <b>Production Location</b>
+        </div>
+        <div>
+          <%= f.text_field :production_location %>
+        </div>
+      </div>
+    </div>
+    <div class="m_top_10px">
+      <b>Related Media Format</b>
+    </div>
+    <div>
+      <%= f.select :related_media_format, PhysicalObject::NEW_MEDIUMS - ['Equipment/Technology'], include_blank: true %>
+    </div>
+    <div class="related_medium m_top_10px m_bottom_10px" style="overflow: auto" >
+      <div class="film clear" <%= 'style="display: block"'.html_safe if @physical_object.related_media_format == 'Film' %>>
+        <% vals =  ControlledVocabulary.where(model_type: 'Film', model_attribute: ':gauge')%>
+        <% vals.each do |g| %>
+          <div class="check_box wide">
+            <%= f.check_box "film_gauge_#{g.value.downcase.parameterize.underscore}".to_sym %>
+            <div><%= g.value %></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="video clear"  <%= 'style="display: block"'.html_safe if @physical_object.related_media_format == 'Video' %>>
+        <% vals =  ControlledVocabulary.where(model_type: 'Video', model_attribute: ':gauge')%>
+        <% vals.each do |g| %>
+          <div class="check_box wide">
+            <%= f.check_box "video_gauge_#{g.value.downcase.parameterize.underscore}".to_sym %>
+            <div><%= g.value %></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="recorded_sound clear"  <%= 'style="display: block"'.html_safe if @physical_object.related_media_format == 'Recorded Sound' %>>
+        <% vals =  ControlledVocabulary.where(model_type: 'RecordedSound', model_attribute: ':gauge').order("value")%>
+        <% vals.each do |g| %>
+          <div class="check_box wide">
+            <%= f.check_box "recorded_sound_gauge_#{g.value.downcase.parameterize.underscore}".to_sym %>
+            <div><%= g.value %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <h5 class="clear m_top_10px">Original Identifiers</h5>
+    <div class="">
+      <div class="value">
+        <%= f.fields_for :physical_object_original_identifiers do |id| %>
+          <div class="left condition">
+            Original Identifier: <%= id.text_field :identifier %>
+            <%= id.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+          </div>
+        <% end %>
+        <%= f.link_to_add 'New Original Identifier', :physical_object_original_identifiers %>
+      </div>
+    </div>
+
+    <div class="clear m_top_5px">
+      <div class="_100">
+        <b>Summary</b>
+        <%= f.text_area :summary %>
+      </div>
+    </div>
+    <div class="m_top_5px">
+      <div class="_100">
+        <div><b>Cost Estimate Notes</b></div>
+        <div><%= f.text_area :cost_notes %></div>
+      </div>
+      <div class="_20">
+        <div><b>Cost Estimate ($)</b> <%= f.text_field :cost_estimate, value: number_with_precision(f.object.cost_estimate, precision: 2, scale: 2) %></div>
+      </div>
+    </div>
+    <div class="m_top_5px">
+      <div class="">
+        <div><b>Link to Photographs</b></div>
+        <div><%= f.text_field :photos_url, {class: '_50'} %></div>
+      </div>
+      <div class="_100 m_top_5px">
+        <div><b>Links to External References</b></div>
+        <%= f.text_area :external_reference_links %>
+      </div>
+    </div>
+    <div class="m_top_5px">
+      <div class="_100 m_top_5px">
+        <div><b>Original Notes From Donor</b></div>
+        <%= f.text_area :original_notes_from_donor %>
+      </div>
+    </div>
+  </div>
+
+  <div id="condition_metadata" class="metadata_section">
+    <h4>Condition</h4>
+    <div class="m_top_5px">
+      <b>Working Condition</b> <%= f.select :working_condition, options_for_select(@cv[:working_condition], @physical_object.actable.working_condition), {include_blank: ''} %>
+    </div>
+    <div id="condition_notes" class="m_top_5px">
+      <div class="left _45 rp_10px">
+        <b>Overall Condition</b> <%= f.select :condition_rating, options_for_select(@cv[:overall_condition_rating], @physical_object.condition_rating), {include_blank: ''}  %><br/>
+        <b>Condition Notes</b> <%= f.text_area :condition_notes, class: "_100" %>
+      </div>
+      <div class="left _50">
+        <b>Research Value</b> <%= f.select :research_value, options_for_select(@cv[:research_value], @physical_object.research_value), {include_blank: ''}  %><br/>
+        <b class="block">Research Value Notes</b>
+        <div>
+          <%= f.text_area :research_value_notes %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="conservation_actions_metadata" class="metadata_section">
+    <h4>
+      Conservation actions
+    </h4>
+    <%= f.text_area :conservation_actions, class: '_100' %>
+  </div>
+</div>

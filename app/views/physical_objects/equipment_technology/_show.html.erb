@@ -1,0 +1,94 @@
+<h4 class="m_top_10px">Core Metadata</h4>
+<div class="left _50">
+  <b>Medium</b> <%= @physical_object.format %><br/>
+  <b>Unit</b> <%= @physical_object.unit.abbreviation %><br/>
+  <b>Collection</b> <%= @physical_object.collection&.name %><br/>
+</div>
+<div class="left _50">
+  <b>IU Barcode</b> <%= @physical_object.iu_barcode %><% if @physical_object.physical_object_old_barcodes.size > 0 %><%= link_to "*", "#old_barcodes" %><% end %><br/>
+  <b>Storage Location</b> <%= @physical_object.storage_location %><br>
+  <b>ALF/Freezer Location</b> <%= @physical_object.alf_shelf %> <br>
+</div>
+<div class="metadata_section">
+  <h4 class="m_top_10px">Accompanying Documentation</h4>
+  <div>
+    <%= format_newlines(@physical_object.accompanying_documentation) %>
+  </div>
+  <div>
+    <b>Location</b> <%= @physical_object.accompanying_documentation_location %>
+  </div>
+</div>
+<div id="" class="metadata_section">
+  <h4 class="m_top_10px">Equipment/Technology Metadata</h4>
+  <div class="left _50">
+    <b>Type&nbsp;</b><%= @physical_object.humanize_boolean_fields EquipmentTechnology::TYPE_FIELDS %><br/>
+    <b>Manufacturer&nbsp;</b><%= @physical_object.manufacturer%><br/>
+    <b>Model&nbsp;</b><%= @physical_object.model %><br/>
+    <b>Serial #&nbsp;</b><%= @physical_object.serial_number %><br/>
+  </div>
+  <div>
+    <b>Box #</b> <%= @physical_object.box_number %> <br>
+    <b>Production Year</b> <%= @physical_object.production_year %> <br>
+    <b>Production Location</b> <%= @physical_object.production_location %>
+  </div>
+  <div class="clear">
+    <b>Related Media Format &nbsp;</b><%= @physical_object.related_media_format %> <br/>
+    <%= @physical_object.related_media_format_gauges %>
+  </div>
+  <div>
+    <h5 class="m_top_5px">Original Identifiers</h5>
+    <% @physical_object.physical_object_original_identifiers.each_with_index do |id, i| %>
+      <%= (i == @physical_object.physical_object_original_identifiers.size - 1 ? "#{id.identifier}" : "#{id.identifier}, ")%>
+    <% end %>
+  </div>
+  <div class="clear" style="overflow: auto">
+    <h5 class="m_top_5px">Summary</h5>
+    <% if @physical_object.summary.blank? %>
+      <br>
+    <% else %>
+      <%= @physical_object.summary %>
+    <% end %>
+  </div>
+  <div>
+    <h5 class="m_top_5px">Cost Estimate Notes</h5>
+      <%= @physical_object.cost_notes %>
+    <br>
+    <b>Cost Estimate</b> <%= "$#{number_with_precision(@physical_object.cost_estimate, precision: 2, scale: 2)}" %>
+  </div>
+  <div>
+    <b>Link to Photograhs</b>
+    <%= link_to @physical_object.photos_url, @physical_object.photos_url, target: '_blank' unless @physical_object.photos_url.blank? %> <br>
+    <b>External Resource Materials</b><br>
+    <%= @physical_object.external_reference_links.gsub("\n","<br>").html_safe %>
+  </div>
+  <div>
+    <h5 class="m_top_10px">Original Notes From Donor</h5>
+    <%= @physical_object.original_notes_from_donor %>
+  </div>
+  <div>
+    <h4 class="m_top_10px">Condition</h4>
+    <b>Working Condition</b> <%= @physical_object.working_condition %> <br>
+    <div class="h_55px">
+      <div class="left _45 rp_10px">
+        <b>Overall Condition</b> <%= @physical_object.condition_rating %>
+        <h5>Condition Notes</h5>
+        <div class="simple_text">
+          <%= format_newlines(@physical_object.condition_notes) %>
+        </div>
+      </div>
+      <div class="left _50">
+        <b>Research Value</b> <%= @physical_object.research_value %><br/>
+        <h5>Research Value Notes</h5>
+        <div class="simple_text">
+          <%= format_newlines(@physical_object.research_value_notes) %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="conservation_actions_metadata" class="metadata_section">
+    <h4 class="m_top_10px">Conservation actions</h4>
+    <div class="simple_text">
+      <%= format_newlines(@physical_object.conservation_actions) %>
+    </div>
+  </div>
+</div>

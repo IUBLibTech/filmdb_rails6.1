@@ -1,0 +1,18 @@
+<h4>Deaccession Physical Objects</h4>
+<p style="font-weight: 700">
+  This will permanently remove a Physical Object from all workflow, views, and search unless specifically searching for
+  Deaccessioned Physical Objects
+</p>
+<%= form_for @physical_object, url: {controller: 'workflow', action: 'deaccession_ajax_post'}, method: :post do |f| %>
+  <table>
+    <tr>
+      <th colspan="2">Scan an IU barcode to Deaccession a Physical Object</th>
+    </tr>
+    <tr colspan="2">
+      <td><%= f.text_field :iu_barcode, {class: 'iu_barcode'} %></td>
+    </tr>
+    <tr>
+      <td colspan="2"><%= f.submit "Deaccession" %></td>
+    </tr>
+  </table>
+<% end %>

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:html="http://www.w3.org/TR/REC-html40">
+  <Worksheet ss:Name="Sheet1">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">IU Barcode</Data></Cell>
+        <Cell><Data ss:Type="String">Title(s) Text</Data></Cell>
+        <Cell><Data ss:Type="String">Unit</Data></Cell>
+        <Cell><Data ss:Type="String">Gauge</Data></Cell>
+        <Cell><Data ss:Type="String">Can Size</Data></Cell>
+        <Cell><Data ss:Type="String">Footage</Data></Cell>
+        <Cell><Data ss:Type="String">Duration</Data></Cell>
+        <Cell><Data ss:Type="String">AD Strip</Data></Cell>
+      </Row>
+      <% @physical_objects.each do |po| %>
+        <Row>
+          <Cell><Data ss:Type="String"><%= po.iu_barcode %></Data></Cell>
+          <Cell><Data ss:Type="String"><%= po.titles_text %></Data></Cell>
+          <Cell><Data ss:Type="String"><%= po.unit.name %></Data></Cell>
+          <Cell><Data ss:Type="String"><%= po.gauge %></Data></Cell>
+          <Cell><Data ss:Type="String"><%= po.can_size %></Data></Cell>
+          <Cell><Data ss:Type="String"><%= po.footage %></Data></Cell>
+          <Cell><Data ss:Type="String"><%= po.duration %></Data></Cell>
+          <Cell><Data ss:Type="String"><%= po.ad_strip %></Data></Cell>
+        </Row>
+      <% end %>
+    </Table>
+  </Worksheet>
+</Workbook>

@@ -1,0 +1,58 @@
+<%= link_to 'New User', new_user_path %> | <%= mail_to User.active_user_emails, "Email Active Users" %>
+<h1>Listing Users</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Last Name</th>
+      <th>First Name</th>
+      <th>Username</th>
+      <th>Email Address</th>
+      <th>Active?</th>
+	    <th>Can Delete?</th>
+	    <th>Can Update Location?</th>
+      <th>Read Only</th>
+	    <th>Works at Wells and ALF?</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td>
+          <%= user.last_name %>
+        </td>
+        <td>
+	        <%= user.first_name %>
+        </td>
+        <td>
+	        <%= user.username %>
+        </td>
+        <td>
+	        <%= user.email_address %>
+        </td>
+        <td class="<%= user.active ? 'green' : 'red' %>">
+          <%= user.active? ? 'Yes' : 'No' %>
+        </td>
+	      <td class="<%= user.can_delete? ? 'green' : 'red' %>">
+		      <%= user.can_delete? ? 'Yes' : 'No' %>
+	      </td>
+	      <td class="<%= user.can_update_physical_object_location ? 'green' : 'red' %>">
+		      <%= user.can_update_physical_object_location ? 'Yes' : 'No' %>
+	      </td>
+        <td class="<%= user.read_only? ? 'red' : 'green' %>">
+          <%= user.read_only? ? 'Yes' : 'No' %>
+        </td>
+	      <td>
+		      <%= user.works_in_both_locations ? 'Yes' : 'No' %>
+	      </td>
+        <td>
+        	<%= link_to 'Show', user %>
+          <%= link_to 'Edit', edit_user_path(user) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+

@@ -1,0 +1,301 @@
+<script type="text/javascript" charset="utf-8">
+  var merge_all = <%= action_name == 'title_merge_selection' %>;
+  $(document).ready(function() {
+      $('#title_text').focus(function() {
+          if ($(this).data('autocomplete')) {
+              $(this).autocomplete("destroy");
+              $(this).removeData("autocomplete");
+              clearTitleSummary();
+          }
+          $(this).autocomplete({
+              minLength: 2,
+              //source: '<%= autocomplete_title_path %>',
+              source: function(request, response) {
+                  var url = "<%= autocomplete_title_path %>";
+                  $.ajax({
+                      url: url,
+                      dataType: "json",
+                      data: {
+                          term: request.term,
+                          exclude: selectedTitleIds()
+                      },
+                      success: function(data) {
+                          response(data)
+                      },
+                      error: function(jqXHR, textStatus, errorThrown) {
+                          swal({
+                              title: 'Ajax Error',
+                              text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                          }, function() {
+                              window.location.replace(url)
+                          });
+                      }
+                  });
+              },
+              focus: function (event, ui) {
+                  ajaxTitleSummary(ui.item['value']);
+                  return false;
+              },
+              select: function (event, ui) {
+                  clearTitleSummary();
+                  addTitle(ui.item['value']);
+                  return false;
+              }
+          });
+      }).focusout(function() {
+          clearTitleSummary();
+      });
+
+
+      $('#title_autocomplete_select_form').submit(function(event) {
+          event.preventDefault();
+          var m_id = $('#master_title_id').attr('value');
+          if (allChecked()) {
+              if (merge_all) {
+                  var pos = getPoIds();
+                  if (m_id == null || m_id.length == 0) {
+                      swal('Select a Master Title', 'You must select a master title to merge. Click the row of the title you wish to be the master record. All metadata from other titles will be merged into this record' )
+                      return false;
+                  } else if (pos.length == 0) {
+                      swal({
+                              title: 'No Component Group',
+                              text: ' No physical objects are selected. All physical objects for all titles will be returned to storage. Do you wish to continue?',
+                              type: 'warning',
+                              showCancelButton: true,
+                              confirmButtonText: 'Return all to storage'
+                          },
+                          function() {
+                              document.getElementById('title_autocomplete_select_form').submit();
+                          });
+                      return false;
+                  } else {
+                      document.getElementById('title_autocomplete_select_form').submit();
+                  }
+              } else {
+                  document.getElementById('title_autocomplete_select_form').submit();
+              }
+          } else {
+              swal("Cannot Process Request", "You must explicitly select whether each Physical Object should be added to the Component Group, returned to storage, or left in workflow.");
+          }
+      })
+  });
+
+  function addTitle(id) {
+      var url = '/title_merge_selection_table_row/'+id;
+      $.ajax({
+          url: url,
+          data: {merge_all: merge_all},
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+          success: function(result) {
+              if (!merge_all && result === "Active") {
+                  swal("Cannot Merge", "The title you selected is in active workflow and cannot be merged here. Please use the 'Merge Titles' link instead.")
+              } else {
+                $('.title_merge_remove').unbind('click.title_merge_remove_title');
+                $('#title_table').append(result);
+                $('.title_merge_remove').bind('click.title_merge_remove_title', function(event) {
+                    var id = $(this).parent().parent().attr('id');
+                    $(this).parent().parent().remove();
+                    if (id == $('#master_title_id').attr(('value'))) {
+                        $('#master_title_id').attr('value', null);
+                    }
+                    showPhysicalObjects();
+                    initTitleSelect();
+                });
+                initTitleSelect();
+                showPhysicalObjects();
+              }
+          }
+      });
+  }
+
+  function ajaxTitleSummary(id) {
+      var url = '/titles/ajax/'+id;
+      $.ajax({
+          url: url,
+          error: function(jqXHR, textStatus, errorThrown) {
+            swal({
+                title: 'Ajax Error',
+                text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+            }, function() {
+                window.location.replace(url)
+            });
+          },
+          success: function(result) {
+              $('#title_summary').html(result);
+              $('#title_summary').show();
+          }
+      })
+  }
+
+  function showPhysicalObjects() {
+      // don't show physical objects when merging in storage titles
+      if (merge_all) {
+          var url = "<%= title_merge_physical_object_candidates_path %>";
+          $.ajax({
+              url: url,
+              data: {ids: selectedTitleIds()},
+              error: function (jqXHR, textStatus, errorThrown) {
+                  swal({
+                      title: 'Ajax Error',
+                      text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                  }, function() {
+                      window.location.replace(url)
+                  });
+              },
+              success: function (result) {
+                  $('#physical_objects').html(result)
+              },
+              complete: function(jqXHR, textStatus) {
+                  if (textStatus === "success") {
+                      registerCheckboxes();
+                  }
+              }
+          })
+      }
+  }
+  function clearTitleSummary() {
+      $('#title_summary').hide().html('');
+  }
+
+  function selectedTitleIds(includeMaster=true) {
+      var vals = [];
+      var sel = (includeMaster ? $('.title_row') : $('.title_row').not('.master_selection'));
+      sel.each(function() {
+          vals.push($(this).attr('id'))
+      });
+      return vals
+  }
+
+  function initTitleSelect() {
+      // remove the event handlers as we don't want to double up on them every time a new row is added/removed
+      el = $('#title_table > tbody > tr');
+      el.off("click.title_select");
+      el.on('click.title_select', function() {
+          if ($(this).hasClass('master_selection')) {
+              $(this).removeClass('master_selection');
+              $('#master_title_id').attr('value', null)
+          } else {
+              $('.master_selection').removeClass('master_selection');
+              $(this).addClass('master_selection');
+              $('#master_title_id').attr('value', $(this).attr('id'))
+          };
+          setHiddenTitleIds();
+      });
+      setHiddenTitleIds();
+  }
+  function setHiddenTitleIds() {
+      tids = selectedTitleIds(false);
+      $('#mergees').attr('value', tids.join(','))
+  }
+  function getPoIds() {
+    if (merge_all) {
+      var pos = [];
+      $('.po_check:checked').each(function() {
+          pos.push($(this).attr('id').substring(3))
+      });
+      return pos
+    }
+  }
+
+
+  var last_checked_add = null;
+  var last_checked_return = null;
+  var last_checked_leave = null;
+
+  function isAdd(cb) {
+      return $(cb).hasClass('add');
+  }
+
+  function isReturn(cb) {
+      return $(cb).hasClass('return')
+  }
+
+  function isLeave(cb) {
+      return $(cb).hasClass('leave')
+  }
+  // after loading the ajax call results of getCgTable we need to register the checkboxes with event listeners so that
+  // we can make them mutually exclusive in their selectivity.
+  function registerCheckboxes() {
+      $('input:checkbox').off('change.checkbox_click');
+      $('input:checkbox').on("change.checkbox_click",function(e) {
+          setExclusive(this);
+      }).click(function(e) {
+          if (isAdd(this)) {
+              if (!last_checked_add) {
+                  last_checked_add = this;
+                  last_checked_return = null;
+                  last_checked_leave = null;
+                  return;
+              }
+              if (e.shiftKey) {
+                  var start = $('input.add').index(this);
+                  var end = $('input.add').index(last_checked_add);
+                  $('input.add').slice(Math.min(start, end), Math.max(start,end) + 1).prop('checked', last_checked_add.checked).each(function() {
+                      setExclusive(this);
+                  });
+              }
+          } else if (isReturn(this)) {
+              if (!last_checked_return) {
+                  last_checked_return = this;
+                  last_checked_add = null;
+                  last_checked_leave = null;
+                  return;
+              }
+              if (e.shiftKey) {
+                  var start = $('input.return').index(this);
+                  var end = $('input.return').index(last_checked_return);
+                  $('input.return').slice(Math.min(start, end), Math.max(start,end) + 1).prop('checked', last_checked_return.checked).each(function() {
+                      setExclusive(this);
+                  });
+              }
+          } else if (isLeave(this)) {
+              if (!last_checked_leave) {
+                  last_checked_leave = this;
+                  return;
+              }
+              if (e.shiftKey) {
+                  var start = $('input.leave').index(this);
+                  var end = $('input.leave').index(last_checked_leave);
+                  $('input.leave').slice(Math.min(start, end), Math.max(start,end) + 1).prop('checked', last_checked_leave.checked).each(function() {
+                      setExclusive(this);
+                  });
+              }
+          }
+
+      });
+  }
+
+  function setExclusive(cb) {
+      if (cb.checked) {
+          var kids = $(cb).parent().parent().find('input:checkbox');
+          if (kids[0] == cb) {
+              $(kids[1]).attr('checked', false);
+              $(kids[2]).attr('checked', false);
+          } else if (kids[1] == cb) {
+              $(kids[0]).attr('checked', false);
+              $(kids[2]).attr('checked', false);
+          } else {
+              $(kids[0]).attr('checked', false);
+              $(kids[1]).attr('checked', false);
+          }
+      }
+  }
+
+  function allChecked() {
+      var rv = true;
+      $('.po_row').each(function() {
+          kids = $(this).find('input:checked');
+          if (kids.size() === 0) {
+              return rv = false;
+          }
+      });
+      return rv;
+  }
+</script>

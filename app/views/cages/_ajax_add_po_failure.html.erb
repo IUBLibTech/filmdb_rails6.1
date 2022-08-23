@@ -1,0 +1,4 @@
+<% if @physical_object != nil && @physical_object.errors.any? %>
+	<%= render partial: 'ajax_add_po_failure_errors' %>
+<% end %>
+<%= render partial: 'cage_shelf_physical_objects' %>

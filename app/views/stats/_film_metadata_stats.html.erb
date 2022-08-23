@@ -1,0 +1,72 @@
+<table>
+  <tbody>
+  <tr>
+    <th>Generations</th>
+    <td>
+      <ul>
+        <% @generations.keys.sort.each do |m| %>
+          <li><%= "#{m}: #{@generations[m]}" %></li>
+        <% end  %>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Gauges</th>
+    <td>
+      <ul>
+        <% @gauges.keys.sort.each do |m| %>
+          <li><%= "#{m}: #{@gauges[m]}" %></li>
+        <% end  %>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Can Sizes</th>
+    <td><ul>
+      <% @can_sizes.keys.sort.each do |c| %>
+      <li><%= "#{c}: #{@can_sizes[c]}" %></li>
+      <% end %>
+    </ul></td>
+  </tr>
+  <tr>
+    <th>Bases</th>
+    <td>
+      <ul>
+        <% @bases.keys.sort.each do |m| %>
+          <li><%= "#{m}: #{@bases[m]}" %></li>
+        <% end  %>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Sound</th>
+    <td>
+      <ul>
+        <% @sounds.keys.sort.each do |m| %>
+          <li><%= "#{m}: #{@sounds[m]}" %></li>
+        <% end  %>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Color</th>
+    <td>
+      <ul>
+        <% @colors.keys.sort.each do |m| %>
+          <li><%= "#{m}: #{@colors[m]}" %></li>
+        <% end  %>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>Overall Conditions</th>
+    <td>
+      <ul>
+        <% @conditions.keys.sort.each do |m| %>
+          <li><%= "#{m}: #{@conditions[m]}" %></li>
+        <% end  %>
+      </ul>
+    </td>
+  </tr>
+  </tbody>
+</table>

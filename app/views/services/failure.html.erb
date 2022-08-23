@@ -1,0 +1,11 @@
+<p class="warning">
+	<h4>An error occured while trying to send the cage contents to POD. Please contact Andrew and copy/past the code below</h4>
+</p>
+<div>
+<% if @error %>
+	<%= @error.message %><br/>
+	<%= @error.backtrace.join('<br/>>').html_safe %>
+<% elsif @message  %>
+	<%= @message %>
+<% end %>
+</div>

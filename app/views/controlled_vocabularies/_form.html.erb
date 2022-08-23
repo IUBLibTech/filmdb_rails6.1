@@ -1,0 +1,16 @@
+<%= form_for(@controlled_vocabulary) do |f| %>
+  <% if @controlled_vocabulary.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@controlled_vocabulary.errors.count, "error") %> prohibited this controlled_vocabulary from being saved:</h2>
+
+      <ul>
+      <% @controlled_vocabulary.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,13 @@
+<p>
+	These physical objects are currently at an external organization (digitizer, on loan for research/screening/etc). Mark
+	the physical object as returned when the item is back in house (IULMIA facilities)
+</p>
+
+<h4 class="m_bottom_10x">Physical Objects at External Locations</h4>
+<%= render partial: 'physical_objects_table' %>
+<%= render partial: 'ajax_javascript' %>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		hookAjax();
+	});
+</script>

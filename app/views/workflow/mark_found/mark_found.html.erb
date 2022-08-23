@@ -1,0 +1,228 @@
+<table>
+	<tbody>
+	<tr>
+		<th>Scan IU Barcode</th>
+		<td>
+      <input type="text" id="iu_barcode">
+		</td>
+	</tr>
+	</tbody>
+</table>
+<% if @po_returns && @po_returns.size > 0 %>
+  <div class="notice">
+    This following Physical Objects were returned to storage:
+    <ul>
+      <% @po_returns.each do |p| %>
+      <li><%= p.iu_barcode %> was returned to: <%= p.storage_location %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+<% if @po_injects && @po_injects.size > 0 %>
+  <div class="notice">
+    A new Component Group has been created for <i><%= @cg.title.title_text %></i>. The following Physical Objects were
+    added to this Component Group and their locations have been updated to:
+    <ul>
+      <% @po_injects.each do |p| %>
+        <li><%= p.iu_barcode %> has been moved to : <%= p.current_location %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+<br>
+<div id="finder_table">
+
+</div>
+<!--<p>-->
+<!--  A couple things to note: at this point <i>any</i> Missing PO can be scanned and will appear. As things get fleshed out-->
+<!--  though, the rules below will be enforced. This is because a Component Group belongs to a <b>single</b> Title - but-->
+<!--  PO's can have <b>multiple</b> titles. What this means in practice is that Users wanting to "find" several POs at once-->
+<!--  can only do so with POs that have Titles in common with one another. If a User wants to "find" several POs that <b>don't</b>-->
+<!--  have a common Title, even if they are simply returning them to storage, these each have to be done separately: scan a-->
+<!--  single barcode and process, then scan the next barcode and process, etc.-->
+<!--  <br>-->
+<!--  Here are the Rules/Logic:-->
+<!--</p>-->
+<!--<ul style="list-style: circle; margin-left: 2rem">-->
+<!--  <li>The first scanned PO's Title(s) are noted</li>-->
+<!--  <li>The next scanned PO <b>must</b> have at least one Title in common with the first scanned PO to be accepted. Shared Titles are noted (a mathematical intersection).</li>-->
+<!--  <li>All subsequent scans must have at least one Title in the noted Shared Titles in the previous step. Shared Titles are recalculated (title intersection of all POs)</li>-->
+<!--  <li>Creating a CG involves selecting from the list of Titles that all PO's have in common and from... </li>-->
+<!--  <li>Each POs that is select "Inject into Workflow" above will appear here.</li>-->
+<!--  <li>CG digitization settings can be set, as well as where in Workflow each PO should be located. These Workflow locations-->
+<!--    will be limited based on the Component Group type selected in the CG portion</li>-->
+<!--  <li>If "Return to Storage" is selected above (after having previously selected "Inject..."), that PO will be removed from-->
+<!--    this list-->
+<!--  </li>-->
+<!--  <li>-->
+<!--    Finally, when the User is done (form is submitted), the page will display a detailed message of:-->
+<!--    <ul style="list-style: decimal; margin-left: 2rem">-->
+<!--      <li>Where everything is/should be located in Workflow</li>-->
+<!--      <li>If a CG was created, the title it was created for</li>-->
+<!--      <li>If a CG was created, all POs that belong to that CG</li>-->
+<!--      <li>I'm also toying with the idea of simply redirecting the User to the CG edit page for what was just created so they can review.-->
+<!--        This can also possibly get them to other relevant metadata, but I'm not sure just yet...</li>-->
+<!--    </ul>-->
+<!--  </li>-->
+<!--</ul>-->
+
+<script type="text/javascript" charset="utf-8">
+
+  let ref_locs = ["<%= WorkflowStatus::TWO_K_FOUR_K_SHELVES %>", "<%= WorkflowStatus::ISSUES_SHELF %>", "<%= WorkflowStatus::MOLD_ABATEMENT %>", "<%= WorkflowStatus::WELLS_TO_ALF_CONTAINER %>"];
+  let bc_locs = ["<%= WorkflowStatus::BEST_COPY_ALF %>", "<%= WorkflowStatus::BEST_COPY_MDPI_WELLS %>"];
+  let other_locs = ["<%= WorkflowStatus::IN_WORKFLOW_WELLS %>", "<%= WorkflowStatus::IN_WORKFLOW_ALF %>"];
+  let location_map = {
+    "Best Copy (MDPI)":bc_locs, "Best Copy (MDPI - WELLS)":bc_locs, "Best Copy (Wells)":other_locs, "Reformatting (MDPI)":ref_locs,
+    "Cataloging":other_locs, "Digitization":other_locs, "Evaluation":other_locs, "Exhibition":other_locs, "Researcher":other_locs,
+    "Teaching":other_locs
+  }
+
+  let scan_barcodes = [];
+	$(document).ready(function() {
+	    hookBarcodeValidators();
+	    $('#iu_barcode').on("input", function() {
+        $('.notice').remove();
+          let bc = $('#iu_barcode').val();
+          let lookup_url = "./ajax_mark_found_lookup/"+bc;
+          if (isValidBarcode(bc, false) && !scan_barcodes.includes(bc)) {
+              $.ajax({
+                  url: "./ajax_mark_found_lookup/",
+                  method: "GET",
+                  data: {
+                      'iu_barcode' : bc,
+                      "scan_barcodes": JSON.stringify(scan_barcodes)
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      swal({
+                          title: 'Ajax Error',
+                          text: 'An error occurred while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                      }, function () {
+                          //window.location.replace(lookup_url)
+                      });
+                  },
+                  success: function (result) {
+                      if (result.success) {
+                          scan_barcodes.push(bc)
+                          ajaxLoadSelectionTable();
+                      } else {
+                          swal({
+                              title: "Cannot Add Physical Object",
+                              text: result.msg
+                          })
+                      }
+
+                  },
+                complete: function () {
+                  $('#iu_barcode').val('');
+                }
+              });
+          }
+       })
+	});
+	function ajaxLoadSelectionTable() {
+      $.ajax({
+          url: './ajax_load_found_selection_table',
+          method: "GET",
+          data: {
+              scan_barcodes: JSON.stringify(scan_barcodes)
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occurred while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function () {
+                  //window.location.replace(lookup_url)
+              });
+          },
+          success: function (result) {
+            $('#finder_table').replaceWith(result);
+            // remove the CG table because contents have changed
+            $('#cg_div').html("");
+            hookInjectables();
+            hookFormSubmit();
+          }
+      })
+  }
+
+	function removeBadBcs(bcs) {
+	    for (let i = 0; i < bcs.length; i++) {
+          let index = scan_barcodes.indexOf(bcs[i]);
+          scan_barcodes.splice(index, 1);
+      }
+  }
+
+  function removePO(po_id) {
+      let tr = $("tr#po_"+po_id)
+      let remove_bc = $("tr#po_"+po_id+" > td:first-child").text();
+      removeBadBcs([remove_bc])
+      tr.remove();
+      loadCgTable();
+  }
+
+  function hookInjectables() {
+      $('.injectable').off("change").on("change",
+        function() {
+          loadCgTable();
+        }
+      );
+      $('.returnable').off("change").on("change", function() {
+      	loadCgTable();
+      });
+  }
+  function loadCgTable() {
+	  let ids = [];
+	  $('.injectable:checked').each( function() {
+		  ids.push($(this).attr('data-po-id'))
+	  });
+    $.ajax({
+	    url: './ajax/load_found_cg_table',
+	    method: "GET",
+	    data: {
+		    ids: JSON.stringify(ids)
+	    },
+	    error: function (jqXHR, textStatus, errorThrown) {
+		    swal({
+			    title: 'Ajax Error',
+			    text: 'An error occurred while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+		    }, function () {
+			    //window.location.replace(lookup_url)
+		    });
+	    },
+	    success: function (result) {
+        $('#cg_div').replaceWith(result);
+        $('.cg_type').change(function() {
+	        setLocationOptions($(this).val());
+        });
+		    setLocationOptions($('.cg_type > option')[0].text);
+		    hookFormSubmit();
+	    }
+    });
+  }
+
+  function setLocationOptions(option) {
+    let vals = location_map[option];
+    $('.location_select').each(function () {
+    	let sel = $(this);
+    	sel.html('');
+      for (let i = 0; i < vals.length; i++) {
+        sel.append($('<option>', { value : vals[i] }).text(vals[i]));
+      }
+    })
+  }
+
+  function hookFormSubmit() {
+		$('form').off("submit").submit(function(event) {
+      let po_count = $('.choice').size();
+      let checked = $('.injectable:checked').size() + $('.returnable:checked').size();
+      if (po_count !== checked) {
+      	event.preventDefault();
+      	swal({
+          title: "Error",
+          icon: "error",
+          text: "You must select 'Inject into workflow' or 'Return to storage' for every Physical Object."
+        });
+      }
+    });
+  }
+
+</script>

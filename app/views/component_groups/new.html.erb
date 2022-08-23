@@ -1,0 +1,26 @@
+<%= link_to 'Back', title_path(@component_group.title) %>
+<h2 class="title" id="<%= @title.id %>">New Component Group for <b><i><%= @component_group.title.title_text %></i></b></h2>
+<h4>Physical Objects</h4>
+<table>
+  <tbody>
+  <tr>
+    <th>IU Barcode</th>
+    <th>Gauge/Format</th>
+    <th>Generation</th>
+    <th>Location</th>
+    <th>Digitized</th>
+  </tr>
+  <% @title.physical_objects.each do |p| %>
+  <% p = p.specific %>
+    <tr class=<%= "digitized_tr" if p.digitized? %>>
+      <td><%= p.iu_barcode %></td>
+      <td><%= p.medium_name %></td>
+      <td><%= p.generations_text %></td>
+      <td><%= p.current_location %></td>
+      <td><%= p.digitized? ? 'Yes' : 'No' %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<%= render 'new_form' %>
+

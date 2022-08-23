@@ -1,0 +1,457 @@
+<h4>Film Metadata Fields</h4>
+<div>
+  <div id="version_div" class="clear">
+    <b class="block">Version</b>
+    <div class="check_box"><%= f.check_box :first_edition %><div>1st Edition</div></div>
+    <div class="check_box"><%= f.check_box :second_edition %><div>2nd Edition</div></div>
+    <div class="check_box"><%= f.check_box :third_edition %><div>3rd Edition</div></div>
+    <div class="check_box"><%= f.check_box :fourth_edition %><div>4th Edition</div></div>
+    <div class="check_box"><%= f.check_box :abridged %><div>Abridged</div></div>
+    <div class="check_box"><%= f.check_box :short %><div>Short</div></div>
+    <div class="check_box"><%= f.check_box :long %><div>Long</div></div>
+    <div class="check_box"><%= f.check_box :sample %><div>Sample</div></div>
+    <div class="check_box"><%= f.check_box :preview %><div>Preview</div></div>
+    <div class="check_box"><%= f.check_box :revised %><div>Revised</div></div>
+    <div class="check_box"><%= f.check_box :version_original %><div>Original</div></div>
+    <div class="check_box"><%= f.check_box :captioned %><div>Captioned</div></div>
+    <div class="check_box"><%= f.check_box :excerpt%><div>Excerpt</div></div>
+    <div class="check_box"><%= f.check_box :catholic %><div>Catholic</div></div>
+    <div class="check_box"><%= f.check_box :domestic %><div>Domestic</div></div>
+    <div class="check_box"><%= f.check_box :trailer %><div>Trailer</div></div>
+    <div class="check_box"><%= f.check_box :english %><div>English</div></div>
+    <div class="check_box"><%= f.check_box :television %><div>Television</div></div>
+    <div class="check_box"><%= f.check_box :x_rated %><div>X-rated</div></div>
+  </div>
+</div>
+<div id="format_metadata" class="metadata_section clear">
+  <h4>Format</h4>
+  <div class="left _50">
+    <b>Gauge</b><%= f.select :gauge, options_for_select(@cv[:gauge], @physical_object.gauge), {include_blank: ''} %>
+    <div>
+      <b class="block">Generation</b>
+      <div class="generation_box">
+        <div class="check_box">
+          <%= f.check_box :generation_positive %>
+          <div>Positive</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_negative %>
+          <div>Negative</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_reversal %>
+          <div>Reversal</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_other %>
+          <div>Other</div>
+        </div>
+      </div>
+      <div class="generation_box generation_box_ml_5px">
+        <div class="check_box">
+          <%= f.check_box :generation_a_roll %>
+          <div>A Roll</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_b_roll %>
+          <div>B Roll</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_c_roll %>
+          <div>C Roll</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_d_roll %>
+          <div>D Roll</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_answer_print %>
+          <div>Answer Print</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_projection_print %>
+          <div>Projection Print</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_work_print %>
+          <div>Work Print</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_original_camera %>
+          <div>Camera Original</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_composite %>
+          <div>Composite</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_duplicate %>
+          <div>Duplicate</div>
+        </div>
+      </div>
+      <div class="generation_box generation_box_ml_5px">
+        <div class="check_box">
+          <%= f.check_box :generation_edited %>
+          <div>Edited</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_fine_grain_master %>
+          <div>Fine Grain Master</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_intermediate %>
+          <div>Intermediate</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_interpositive %>
+          <div>Interpositive</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_kinescope %>
+          <div>Kinescope</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_master %>
+          <div>Master</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_original %>
+          <div>Original</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_outs_and_trims %>
+          <div>Outs and Trims</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_magnetic_track %>
+          <div>Separate Magnetic Track</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_optical_sound_track %>
+          <div>Separate Optical Track</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :generation_separation_master %>
+          <div>Separation Master</div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+  <div id="format_right_div" class="_45">
+    <div id="format_right_div_fields">
+      <div class="label">
+        <b>Original Identifier</b>
+      </div>
+      <div class="value">
+        <%= f.fields_for :physical_object_original_identifiers do |id| %>
+          <div class="left condition">
+            Original Identifier: <%= id.text_field :identifier %>
+            <%= id.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+          </div>
+        <% end %>
+        <%= f.link_to_add 'New Original Identifier', :physical_object_original_identifiers %>
+      </div>
+      <div class="label">
+        <b>Reel Number</b>
+      </div>
+      <div class="value">
+        <%= f.text_field :reel_number, {placeholder: "x of y"} %>
+      </div>
+      <div class="check_label">
+        <%= f.check_box :multiple_items_in_can %> <b>Multiple Items in Can</b>
+      </div>
+      <div class="label">
+        <b>Can Size</b>
+      </div>
+      <div class="value">
+        <%= f.select :can_size, options_for_select(@cv[:can_size].sort_by!{|s| s[0][/\d+/].nil? ? 3001 : s[0][/\d+/].to_i}, @physical_object.can_size), {include_blank: ''}  %>
+      </div>
+      <div class="label">
+        <b>Footage (ft)</b>
+      </div>
+      <div class="value">
+        <%= f.text_field :footage %>
+      </div>
+      <div class="label">
+        <b>Duration (hh:mm:ss)</b>
+      </div>
+      <div class="value">
+        <%= f.text_field :duration %>
+      </div>
+      <div class="label">
+        <b>Dates</b>
+      </div>
+      <div class="value">
+        <%= f.fields_for :physical_object_dates do |pods| %>
+          <div class="left condition">
+            Date: <%= pods.text_field :date %><br/>
+            Type: <%= pods.select :controlled_vocabulary_id, options_for_select(@pod_cv[:type], pods.object.controlled_vocabulary_id) %>
+            <%= pods.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+          </div>
+        <% end %>
+        <%= f.link_to_add 'New Date', :physical_object_dates %>
+      </div>
+    </div>
+    <div id="base_fields" class="left">
+      <b class="block">Base</b>
+      <div class="check_box">
+        <%= f.check_box :base_acetate %>
+        <div>Acetate</div>
+      </div>
+      <div class="check_box">
+        <%= f.check_box :base_mixed%>
+        <div>Mixed</div>
+      </div>
+      <div class="check_box">
+        <%= f.check_box :base_nitrate %>
+        <div>Nitrate</div>
+      </div>
+      <div class="check_box">
+        <%= f.check_box :base_polyester %>
+        <div>Polyester</div>
+      </div>
+    </div>
+    <div id="stock_div" class="left">
+      <b class="block">Stock</b>
+      <div class="flex_wrap flex_col_wrap">
+        <div class="check_box _25"><%= f.check_box :stock_3_m %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_3_m] %></div></div>
+        <div class="check_box _25"><%= f.check_box :stock_agfa %><div>Agfa</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_agfa_gevaert %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_agfa_gevaert] %></div></div>
+        <div class="check_box _25"><%= f.check_box :stock_ansco %><div>Ansco</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_dupont %><div>Dupont</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_ferrania %><div>Ferrania</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_fuji %><div>Fuji</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_gevaert %><div>Gevaert</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_kodak %><div>Kodak</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_orwo %><div>Orwo</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_pathe %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_pathe] %></div></div>
+        <div class="check_box _25"><%= f.check_box :stock_unknown %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_unknown] %></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="clear">
+    <b>Generation Notes</b>
+    <%= f.text_area :generation_notes %>
+  </div>
+  <div>
+    <b>Orientation</b>
+    <div>
+      <div class="check_box _25"><%= f.check_box :orientation_a_wind %><div>A-wind</div></div>
+      <div class="check_box _25"><%= f.check_box :orientation_b_wind %><div>B-wind</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="image_metadata" class="left _50">
+  <h4>Image</h4>
+  <div id="image_metadata_content_div">
+    <b class="block">Picture Type</b>
+    <div class="flex_wrap flex_col_wrap h_60px">
+      <div><%= f.check_box :picture_composite_picture %>Composite Picture</div>
+      <div><%= f.check_box :picture_mos_picture %>MOS Picture</div>
+      <div><%= f.check_box :picture_silent_picture %>Silent Picture</div>
+      <div><%= f.check_box :picture_credits_only %>Credits Only</div>
+      <div><%= f.check_box :picture_intertitles_only %>Intertitles Only</div>
+      <div><%= f.check_box :picture_kinescope %>Kinescope</div>
+      <div><%= f.check_box :picture_not_applicable %>Not Applicable</div>
+      <div><%= f.check_box :picture_picture_effects %>Picture Effects</div>
+      <div><%= f.check_box :picture_picture_outtakes %>Picture Outtakes</div>
+      <div><%= f.check_box :picture_titles %>Titles</div>
+      <div><%= f.check_box :picture_text %>Text</div>
+    </div>
+    <div class="clear">
+      <b class='block'>Frame Rate</b><%= f.select :frame_rate, options_for_select(@cv[:frame_rate], @physical_object.frame_rate), {include_blank: ''}  %>
+    </div>
+    <div id="color_div">
+      <b class="block">Color</b>
+      <div class="flex_wrap flex_col_wrap h_75px">
+        <div><%= f.check_box :color_bw_bw_black_and_white %>Black and White</div>
+        <div><%= f.check_box :color_bw_color_color %>Color</div>
+        <div><%= f.check_box :color_bw_color_anscochrome %>Anscochrome</div>
+        <div><%= f.check_box :color_bw_color_eastman %>Eastman</div>
+        <div><%= f.check_box :color_bw_color_eco %>Eco</div>
+        <div><%= f.check_box :color_bw_color_ektachrome %>Ektachrome</div>
+        <div><%= f.check_box :color_bw_bw_hand_coloring %>Hand Coloring</div>
+        <div><%= f.check_box :color_bw_color_kodachrome %>Kodachrome</div>
+        <div><%= f.check_box :color_bw_bw_stencil_coloring %>Stencil Coloring</div>
+        <div><%= f.check_box :color_bw_color_technicolor %>Technicolor</div>
+        <div><%= f.check_box :color_bw_bw_tinted %>Tinted</div>
+        <div><%= f.check_box :color_bw_bw_toned %>Toned</div>
+      </div>
+    </div>
+    <div class="clear">
+      <b class="block">Aspect Ratio</b>
+      <div class="flex_wrap flex_col_wrap h_60px">
+        <div><%= f.check_box :aspect_ratio_1_33_1 %>1.33:1</div>
+        <div><%= f.check_box :aspect_ratio_1_37_1 %>1.37:1</div>
+        <div><%= f.check_box :aspect_ratio_1_66_1 %>1.66:1</div>
+        <div><%= f.check_box :aspect_ratio_1_85_1 %>1.85:1</div>
+        <div><%= f.check_box :aspect_ratio_2_35_1 %>2.35:1</div>
+        <div><%= f.check_box :aspect_ratio_2_39_1 %>2.39:1</div>
+        <div><%= f.check_box :aspect_ratio_2_59_1 %>2.59:1</div>
+        <div><%= f.check_box :aspect_ratio_2_66_1%><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_2_66_1] %></div>
+        <div><%= f.check_box :aspect_ratio_1_36 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_1_36] %></div>
+        <div><%= f.check_box :aspect_ratio_1_18 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_1_18] %></div>
+        <div><%= f.check_box :aspect_ratio_2_55_1 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_2_55_1] %></div>
+      </div>
+    </div>
+    <div>
+      <b class="block">Anamorphic</b><%= f.select :anamorphic, [['Yes'], ['No']], {include_blank: ''} %>
+    </div>
+  </div>
+</div>
+<div id="sound_metadata" class="left _50">
+  <h4>Sound</h4>
+  <div>
+    <b>Sound</b><%= f.select :sound, options_for_select(@cv[:sound], @physical_object.sound), {include_blank: ''}  %>
+    <br>
+    <b>Captions/Subtitles</b><%= f.select :close_caption, [['Yes'], ['No']], {include_blank: ''} %>
+  </div>
+  <div>
+    <b>Captions/Subtitles Notes</b><br/>
+    <%= f.text_area :captions_or_subtitles_notes, class: '_98' %>
+  </div>
+  <div class="">
+    <b class='block'>Format Type</b>
+    <div class="flex_wrap flex_col_wrap h_175px">
+      <div><%= f.check_box :sound_format_digital_dolby_digital %>Digital: Dolby Digital</div>
+      <div><%= f.check_box :sound_format_digital_dts %>Digital: DTS</div>
+      <div><%= f.check_box :sound_format_digital_sdds %>Digital: SDDS</div>
+      <div><%= f.check_box :sound_format_magnetic %>Magnetic</div>
+      <div><%= f.check_box :sound_format_digital_dolby_digital_sr %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_digital_dolby_digital_sr] %></div>
+      <div><%= f.check_box :sound_format_digital_dolby_digital_a %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_digital_dolby_digital_a] %></div>
+      <div><%= f.check_box :sound_format_optical %>Optical</div>
+      <div><%= f.check_box :sound_format_optical_variable_area %>Optical: Variable Area</div>
+      <div><%= f.check_box :sound_format_optical_variable_density %>Optical: Variable Density</div>
+      <div><%= f.check_box :sound_format_optical_variable_area_bilateral %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_optical_variable_area_bilateral] %></div>
+      <div><%= f.check_box :sound_format_optical_variable_area_dual_bilateral %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_optical_variable_area_dual_bilateral] %></div>
+      <div><%= f.check_box :sound_format_optical_variable_area_unilateral %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_optical_variable_area_unilateral] %></div>
+      <div><%= f.check_box :sound_format_optical_variable_area_dual_unilateral %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_optical_variable_area_dual_unilateral] %></div>
+      <div><%= f.check_box :sound_format_optical_variable_area_rca_duplex %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_optical_variable_area_rca_duplex] %></div>
+      <div><%= f.check_box :sound_format_optical_variable_density_multiple_density %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_optical_variable_density_multiple_density] %></div>
+      <div><%= f.check_box :sound_format_optical_variable_area_maurer %><%= Film::SOUND_FORMAT_FIELDS_HUMANIZED[:sound_format_optical_variable_area_maurer] %></div>
+      <div><%= f.check_box :sound_format_sound_on_separate_media %>Sound on Separate Media</div>
+    </div>
+  </div>
+  <div>
+    <b class='block'>Content Type</b>
+    <div class="flex_wrap flex_col_wrap h_45px">
+      <div><%= f.check_box :sound_content_composite_track %>Composite Track</div>
+      <div><%= f.check_box :sound_content_dialog %>Dialog</div>
+      <div><%= f.check_box :sound_content_effects_track %>Effects Track</div>
+      <div><%= f.check_box :sound_content_music_track %>Music track</div>
+      <div><%= f.check_box :sound_content_narration %>Narration</div>
+      <div><%= f.check_box :sound_content_outtakes %>Outtakes</div>
+    </div>
+  </div>
+  <div>
+    <b class='block'>Sound Field</b>
+    <div class="left _50">
+      <%= f.check_box :sound_configuration_dual_mono %>Dual Mono<br/>
+      <%= f.check_box :sound_configuration_mono %>Mono<br/>
+    </div>
+    <div class="left _50">
+      <%= f.check_box :sound_configuration_stereo %>Stereo<br/>
+      <%= f.check_box :sound_configuration_surround %>Surround
+    </div>
+  </div>
+  <div>
+    <b class="block">Track Count</b><%= f.select :track_count, (a = *(1..6)).collect { |v| [v,v] }, {include_blank: '' } %>
+  </div>
+  <div>
+    <b class="block">Languages</b>
+    <%= f.fields_for :languages do |l| %>
+      <div class="left condition">
+        <b>Language </b><%= l.select :language, options_for_select(@l_cv[:language], l.object.language) %><br/>
+        <b>Type </b><%= l.select :language_type, options_for_select(@l_cv[:language_type], l.object.language_type) %>
+        <%= l.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+      </div>
+    <% end %>
+    <%= f.link_to_add 'New Language', :languages %>
+  </div>
+</div>
+<div id="condition_metadata" class="metadata_section">
+  <h4>Condition</h4>
+  <div id="condition_notes">
+    <div class="left _45 rp_10px">
+      <b>Overall Condition</b> <%= f.select :condition_rating, options_for_select(@cv[:overall_condition_rating], @physical_object.condition_rating), {include_blank: ''}  %><br/>
+      <b>Condition Notes</b> <%= f.text_area :condition_notes, class: "_100" %>
+    </div>
+    <div class="left _50">
+      <b>Research Value</b> <%= f.select :research_value, options_for_select(@cv[:research_value], @physical_object.research_value), {include_blank: ''}  %><br/>
+      <b class="block">Research Value Notes</b>
+      <div>
+        <%= f.text_area :research_value_notes %>
+      </div>
+    </div>
+  </div>
+  <div class="condition_types">
+    <div id="condition_3">
+      <div class="select _33">
+        <div>AD Strip</div><%= f.select :ad_strip, options_for_select(@cv[:ad_strip], @physical_object.ad_strip), {include_blank: ''}  %>
+      </div>
+      <div class="select _33">
+        <div>
+          Shrinkage
+        </div>
+        <%= f.text_field :shrinkage %>
+      </div>
+      <div class="select _33">
+        <div>Mold</div>
+        <%= f.select :mold, options_for_select(@cv[:mold], @physical_object.mold), {include_blank: ''}  %>
+      </div>
+    </div>
+
+    <div class="">
+      <h4>Rated Conditions</h4>
+      <%= f.fields_for :value_conditions do |vc| %>
+        <div class="left condition">
+          <%= vc.select :condition_type, options_for_select(@cv[:value_condition], vc.object.condition_type) %>
+          <%= vc.select :value, options_for_select(@cv[:rated_condition_rating], vc.object.value) %>
+          <div class="clear">
+            <b>Comment</b>
+            <%= vc.text_area :comment %>
+          </div>
+          <%= vc.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+        </div>
+      <% end %>
+      <%= f.link_to_add 'New Rated Condition', :value_conditions %>
+    </div>
+  </div>
+  <div id="condition_types_check_box_div" class="condition_types">
+    <h4>Boolean Conditions</h4>
+    <%= f.fields_for :boolean_conditions do |bc| %>
+      <div class="left condition">
+        <%= bc.select :condition_type, options_for_select(@cv[:boolean_condition], bc.object.condition_type) %>
+        <div class="clear">
+          <b>Comment</b>
+          <%= bc.text_area :comment %>
+        </div>
+        <%= bc.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+      </div>
+    <% end %>
+    <%= f.link_to_add 'New Boolean Condition', :boolean_conditions %>
+  </div>
+
+  <div class="clear">
+    <b class="block">Missing Footage</b>
+    <%= f.text_area :missing_footage, class: '_100' %><br/>
+    <b class="block"> Miscellaneous</b>
+    <%= f.text_area :miscellaneous, class: '_100' %>
+  </div>
+</div>
+<div id="conservation_actions_metadata" class="metadata_section">
+  <h4>
+    Conservation actions
+  </h4>
+  <%= f.text_area :conservation_actions, class: '_100' %>
+</div>
+<div id="overlay"></div>
+<div id="title_popup">
+  <div id="title_popup_header">
+    <h4>Create New Title</h4><%= link_to "X", "#", remote: true, button: true, id: 'title_popup_cancel_button' %>
+  </div>
+  <div id="title_popup_content" class="clear"></div>
+</div>

@@ -1,0 +1,92 @@
+<div class="left _45 selectable">
+	<h4>Merge Candidates</h4>
+	<ul class="titles">
+		<% if @titles.size == 0 %>
+			<li>No titles selected</li>
+		<% else %>
+			<% @titles.each do |t| %>
+			<li class="ajax_title_hover ui-widget-content" title_id="<%= t.id %>">
+				<label class="_95"><%= t.title_text %></label>
+				<label style="zoom: 0.7;" class="loader"></label>
+			</li>
+			<% end %>
+		<% end %>
+	</ul>
+	<%= form_tag merge_titles_path do %>
+		<%= hidden_field_tag 'master'%>
+		<%= hidden_field_tag 'selected' %>
+		<%= submit_tag 'Merge Titles' %>
+	<% end %>
+</div>
+<div class="left _45 ml_10">
+	<h4>Title Summary</h4>
+	<div id="title_summary">
+
+	</div>
+</div>
+<script type="text/javascript" charset="utf-8">
+	$(".ajax_title_hover").hoverIntent(
+		//hoverIn handler
+		function() {
+			var li_el = $(this)
+			li_el.find('.loader').show()
+			var title_id = li_el.attr('title_id');
+			var url = '../../titles/ajax/'+title_id;
+			$.ajax({
+				url: url,
+				error: function(jqXHR, textStatus, errorThrown) {
+            swal({
+                title: 'Ajax Error',
+                text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+            }, function() {
+                window.location.replace(url)
+            });
+        },
+				success: function(result) {
+					el = $('#title_summary');
+					el.html(result);
+					el.show();
+					li_el.find('.loader').hide();
+				}
+			})
+		},
+		//hoverOut handler
+		function() {
+			el = $('#title_summary');
+			el.hide();
+		}
+	);
+
+	var master = null;
+	var selectedIDs = [];
+	$('.selectable').selectable({
+		filter: "ul li",
+		selected: function(event, ui) {
+			if (master == null) {
+				master = $(ui.selected).attr('title_id');
+				$('#master').attr('value', master);
+				$(ui.selected).attr('id', 'master_selection');
+			} else {
+				if (ui.selected != master) {
+					selectedIDs = selectedIDs.concat($(ui.selected).attr('title_id'))
+				}
+				$('#selected').attr('value', selectedIDs.toString());
+			}
+		},
+		unselected: function(event, ui) {
+			var id = $(ui.unselected).attr('title_id');
+			if (id == master) {
+				master = null;
+				$('#master').attr('value', '');
+				$(ui.unselected).removeAttr('id');
+			} else {
+				id = $(ui.unselected).attr('title_id');
+				selectedIDs.splice(selectedIDs.indexOf(id), 1);
+				$('#selected').attr('value', selectedIDs.toString());
+			}
+		}
+	});
+	$('.selectable').on('selectablestart', function(event, ui) {
+		event.originalEvent.ctrlKey = true;
+	});
+</script>

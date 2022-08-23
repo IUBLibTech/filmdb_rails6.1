@@ -1,0 +1,45 @@
+<h1>Listing Units</h1>
+<table>
+  <thead>
+  <tr>
+    <th>Abbreviation</th>
+    <th>Name</th>
+    <th>Instituion</th>
+    <th>Campus</th>
+    <th>Menu Index</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @units.each do |unit| %>
+    <tr>
+      <td>
+        <%= unit.abbreviation %>
+      </td>
+      <td>
+        <%= unit.name %>
+      </td>
+      <td>
+        <%= unit.institution %>
+      </td>
+      <td>
+        <%= unit.campus %>
+      </td>
+      <td>
+        <%= unit.menu_index %>
+      </td>
+      <td>
+        <%= link_to 'Show', unit %>
+        <%= link_to 'Edit', edit_unit_path(unit) %>
+	      <% if policy(Unit).destroy? %>
+		      <%= link_to 'Destroy', unit, method: :delete, data: { confirm: 'Are you sure?' } %>
+	      <% end %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<br>
+
+<%= link_to 'New Unit', new_unit_path %>

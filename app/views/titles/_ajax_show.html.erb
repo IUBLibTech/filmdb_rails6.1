@@ -1,0 +1,59 @@
+<div class="title">
+  <div id="main">
+    <div class="left_div">
+      <div class="label"><b>Title</b></div><div class="field"><%= @title.title_text %></div>
+      <div class="label"><b>Series Title</b></div><div class="field"><%= @title.series_title_text %></div>
+      <div class="label"><b>Series Part</b></div><div class="field"><%= @title.series_part %></div>
+    </div>
+    <div class="right_div">
+      <div class="block_label"><b>Summary</b></div>
+      <div class="block_label"><%= @title.summary %></div>
+    </div>
+  </div>
+  <% unless @title.physical_objects.inject(0) { |sum, x| sum + (x.alternative_title.blank? ? 0 : 1) } < 1 %>
+  <h4 class="clear">Alternative Titles</h4>
+  <div>
+    <% @title.alternative_titles.each do |at| %>
+        <%= at %>&nbsp;&nbsp;
+    <% end %>
+  </div>
+  <% end %>
+  <div class="clear">
+    <% unless @title.title_original_identifiers.empty? %>
+        <h4 class="ajax">Orginal Identifiers</h4>
+        <% @title.title_original_identifiers.each_with_index do |toi, i| %>
+            <b><%= toi.identifier_type %>:</b>&nbsp;<%= toi.identifier %><%= '&nbsp;|&nbsp;'.html_safe if (i == 0 && @title.title_original_identifiers.size > 1) || (i > 0 && i < @title.title_original_identifiers.size - 1)%>
+        <% end %>
+    <% end %>
+
+    <% unless @title.title_creators.empty? %>
+        <h4 class="ajax">Creators</h4>
+        <b><i><%= @title.title_creators.collect { |c| "#{c.role.blank? ? "#{c.name}" : "#{c.role} : #{c.name}"}" }.join(', ')%></i></b>
+    <% end %>
+
+    <% unless @title.title_publishers.empty? %>
+        <h4>Publishers</h4>
+        <b><i><%= @title.title_publishers.collect { |c| "#{c.publisher_type.blank? ? "#{c.name}" : "#{c.publisher_type} : #{c.name}"}" }.join(', ') %></i></b>
+    <% end %>
+
+    <% unless @title.title_genres.empty? %>
+        <h4>Genres</h4>
+        <%= @title.title_genres.collect { |g| g.genre }.join(', ')%>
+    <% end %>
+
+    <% unless @title.title_forms.empty? %>
+        <h4>Forms</h4>
+        <%= @title.title_forms.collect { |f| f.form }.join(', ') %>
+    <% end %>
+
+    <% unless @title.title_locations.empty? %>
+        <h4>Locations</h4>
+        <%= @title.title_locations.collect { |l| l.location }.join(', ') %>
+    <% end %>
+
+	  <% unless @title.title_dates.empty? %>
+		  <h4>Dates</h4>
+		  <%= @title.title_dates.collect { |td| td.date_to_s }.join(',') %>
+	  <% end %>
+  </div>
+</div>

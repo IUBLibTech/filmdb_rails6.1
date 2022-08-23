@@ -1,0 +1,71 @@
+<h4>Retitled Physical Objects</h4>
+<table>
+	<tbody>
+	<tr>
+		<th>IU Barcode</th>
+		<th>New Title</th>
+		<th>Current Location</th>
+	</tr>
+	<% @retitled.each do |p| %>
+	<tr>
+		<td><%= p.iu_barcode %></td>
+		<td><%= p.titles_text %></td>
+		<td><%= p.current_location %></td>
+	</tr>
+	<% end %>
+	</tbody>
+</table>
+
+<h4>Physical Objects Returned to Storage</h4>
+<table>
+	<tbod>
+		<tr>
+			<th>IU Barcode</th>
+			<th>Title</th>
+			<th>Current Location</th>
+		</tr>
+		<% @returned.each do |p| %>
+		<tr>
+			<td><%= p.iu_barcode %></td>
+			<td><%= p.titles_text %></td>
+			<td><%= p.current_location %></td>
+		</tr>
+		<% end %>
+	</tbod>
+</table>
+
+<h4>Physical Objects Queued for Pull Request</h4>
+<table>
+	<tbod>
+		<tr>
+			<th>IU Barcode</th>
+			<th>Title</th>
+			<th>Current Location</th>
+		</tr>
+		<% @queued.each do |p| %>
+			<tr>
+				<td><%= p.iu_barcode %></td>
+				<td><%= p.titles_text %></td>
+				<td><%= p.current_location %></td>
+			</tr>
+		<% end %>
+	</tbod>
+</table>
+
+<h4>Created Component Groups</h4>
+<% @cgs.each do |cg| %>
+<table>
+	<tbody>
+	<tr>
+		<th colspan="2"><%= cg.group_type %></th>
+	</tr>
+	<% cg.physical_objects.each do |p| %>
+	<tr>
+		<td><%= p.iu_barcode %></td>
+		<td><%= p.current_location %></td>
+	</tr>
+	<% end %>
+	</tbody>
+</table>
+<br>
+<% end %>

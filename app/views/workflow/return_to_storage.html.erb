@@ -1,0 +1,55 @@
+<h4>Scan an IU Barcode to Return Item to Storage</h4>
+<%= form_for 'physical_object', url: process_return_to_storage_path do |f| %>
+    <table>
+      <tr>
+        <th>Scan IU Barcode</th>
+        <td><%= f.text_field :iu_barcode, class: 'ajax_barcode_lookup' %></td>
+      </tr>
+      <tr>
+	      <th>Return to:</th>
+	      <td>
+		      <%= f.select :location, options_for_select( (WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage']-[WorkflowStatus::IN_STORAGE_AWAITING_INGEST]).collect{|s| [s,s]}) %>
+	      </td>
+      </tr>
+	    <tr>
+        <td><%= f.submit 'Mark Returned' %> </td>
+        <td id="ajax_show_storage_message"></td>
+      </tr>
+    </table>
+<% end %>
+<script type="text/javascript" charset="utf-8">
+
+
+	$(document).ready(function() {
+		$('.ajax_barcode_lookup').bind('input', function () {
+			$('#ajax_show_storage_message').html('');
+			$('p.warning').remove();
+      $('p.notice').remove();
+			valid = validateIUBarcode($(this));
+			if (valid) {
+          var url = '../workflow/ajax_show_storage_location/' + $(this).val();
+				$.ajax({
+          url: url,
+					error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+					success: function (result) {
+            if (result.startsWith("Error:")) {
+                $('#ajax_show_storage_message').addClass('warning')
+            } else {
+                $('#ajax_show_storage_message').removeClass('warning')
+            }
+						$('#ajax_show_storage_message').html(result)
+					}
+				});
+			}
+		});
+	})
+</script>
+<h4 class="m_bottom_10px">Physical Objects <i>On Site</i></h4>
+<%= render partial: 'physical_objects_table' %>

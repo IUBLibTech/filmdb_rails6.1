@@ -1,0 +1,152 @@
+<%= nested_form_for([@title, @component_group]) do |f| %>
+  <% if @component_group.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@component_group.errors.count, "error") %> prohibited this component_group from being saved:</h2>
+      <ul>
+      <% @component_group.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <br><br><br><br>
+  <div class="actions">
+    <div>
+      <b>Group Type</b> <%= f.select :group_type, options_for_select(@component_group_cv[:group_type],(@component_group.nil? ? '' : @component_group.group_type)) %>
+    </div>
+    <div>
+      <b>Group Summary</b><br>
+      <%= f.text_area :group_summary %>
+    </div>
+    <div id="cgpo_div" class="fields_for_div">
+      <%= f.fields_for :component_group_physical_objects do |cgpo| %>
+        <%= cgpo.hidden_field :physical_object_id, class: 'poid' %>
+        <table>
+          <tbody>
+          <tr>
+            <th>IU Barcode</th>
+            <td>
+              <% if action_name == 'edit' %>
+                <input type="text" class="iu_barcode" readonly>
+              <% else %>
+                <input type="text" class="iu_barcode">
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <th>Scan Resolution</th>
+            <td><%= cgpo.select :scan_resolution, options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, cgpo.object.scan_resolution) %></td>
+          </tr>
+          <tr>
+            <th>Clean</th>
+            <td><%= cgpo.select :clean, options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, cgpo.object.clean ) %></td>
+          </tr>
+          <tr>
+            <th>Return On Original Reel</th>
+            <td><%= cgpo.select :return_on_reel, options_for_select([["No", false], ["Yes", true]], cgpo.object.return_on_reel)%></td>
+          </tr>
+          <tr>
+            <th>Color Space</th>
+            <td><%= cgpo.select :color_space, options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, cgpo.object.color_space)%></td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="clear"><%= cgpo.link_to_remove 'Delete' %></div>
+      <% end %>
+      <%= f.link_to_add "Add Physical Object", :component_group_physical_objects%>
+    </div>
+    <%= f.submit %>
+  </div>
+<% end %>
+<script type="text/javascript" charset="utf-8">
+    $(document).on('nested:fieldAdded', function(event){
+        var field = event.field;
+        // it's a jQuery object already! Now you can find date input
+        field.closest('.fields').find('.iu_barcode').first().removeAttr('readonly');
+        var iubc = field.find('.iu_barcode');
+        iubc.bind("input", function () {
+            var valid = validateIUBarcode($(this));
+            if (valid) {
+              testBarcode(iubc);
+            }
+        });
+    });
+
+    function testBarcodeCallBack(iubc, belongs) {
+        if (belongs[0] && belongs[1]) {
+            if (alreadyAdded(iubc)) {
+                swal('Barcode Error', iubc.val()+" has already been added to this Component Group!");
+                iubc.val('');
+                iubc.closest('.fields').find(':hidden').first().val('');
+            } else {
+                iubc.closest('.fields').find(':hidden').first().val(belongs[1]);
+            }
+        } else {
+            var msg = (belongs[0] ? iubc.val()+" does not belong to this Title" : iubc.val()+" does not exist.");
+            swal("Barcode Error", msg)
+        }
+    }
+    /*
+    Performs an ajax call to determine if the specified iubc element contains an existing barcoded physical object that
+    belongs to this title. The returned value is an array containing two boolean values. array[0] contains a boolean
+    stating the existence of the barcode, array[1] contains either false (if the barcode does not belong to the title)
+    or the id of the physical object to which the specified barcode belongs.
+     */
+    function testBarcode(iubc) {
+        var url = '/physical_objects/ajax_belongs_to_title/'+iubc.val()+'/'+$('.title').first().attr('id');
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            error: function(jqXHR) {
+                swal({
+                    title: 'Ajax Error',
+                    text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                }, function() {
+                    window.location.replace(url)
+                })
+            },
+            success: function(result) {
+                testBarcodeCallBack(iubc, result)
+            }
+        })
+    }
+    /*
+    This function tests to see whether the specified IU barcode has already been selected in any other barcode field
+    (meaning that particular barcode has already been added to the component group).
+     */
+    function alreadyAdded(iubc) {
+        return $('.iu_barcode').filter(function(index) {
+           return this.value === iubc.val();
+        }).size() !== 1;
+    }
+    function lookup_callback(el, result) {
+        console.log(el.outerHTML);
+        var text = $(el).closest('.fields').find('.iu_barcode').first();
+        console.log(text.outerHTML);
+        text.attr('value', result);
+        console.log("\n\n");
+    }
+
+  <% if action_name == 'edit' %>
+    $(document).ready(function() {
+        $('.poid[value!=""][value]').each(function() {
+            var el = this;
+            var url = '../../../../physical_objects/'+el.value+'/ajax_lookup_barcode';
+            $.ajax({
+                url: url,
+                success: function(result) {
+                    lookup_callback(el, result)
+                },
+                error: function(jqXHR) {
+                    swal({
+                        title: 'Ajax Error',
+                        text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                    }, function() {
+                        window.location.replace(url)
+                    })
+                }
+            });
+        })
+    });
+  <% end %>
+</script>

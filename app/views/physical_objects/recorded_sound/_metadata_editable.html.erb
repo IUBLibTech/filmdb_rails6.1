@@ -1,0 +1,326 @@
+<h4>Recorded Sound Metadata Fields</h4>
+<div class="metadata_section">
+  <div id="version_div" class="clear">
+    <b class="block">Version</b>
+    <div class="check_box"><%= f.check_box :version_first_edition %><div>1st Edition</div></div>
+    <div class="check_box"><%= f.check_box :version_second_edition %><div>2nd Edition</div></div>
+    <div class="check_box"><%= f.check_box :version_third_edition %><div>3rd Edition</div></div>
+    <div class="check_box"><%= f.check_box :version_fourth_edition %><div>4th Edition</div></div>
+    <div class="check_box"><%= f.check_box :version_abridged %><div>Abridged</div></div>
+    <div class="check_box"><%= f.check_box :version_anniversary %><div>Anniversary</div></div>
+    <div class="check_box"><%= f.check_box :version_short %><div>Short</div></div>
+    <div class="check_box"><%= f.check_box :version_long %><div>Long</div></div>
+    <div class="check_box"><%= f.check_box :version_sample %><div>Sample</div></div>
+    <div class="check_box"><%= f.check_box :version_revised %><div>Revised</div></div>
+    <div class="check_box"><%= f.check_box :version_original %><div>Original</div></div>
+    <div class="check_box"><%= f.check_box :version_reissue %><div>Reissue</div></div>
+    <div class="check_box"><%= f.check_box :version_excerpt%><div>Excerpt</div></div>
+    <div class="check_box"><%= f.check_box :version_domestic %><div>Domestic</div></div>
+    <div class="check_box"><%= f.check_box :version_english %><div>English</div></div>
+    <div class="check_box"><%= f.check_box :version_x_rated %><div>X-rated</div></div>
+  </div>
+</div>
+<div id="format_metadata" class="m_top_10px">
+  <h4 class="m_bottom_5px">Format</h4>
+  <div class="flex_row">
+    <div class="flex_column">
+      <div class="inline">
+        <b class="mr_10">Format</b>
+        <%= f.select :gauge, options_for_select(@cv[:gauge], @physical_object.gauge), {include_blank: ''} %>
+      </div>
+      <b class="block">Generation</b>
+      <div>
+        <div class="flex_row">
+          <div class="flex_column">
+            <div class="check_box">
+              <%= f.check_box :generation_copy_access %>
+              <div>Copy: Access</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_dub %>
+              <div>Dub</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_duplicate %>
+              <div>Duplicate</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_intermediate %>
+              <div>Intermediate</div>
+            </div>
+          </div>
+          <div class="flex_column">
+            <div class="check_box">
+              <%= f.check_box :generation_master %>
+              <div>Master</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_master_distribution %>
+              <div>Master: Distribution</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_master_production %>
+              <div>Master: Production</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_off_air_recording %>
+              <div>Off-Air Recording</div>
+            </div>
+          </div>
+          <div class="flex_column">
+            <div class="check_box">
+              <%= f.check_box :generation_original_recording %>
+              <div>Original Recording</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_preservation %>
+              <div>Preservation</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_work_tapes %>
+              <div>Work Tapes</div>
+            </div>
+            <div class="check_box">
+              <%= f.check_box :generation_other %>
+              <div>Other</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex_row">
+          <div class="flex_column_auto">
+            <b class="mr_10">Sides</b>
+          </div>
+          <div class="flex_column_auto">
+            <%= f.select :sides, options_for_select(@cv[:sides], @physical_object.sides), {include_blank: ''} %>
+          </div>
+        </div>
+        <div class="flex_row">
+          <div class="flex_column_auto">
+            <b>Part</b>
+          </div>
+          <div class="flex_column_auto">
+            <%= f.text_field :part, {placeholder: "# of #"} %>
+          </div>
+        </div>
+        <div class="flex_row">
+          <div class="flex_column_auto"><b>Size</b></div>
+          <div class="flex_column_auto"><%= f.select :size, options_for_select(@cv[:size], @physical_object.size), {include_blank: ''} %></div>
+        </div>
+      </div>
+    </div>
+    <div class="flex_column">
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Original Identifier</b></div>
+        <div class="flex_column_auto">
+          <%= f.fields_for :physical_object_original_identifiers do |id| %>
+            <div class="left condition">
+              Original Identifier: <%= id.text_field :identifier %>
+              <%= id.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+            </div>
+          <% end %>
+          <%= f.link_to_add 'New Original Identifier', :physical_object_original_identifiers %>
+        </div>
+      </div>
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Duration</b></div>
+        <div class="flex_column_auto"><%= f.text_field :duration, {placeholder: "hh:mm:ss"} %></div>
+      </div>
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Base</b></div>
+        <div class="flex_column_auto"><%= f.select :base,options_for_select(@cv[:base], @physical_object.base), {include_blank: ''} %></div>
+      </div>
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Multiple Items in Can</b></div>
+        <div class="flex_column_auto"><%= f.check_box :multiple_items_in_can %></div>
+      </div>
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Stock</b></div>
+        <div class="flex_column_auto"><%= f.select :stock, options_for_select(@cv[:stock], @physical_object.stock), {include_blank: ''} %></div>
+      </div>
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Capacity</b></div>
+        <div class="flex_column_auto"><%= f.text_field :capacity %></div>
+      </div>
+      <div class="flex_row">
+        <b>Detailed Stock Information</b>
+      </div>
+      <div class="flex_row">
+        <%= f.text_area :detailed_stock_information, {rows: "3", style: "min-height: 0"} %>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="sound_metadata" class="m_top_10px">
+  <h4 class="m_bottom_5px">Sound</h4>
+  <div class="flex_row">
+    <div class="flex_column">
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Playback</b></div>
+        <div class="flex_column_auto ml_10"><%= f.select :playback, options_for_select(@cv[:playback_speed], @physical_object.playback), {include_blank: ''} %></div>
+      </div>
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Noise Reduction</b></div>
+        <div class="flex_column_auto"><%= f.select :noise_reduction, options_for_select(@cv[:noise_reduction], @physical_object.noise_reduction), {include_blank: ''} %></div>
+      </div>
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Track Configuration</b></div>
+        <div class="flex_column_auto"><%= f.select :track_configuration, options_for_select(@cv[:track_configuration], @physical_object.track_configuration), {include_blank: ''} %></div>
+      </div>
+    </div>
+    <div class="flex_column">
+      <div class="flex_row">
+        <div class="flex_column_auto"><b>Languages</b></div>
+        <div class="flex_row">
+          <%= f.fields_for :languages do |l| %>
+            <div class="left condition">
+              <b class="stagger_40">Language </b><%= l.select :language, options_for_select(@l_cv[:language], l.object.language) %><br/>
+              <%= l.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+            </div>
+          <% end %>
+          <%= f.link_to_add 'New Language', :languages %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex_row">
+    <div class="flex_column">
+      <div class="flex_row">
+        <div class="flex_row"><b>Content Type</b></div>
+        <div class="flex_row">
+          <div class="check_box">
+            <%= f.check_box :sound_content_type_composite_track %>
+            <div>Composite Track</div>
+          </div>
+          <div class="check_box">
+            <%= f.check_box :sound_content_type_dialog %>
+            <div>Dialog</div>
+          </div>
+          <div class="check_box">
+            <%= f.check_box :sound_content_type_effects_track %>
+            <div>Effects Track</div>
+          </div>
+          <div class="check_box">
+            <%= f.check_box :sound_content_type_music_track %>
+            <div>Music Track</div>
+          </div>
+          <div class="check_box">
+            <%= f.check_box :sound_content_type_outtakes %>
+            <div>Outtakes</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="flex_column">
+      <div class="flex_row"><b>Configuration</b></div>
+      <div class="flex_row">
+        <div class="check_box">
+          <%= f.check_box :sound_configuration_dual_mono %>
+          <div>Dual Mono</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :sound_configuration_mono %>
+          <div>Mono</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :sound_configuration_stereo %>
+          <div>Stereo</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :sound_configuration_surround %>
+          <div>Surround</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :sound_configuration_unknown %>
+          <div>Unknown</div>
+        </div>
+        <div class="check_box">
+          <%= f.check_box :sound_configuration_other %>
+          <div>Other</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h4 class="m_bottom_5px">Condition</h4>
+    <div class="flex_row">
+      <div class="flex_column">
+        <div class="flex_row">
+          <b>Mold</b> <%= f.select :mold, options_for_select(@cv[:mold], @physical_object.mold), {include_blank: ''}   %>
+        </div>
+      </div>
+    </div>
+    <div class="flex_row">
+      <div class="flex_column">
+        <div class="flex_row">
+          <b class="mr_10">Overall Condition</b> <%= f.select :condition_rating, options_for_select(@cv[:overall_condition_rating], @physical_object.condition_rating), {include_blank: ''}  %><br/>
+        </div>
+      </div>
+      <div class="flex_column">
+        <div class="flex_row">
+          <b class="mr_10">Research Value</b> <%= f.select :research_value, options_for_select(@cv[:research_value], @physical_object.research_value), {include_blank: ''}  %><br/>
+        </div>
+      </div>
+    </div>
+    <div class="flex_row">
+      <div class="flex_column">
+        <b>Condition Notes</b>
+        <%= f.text_area :condition_notes, {rows: "4", cols: 60, style: "min-height: 0; width: 95%"} %>
+      </div>
+      <div class="flex_column">
+        <b>Research Value Notes</b>
+        <%= f.text_area :research_value_notes, {rows: "4", cols: 60, style: "min-height: 0; width: 95%"} %>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h4 class="m_bottom_5px">Rated Conditions</h4>
+    <div class="flex_row">
+      <%= f.fields_for :value_conditions do |vc| %>
+        <div class="condition">
+          <%= vc.select :condition_type, options_for_select(@cv[:value_condition], vc.object.condition_type) %>
+          <%= vc.select :value, options_for_select(@cv[:overall_condition_rating], vc.object.value) %>
+          <div class="clear">
+            <b>Comment</b>
+            <%= vc.text_area :comment %>
+          </div>
+          <%= vc.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+        </div>
+      <% end %>
+      <%= f.link_to_add 'New Rated Condition', :value_conditions %>
+    </div>
+  </div>
+  <div>
+    <h4 class="m_bottom_5px">Boolean Conditions</h4>
+    <div class="flex_row">
+      <%= f.fields_for :boolean_conditions do |bc| %>
+        <div class="left condition">
+          <%= bc.select :condition_type, options_for_select(@cv[:boolean_condition], bc.object.condition_type) %>
+          <div class="clear">
+            <b>Comment</b>
+            <%= bc.text_area :comment %>
+          </div>
+          <%= bc.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
+        </div>
+      <% end %>
+      <%= f.link_to_add 'New Boolean Condition', :boolean_conditions %>
+    </div>
+  </div>
+</div>
+<div class="clear">
+  <b class="block"> Miscellaneous</b>
+  <%= f.text_area :miscellaneous, class: '_100' %>
+</div>
+<div id="conservation_actions_metadata" class="metadata_section">
+  <h4>
+    Conservation actions
+  </h4>
+  <%= f.text_area :conservation_actions, class: '_100' %>
+</div>
+<div id="overlay"></div>
+<div id="title_popup">
+  <div id="title_popup_header">
+    <h4>Create New Title</h4><%= link_to "X", "#", remote: true, button: true, id: 'title_popup_cancel_button' %>
+  </div>
+  <div id="title_popup_content" class="clear"></div>
+</div>

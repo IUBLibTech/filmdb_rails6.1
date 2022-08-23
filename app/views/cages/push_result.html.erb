@@ -1,0 +1,18 @@
+<% if @cage.pod_pushes.size > 0 %>
+	<table>
+		<tr>
+			<th>Timestamp</th>
+			<th>Result</th>
+		</tr>
+		<% @cage.pod_pushes.each do |p| %>
+		<tr>
+			<td><%= p.created_at %></td>
+			<td>
+
+			</td>
+		</tr>
+		<% end %>
+	</table>
+<% else %>
+	<p>There is no record of a push to POD for <%= @cage.identifier %></p>
+<% end %>

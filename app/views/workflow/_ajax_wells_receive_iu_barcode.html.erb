@@ -1,0 +1,30 @@
+<% if @msg %>
+	<p class="warning"><%= @msg %></p>
+<% else  %>
+	<% if @physical_object.same_active_component_group_members? != false %>
+		<p class="warning">
+			<% bcs = @physical_object.same_active_component_group_members?&.collect{|p| p.iu_barcode}  %>
+			<%= "#{bcs.join(', ')} also #{bcs.size == 1 ? 'belongs' : 'belong'} to this title and #{bcs.size == 1 ? 'has' : 'have'} not yet been received from storage." %>
+		</p>
+	<% end %>
+	<table>
+		<tbody>
+		<tr>
+			<th>Title(s)</th>
+			<td><%= @physical_object.titles_text %></td>
+		</tr>
+		<tr>
+			<th>Component Group Type</th>
+			<td>
+				<%= @physical_object.active_component_group.group_type %>
+			</td>
+		</tr>
+		<tr>
+			<th>Requested by</th>
+			<td>
+				<%= @physical_object.who_requested.name %>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+<% end %>

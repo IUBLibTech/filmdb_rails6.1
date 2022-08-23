@@ -1,0 +1,7 @@
+<% if @msg %>
+	<p class="warning"><%= @msg %></p>
+<% else %>
+	<p class="notice">
+		<%= "#{@physical_object.iu_barcode} was last in workflow at #{@physical_object.previous_location}" %>
+	</p>
+<% end %>

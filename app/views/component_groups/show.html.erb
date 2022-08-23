@@ -1,0 +1,21 @@
+<p id="notice"><%= notice %></p>
+
+<%= link_to 'Edit', edit_title_component_group_path(@title, @component_group) %> | <%= link_to 'Back', url_for(:back) %>
+<table>
+  <tbody>
+  <tr>
+    <th>Group Type</th>
+    <td>
+      <%= @component_group.group_type %>
+    </td>
+  </tr>
+  <tr>
+    <th>Group Summary</th>
+    <td>
+      <textarea name="group_summary" id="" cols="30" rows="5" readonly><%= @component_group.group_summary %></textarea>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<h4>Physical Objects</h4>
+<%= render partial: 'ajax_physical_objects_list' %>

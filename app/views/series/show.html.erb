@@ -1,0 +1,21 @@
+<div class="clear">
+  <%= link_to 'Edit', edit_series_path(@series) %> |
+  <%= link_to 'Back', url_for(:back) %> |
+  <%= link_to 'Inventory This Series', series_new_physical_object_path(@series) %>
+</div>
+<div id="whodoneit">
+  <div><b>Creator</b></div><div><%= @series.creator&.name %></div>
+  <div><b>Last Modified By</b></div><div><%= @series.modifier&.name %></div>
+</div>
+<%= render partial: 'show' %>
+<h4>Titles in this Series</h4>
+<% if @series.titles.size > 0 %>
+    <% @series.titles.each do |t| %>
+        <div>
+          <%= link_to "#{t.title_text}", title_path(t) %>
+        </div>
+    <% end %>
+<% else %>
+    none
+<% end %>
+

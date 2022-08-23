@@ -1,0 +1,45 @@
+<% if @physical_object %>
+<h4><%= @physical_object.iu_barcode %></h4>
+<%= form_tag ajax_update_location_post_path, method: :post do %>
+		<%= hidden_field_tag 'barcode', @physical_object.iu_barcode %>
+<table>
+	<tr>
+		<th>Title</th>
+		<td>
+			<%= @physical_object.titles_text %>
+		</td>
+	</tr>
+	<tr>
+		<th>IU Barcode</th>
+		<td>
+			<%= link_to @physical_object.iu_barcode, @physical_object, target: '_blank' %>
+		</td>
+	</tr>
+	<tr>
+		<th>Gauge/Format</th>
+		<td>
+			<%= @physical_object.medium_name %>
+		</td>
+	</tr>
+	<tr>
+		<th>Current Location</th>
+		<td>
+			<%= @physical_object.current_workflow_status.status_name %>
+		</td>
+	</tr>
+	<tr>
+		<th>Set Current Location:</th>
+		<td>
+				<%= select_tag 'location', options_for_select(WorkflowStatus::ALL_STATUSES.collect { |s| [s, s] }) %>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<%= submit_tag 'Update Location', data: {confirm: 'Are you sure?'} %>
+		</td>
+	</tr>
+</table>
+<% end %>
+<% else %>
+<p class="warning">Could not find a Physical Object with barcode: <%= params[:barcode] %></p>
+<% end %>

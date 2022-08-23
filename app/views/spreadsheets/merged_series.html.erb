@@ -1,0 +1,18 @@
+<%= render partial: 'series/show' %>
+<h4>Titles in this Series</h4>
+<table>
+  <tr>
+    <th>Title</th>
+    <th>In This Series</th>
+    <th>In Other/No Series</th>
+    <th>Actions</th>
+  </tr>
+  <% @title_count_in_series.keys.sort.each do |title| %>
+    <tr>
+      <td><%= title %></td>
+      <td><%= @title_count_in_series[title] %></td>
+      <td><%= @title_count_not_in_series[title].nil? ? 0 : @title_count_not_in_series[title] %></td>
+      <td><%= link_to "Merge Titles", merge_title_candidates_path(id: params[:id], title: title) %></td>
+    </tr>
+  <% end %>
+</table>

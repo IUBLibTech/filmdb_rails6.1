@@ -1,0 +1,28 @@
+<%#
+  This file represents inline javascript necessary for setting up the following behavior on physical object creation and update:
+  * barcode validation
+  * mediam type menu context switching based on selecting media type
+  * autocomplete for title selection
+  * autocomplete for series selection
+  * accordion hidden fields for collection specific physical object creation (when metadata fields can be omitted)
+%>
+<script type="text/javascript" id="metadata_js">
+    var medium = "<%= physical_object_specific_medium %>";
+    function hookMetadataListeners() {
+        $("#"+medium+"_shrinkage").bind('input', function () {
+            var decimal = /^[0-9]+$|^[0-9]+.[0-9]+$/;
+            if ($(this).val() === "" || decimal.test($(this).val())) {
+                $(this).removeClass('bad_barcode')
+            } else {
+                $(this).addClass('bad_barcode')
+            }
+        });
+
+        // when Nitrate film base is selected notify user
+        $("#"+medium+"_base_nitrate").change(function () {
+            if ($(this).prop('checked')) {
+                swal("Notify Collection Manager Immediately! Nitrate cannot be stored in the ALF.");
+            }
+        });
+    }
+</script>

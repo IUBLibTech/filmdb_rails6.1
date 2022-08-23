@@ -1,0 +1,165 @@
+<h4>Series Merge</h4>
+<div id="series_selection">
+  <table>
+    <tr>
+      <th>Series Title</th>
+      <td>
+        <%= text_field_tag :series_title_text %>
+      </td>
+    </tr>
+  </table>
+</div>
+<div id="series_summary" class="left _75 ml_10" >
+
+</div>
+<%= form_tag series_autocomplete_selection_merge_path, id: 'series_autocomplete_select_form' do %>
+  <%= hidden_field_tag :master_series_id %>
+  <%= hidden_field_tag :mergees %>
+  <div id="selected_titles" class="clear">
+    <h4 class="m_top_10px">Series To Merge</h4>
+    <p class="warning">Click to select the master Series record - all other Series will be merged into this record</p>
+    <table id="series_table">
+      <tbody>
+        <tr>
+          <th>Series Title</th>
+          <th>Series Production #</th>
+          <th>Series Dates</th>
+          <th>Total Episodes</th>
+          <th>Summary</th>
+          <th></th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <%= submit_tag 'Merge Series' %>
+<% end %>
+<script type="text/javascript" charset="utf-8">
+  var merge_all = <%= action_name == 'show_merge_series' %>;
+  $(document).ready(function() {
+      $('#series_title_text').autocomplete({
+          minLength: 2,
+          source: function (request, response) {
+              var url = "<%= autocomplete_series_path %>";
+              $.ajax({
+                  url: url,
+                  dataType: "json",
+                  data: {
+                      term: request.term,
+                      exclude: selectedSeriesIds()
+                  },
+                  success: function (data) {
+                      response(data)
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      swal({
+                          title: 'Ajax Error',
+                          text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                      }, function() {
+                          window.location.replace(url)
+                      })
+                  }
+              });
+          },
+          focus: function (event, ui) {
+              ajaxSeriesSummary(ui.item['value']);
+              return false;
+          },
+          select: function (event, ui) {
+              clearSeriesSummary();
+              addSeries(ui.item['value']);
+              return false;
+          }
+      }).focusout(function() {
+          clearSeriesSummary();
+      });
+  });
+  function ajaxSeriesSummary(series_id) {
+      var url = '/series/ajax/show/'+series_id;
+      $.ajax({
+          url: url,
+          success: function(result) {
+              $('#series_summary').html(result).show();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              })
+          }
+      })
+  }
+  function addSeries(seriesId) {
+      var url = '/series/merge/series_table_row/'+seriesId;
+      $.ajax({
+          url: url,
+          data: {merge_all: merge_all},
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+          success: function(result) {
+            $('.series_merge_remove').unbind('click.series_merge_remove_series');
+            $('#series_table').append(result);
+            $('.series_merge_remove').bind('click.series_merge_remove_series', function(event) {
+                var id = $(this).parent().parent().attr('id');
+                $(this).parent().parent().remove();
+                if (id == $('#master_series_id').attr(('value'))) {
+                    $('#master_series_id').attr('value', null);
+                }
+                initSeriesSelect();
+            });
+            initSeriesSelect();
+          }
+      });
+  }
+  function clearSeriesSummary() {
+      $('#series_summary').hide();
+  }
+  function initSeriesSelect() {
+      // remove the event handlers as we don't want to double up on them every time a new row is added/removed
+      $('#series_table > tbody > tr').off("click.title_select").on('click.title_select', function() {
+        if ($(this).hasClass('master_selection')) {
+            $(this).removeClass('master_selection');
+            $('#master_series_id').attr('value', null)
+        } else {
+            $('.master_selection').removeClass('master_selection');
+            $(this).addClass('master_selection');
+            $('#master_series_id').attr('value', $(this).attr('id'))
+        }
+      setHiddenSeriesIds();
+      });
+      setHiddenSeriesIds();
+  }
+  function setHiddenSeriesIds() {
+      sids = selectedSeriesIds(false);
+      $('#mergees').attr('value', sids.join(','))
+  }
+  function selectedSeriesIds(includeMaster=true) {
+      var vals = [];
+      var sel = (includeMaster ? $('.title_row') : $('.title_row').not('.master_selection'));
+      sel.each(function() {
+          vals.push($(this).attr('id'))
+      });
+      return vals
+  }
+
+  $('#series_autocomplete_select_form').submit(function(event) {
+      event.preventDefault();
+      var m_id = $('#master_series_id').attr('value');
+      if (merge_all) {
+          if (m_id == null || m_id.length == 0) {
+              swal('Select a Master Series', 'You must select a master Series to merge. Click the row of the Series you wish to be the master record. All metadata from other Series will be merged into this record' )
+          } else {
+              document.getElementById('series_autocomplete_select_form').submit();
+          }
+      } else {
+          document.getElementById('series_autocomplete_select_form').submit();
+      }
+  })
+</script>

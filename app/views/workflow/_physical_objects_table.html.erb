@@ -1,0 +1,130 @@
+<table id="physical_objects_table">
+	<tr>
+		<th>IU Barcode</th>
+		<th>Title(s)</th>
+    <th>Location</th>
+		<th>Pulled For</th>
+    <% if action_name == 'pull_request' %>
+      <th>Select To Pull</th>
+			<th>Cancel</th>
+    <% end %>
+		<% if action_name == 'best_copy_selection' || action_name == 'best_copy_selection' %>
+			<th>Scan Settings</th>
+			<th>Condition Notes</th>
+			<th>Component Group notes</th>
+		<% end %>
+	</tr>
+<% @physical_objects.each do |p| %>
+	<tr>
+		<td><%=  p.iu_barcode %></td>
+		<td>
+			<% p.titles.each do |t| %>
+				<%= link_to "#{t.title_text}", title_path(t) %> <br>
+			<% end %>
+		</td>
+    <td><%=  p.current_workflow_status.type_and_location %></td>
+		<td><%= p.active_component_group&.group_type %></td>
+    <% if action_name == 'pull_request' %>
+      <td><%= check_box_tag "po_#{p.acting_as.id}", ''%></td>
+			<td><%= link_to "Remove from Queue", '#', id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
+    <% end %>
+		<% if action_name == 'best_copy_selection' || action_name == 'best_copy_selection' %>
+			<% cg = p.active_component_group %>
+			<td>
+				<ul class="dig_params">
+					<li>Scan resolution: <%= cg.scan_resolution %></li>
+					<li>Color space: <%= cg.color_space %></li>
+					<li>Clean: <%= cg.clean %></li>
+					<li>Return on Original Reel: <%= cg.return_on_reel ? 'Yes' : 'No' %></li>
+				</ul>
+			</td>
+			<td>
+				<%= p.condition_notes %>
+			</td>
+			<td>
+				<%= cg.group_summary %>
+			</td>
+		<% end %>
+	</tr>
+<% end %>
+<% if action_name == 'pull_request' %>
+  <tr>
+    <td colspan="2">
+      <%= form_tag(process_pull_requested_path) do %>
+          <%= hidden_field_tag 'ids', '' %>
+          <%= submit_tag 'Submit Pull Request' %>
+      <% end %>
+    </td>
+  </tr>
+<% end %>
+</table>
+<% if action_name == 'pull_request' %>
+<script type="text/javascript">
+  var lastChecked = null;
+  $(document).ready(function() {
+    $('input:checkbox').click(function(e) {
+      if (!lastChecked) {
+        lastChecked = this;
+	      setChecked();
+        return;
+      }
+      if (e.shiftKey) {
+        var start = $('input:checkbox').index(this);
+        var end = $('input:checkbox').index(lastChecked);
+	      $('input:checkbox').slice(Math.min(start, end), Math.max(start,end) + 1).prop('checked', lastChecked.checked)
+      }
+      setChecked();
+      lastChecked = this;
+    });
+	  $('.remove_from_queue').click(function(event) {
+		  event.preventDefault();
+		  clicked = $(this);
+		  swal({
+			  title: 'Remove from Queue',
+			  text: 'Are you sure you want to remove this Physical Object from the Queue?',
+			  type: 'warning',
+			  showCancelButton: true,
+			  confirmButtonText: 'Remove from Queue',
+			  closeOnConfirm: false
+		  },
+		  function(isConfirm){
+			  if (isConfirm) {
+				  id = clicked.attr('id').substring(3);
+				  var url = './ajax_cancel_queued_pull_request/' + id;
+				  $.ajax({
+					  url: url,
+					  method: 'POST',
+					  error: function(jqXHR, textStatus, errorThrown) {
+                swal({
+                    title: 'Ajax Error',
+                    text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                }, function() {
+                    window.location.replace(url)
+                });
+            },
+					  success: function (result) {
+						  swal({
+							  title: 'Reponse',
+							  text: "Queued pull requests were cancelled for the following physical objects: "+result,
+							  html: true
+						  },
+						  function() {
+							  location.reload();
+						  })
+					  }
+				  })
+			  }
+		  })
+	  });
+  })
+  // sets the hidden po ids attribute on the form
+  function setChecked() {
+    var po_ids = [];
+    $(':checked').each(function() {
+      var x = this;
+      po_ids.push(this.id.substring(3))
+    });
+    $('#ids').val(po_ids.join(','));
+  }
+</script>
+<% end %>

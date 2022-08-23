@@ -1,0 +1,30 @@
+<%= form_for(@series) do |f| %>
+  <% if @series.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@series.errors.count, "error") %> prohibited this series from being saved:</h2>
+
+      <ul>
+      <% @series.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div id="fields">
+    <%= f.hidden_field :created_by_id %>
+    <%= f.hidden_field :modified_by_id %>
+    <div class="lb"><b>Series Name</b></div><div class="fd"><%= f.text_field :title %></div>
+    <div class="lb"><b>Series Production Number</b></div><div class="fd"><%= f.text_field :production_number %></div>
+    <div class="lb"><b>Series Dates</b></div><div class="fd"><%= f.text_field :date %></div>
+    <div class="lb"><b>Total Episodes</b></div><div class="fd"><%= f.text_field :total_episodes %></div>
+  </div>
+  <div id="sum_div">
+    <div><b>Summary</b></div>
+    <div>
+      <%= f.text_area :summary %>
+    </div>
+  </div>
+  <div class="actions clear">
+    <%= f.submit %>
+  </div>
+<% end %>

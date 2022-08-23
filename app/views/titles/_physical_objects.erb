@@ -1,0 +1,39 @@
+<h4 class="mt_25">Physical Objects With This Title</h4>
+<% if @title.physical_objects.size == 0 %>
+    none
+<% else %>
+<table class="_100">
+  <tr>
+    <th>Barcode</th>
+    <th>Gauge/Format</th>
+    <th>Generation</th>
+    <th>Location</th>
+    <th>Overall Condition</th>
+    <th>Reel Number</th>
+    <th>Can Size</th>
+	  <th>Collection</th>
+    <th>Digitized</th>
+  </tr>
+  <% @title.physical_objects.each do |p| %>
+    <% p = p.specific %>
+  <tr class=<%= "digitized_tr" if p.digitized? %>>
+    <td><%= link_to "#{p.iu_barcode}", physical_object_path(p.acting_as) %></td>
+    <td><%= p.medium_name %></td>
+    <td><%= p.humanize_boolean_generation_fields %></td>
+    <td class="<%= (p.missing? || p.current_location == WorkflowStatus::DEACCESSIONED) ? 'missing' : '' %>">
+      <%= p.current_workflow_status.status_name %>
+    </td>
+
+    <td><%= p.condition_rating %></td>
+    <td><%= p.has_attribute?(:reel_number) ? p.reel_number : '' %></td>
+    <td><%= p.has_attribute?(:can_size) ? p.can_size : ''%></td>
+	  <td><%= p.collection&.name %></td>
+    <% if p.digitized? %>
+      <td><%= link_to "Yes", digiprovs_path(p.acting_as)%></td>
+    <% else %>
+      <td><%= p.digitized.nil? ? "N/A" : p.digitized %></td>
+    <% end %>
+  </tr>
+  <% end %>
+</table>
+<% end %>

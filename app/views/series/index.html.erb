@@ -1,0 +1,29 @@
+<%= link_to 'New Series', new_series_path %> |
+<%= link_to 'Merge Series', show_merge_series_path %>
+<h1>Listing Series</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th colspan="3">Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @series.each do |series| %>
+      <tr>
+        <td><%= series.title %></td>
+        <td>
+	        <%= link_to 'Show', series %><br/>
+	        <%= link_to 'Edit', edit_series_path(series) %>
+		      <% if policy(Series).destroy? %>
+		        <br/><%= link_to 'Destroy', series, method: :delete, data: { confirm: 'Are you sure?' } %>
+		      <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+

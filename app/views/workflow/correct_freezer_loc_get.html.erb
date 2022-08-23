@@ -1,0 +1,46 @@
+<h4>Correct Location</h4>
+<p>Scan a barcode to correct a Physical Object's storage location from In Storage to either In Freezer or Awaiting Freezer.
+  This returns the item to that storage location and
+  optionally removes the Physical Object from its <i><b>active</b></i> Component Group</p>
+<%= form_tag "", method: :post, id: 'correct_form' do %>
+<table>
+  <tbody>
+  <tr>
+    <th>Barcode</th>
+    <td>
+      <%= text_field_tag :iu_barcode %>
+    </td>
+  </tr>
+  <tr>
+    <th>Updated Location</th>
+    <td>
+      <%= select_tag 'location', options_for_select([[WorkflowStatus::IN_FREEZER, WorkflowStatus::IN_FREEZER], [WorkflowStatus::AWAITING_FREEZER, WorkflowStatus::AWAITING_FREEZER]]) %>
+    </td>
+  </tr>
+  <tr>
+    <th>Remove from CG</th>
+    <td>
+      <%= check_box_tag "remove" %>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <%= submit_tag "Return"%>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<% end %>
+<script type="text/javascript" charset="utf-8">
+  $(document).ready(function() {
+    $('#iu_barcode').bind("input", function() {
+      validateIUBarcode($(this));
+    });
+    $('#correct_form').submit(function(event) {
+        if (!isValidBarcode($('#iu_barcode').val(), false)) {
+            swal('Invalid IU Barcode', 'You must provide a valid IU Barcode');
+            return false;
+        }
+    });
+  });
+</script>

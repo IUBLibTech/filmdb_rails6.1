@@ -1,0 +1,19 @@
+<h4>Compilation</h4>
+<h2><%= params[:comp] %></h2>
+<table>
+  <tbody>
+  <tr>
+    <th>IU Barcode</th>
+    <th>Title(s)</th>
+    <th>Format</th>
+  </tr>
+  <% @physical_objects.each do |p| %>
+    <% p = p.specific %>
+    <tr>
+      <td><%= link_to "#{p.iu_barcode}", physical_object_path(p.acting_as) %></td>
+      <td><%= p.titles_text %></td>
+      <td><%= p.medium_name %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

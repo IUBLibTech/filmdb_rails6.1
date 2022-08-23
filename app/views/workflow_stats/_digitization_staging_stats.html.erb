@@ -1,0 +1,48 @@
+<h4>Digitization Staging Stats</h4>
+<table>
+	<tr>
+		<th>Physical Object Count</th>
+		<th>Title Count</th>
+		<th>Total Estimate Duration</th>
+	</tr>
+	<tr>
+		<td><%= @physical_objects.size %></td>
+		<td><%= @physical_objects.collect{|p| p.titles }.flatten.uniq.size %></td>
+		<td><%= hh_mm_sec(calc_estimated_duration(@physical_objects)) %></td>
+	</tr>
+	<tr>
+		<th>Can Sizes</th>
+		<th>Gauges</th>
+		<th>Scan Resolutions</th>
+	</tr>
+	<tr>
+		<td>
+			<ul>
+				<% @can_sizes.keys.sort.each do |k| %>
+				<li>
+					<%= "#{k}: #{@can_sizes[k]}" %>
+				</li>
+				<% end %>
+			</ul>
+		</td>
+		<td>
+			<ul>
+				<% @gauges.keys.sort.each do |k| %>
+				<li>
+					<%= "#{k}: #{@gauges[k]}" %>
+				</li>
+				<% end %>
+			</ul>
+		</td>
+		<td>
+			<ul>
+				<% @scan_resolutions.keys.sort.each do |k| %>
+				<li>
+					<%= "#{k}: #{@scan_resolutions[k]}" %>
+				</li>
+				<% end %>
+			</ul>
+		</td>
+	</tr>
+	
+</table>

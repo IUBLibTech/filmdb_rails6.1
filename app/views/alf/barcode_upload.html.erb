@@ -1,0 +1,14 @@
+<p>Please upload a text file containing one barcode per line</p>
+<%= form_tag alf_process_barcode_upload_path, multipart: true   do %>
+<table class='_35'>
+  <tbody>
+  <tr>
+    <th>File</th>
+    <td><%= file_field_tag :file, accept: '.txt' %></td>
+  </tr>
+  <tr>
+    <td colspan=2><%= submit_tag "Upload", class: 'right'%></td>
+  </tr>
+  </tbody>
+</table>
+<% end %>

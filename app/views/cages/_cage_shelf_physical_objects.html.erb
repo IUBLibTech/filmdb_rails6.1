@@ -1,0 +1,26 @@
+<h4 id="shelf_objects_header">Physical Objects in <i><%= @cage_shelf.identifier %></i></h4>
+<table id="shelf_po_table">
+	<tr>
+		<th>Barcode</th>
+		<th>Titles</th>
+		<th>Gauge/Format</th>
+		<th>Actions</th>
+	</tr>
+	<% @cage_shelf.physical_objects.order('updated_at DESC').each do |p| %>
+    <% p = p.specific # is there a better way??? %>
+		<tr>
+			<td>
+				IU: <%= p.iu_barcode %><br/>
+				MDPI: <%= p.mdpi_barcode %>
+			</td>
+			<td><%= p.titles_text %></td>
+			<td><%= p.medium_name %></td>
+			<td>
+				<% unless @cage_shelf.cage.ready_to_ship?  %>
+					<a class='cage_shelf_po_delete_link' href="#" id='po_<%= p.acting_as.id %>'>Remove</a> <br>
+				<% end  %>
+				<%= link_to 'Show', physical_object_path(p.acting_as.id), target: '_blank'  %>
+			</td>
+		</tr>
+	<% end %>
+</table>

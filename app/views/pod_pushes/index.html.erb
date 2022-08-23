@@ -1,0 +1,15 @@
+<h4>Cage Pushes</h4>
+<table>
+  <tbody>
+  <tr>
+    <th>Cage Id</th>
+    <th>Success</th>
+  </tr>
+  <% @pushes.each do |p| %>
+    <tr>
+      <th><%= p.cage.id %></th>
+      <th><%= (p.response && p.response.downcase != "success") ? (link_to p.response&.truncate(100), pod_push_path(id: p.id)) : p.response %></th>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

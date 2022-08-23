@@ -1,0 +1,283 @@
+<%#
+    Javascript related specifically to Physical Object (super class) metadata fields. Javascript for subsequent sub classes
+    will be located in their 'format/_metadata_editable_is.erb' files
+%>
+<script type="text/javascript" charset="utf-8">
+    /* This variable keeps track of the currently selected  */
+    var medium = "<%= physical_object_specific_medium %>";
+
+    /**
+     * Attach event listeners to all the Form fields that require validation or some javascript related functionality
+     */
+    function hookListeners() {
+        hookBarcodeValidators();
+        hookReelNumberValidator();
+        // autocomplete for titles
+        // when typing takes place in title_text, clear the hidden title_id value as it should only be set by selecting from
+        // the autocomplete list. Additionally we need to unlock series title text in case it was locked from a previous title
+        // selection
+        $("#"+medium+"_title_text").focus(function () {
+            if ($(this).data('autocomplete')) {
+                $(this).autocomplete("destroy");
+                $(this).removeData("autocomplete");
+            }
+            var series_val = series_value();
+            var source = '';
+            if (typeof series_val === 'undefined' || series_val == '') {
+                source = '../../../autocomplete_title';
+            } else {
+                source = '../../../autocomplete_title_for_series/' + series_val + "/";
+            }
+            $(this).autocomplete({
+                minLength: 2,
+                source: source,
+                focus: function (event, ui) {
+                    $(".ui-autocomplete > li").attr("title", ui.item.summary);
+                    return false;
+                },
+                select: function (event, ui) {
+                    $("#"+medium+"_title_text").removeClass('bad_barcode').val('');
+                    addTitle(ui.item.label, ui.item.value);
+                    return false;
+                }
+            });
+        }).keydown(function () {
+            $("#"+medium+"_title_text").addClass('bad_barcode');
+            $("#"+medium+"title_id").removeAttr('value');
+            $("#"+medium+"_series_title_text").val('');
+            $("#"+medium+"_series_id").removeAttr('value');
+        });
+
+        // autocomplete for collections - similar to how titles work except a single field instead of multiples
+        $("#"+medium+"_collection_text").keypress(function () {
+            $("#"+medium+"_collection_id").removeAttr('value');
+            <% unless controller.class == CollectionsController %>
+            // collection controller should never enable the unit text field as this and collection are fixed
+            var el = $("#"+medium+"_unit_id");
+            <% end %>
+        }).focus(function () {
+            if ($(this).data('autocomplete')) {
+                $(this).autocomplete("destroy");
+                $(this).removeData("autocomplete");
+            }
+            var unit_val = $("#"+medium+"_unit_id option:selected").attr('value');
+            var source = '../../../autocomplete_collection_for_unit/' + unit_val + "/";
+            $(this).autocomplete({
+                minLength: 2,
+                source: source,
+                focus: function (event, ui) {
+                    //$(".ui-autocomplete > li").attr("title", ui.item.description);
+                    return false;
+                },
+                select: function (event, ui) {
+                    // need to set the unit if a collection is selected
+                    unit_id = ui.item.unit_id
+                    unit_title = ui.item.abbreviation
+                    if (unit_id != null) {
+                        $("#"+medium+"_unit_text").val(unit_title);
+                        $("#"+medium+"_unit_id").val(unit_id);
+                    }
+                    $("#"+medium+"_collection_text").val(ui.item.label);
+                    $("#"+medium+"_collection_id").val(ui.item.value);
+                    return false;
+                }
+            });
+        });
+
+        // Title popup for creating Titles on the fly
+        $('#title_popup_cancel_button').click(function () {
+            $('#title_popup').hideTitlePopup();
+        });
+        $('#title_button').click(function () {
+            if ($('#title_popup').is(':visible') == false) {
+                //UPDATE: series id should always be 0 - use autocomplete on the new title popup to select an existing series
+                series_id = 0;
+                var url = window.location.protocol + '//' + window.location.host + '/titles/ajax/new/' + series_id;
+                $.ajax({
+                    url: url,
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        swal({
+                            title: 'Ajax Error',
+                            text: 'An error occurred while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                        }, function () {
+                            window.location.replace(url)
+                        })
+                    },
+                    success: function (result) {
+                        el = $('#title_popup_content');
+                        el.html(result);
+                        // grab any partially typed text input when the title failed to match
+                        pt = $("#"+medium+"_title_text").val();
+                        $('#title_title_text').val(pt);
+                        $("#title_popup").showTitlePopup();
+                        // autocomplete for series
+                        $('#title_series_title_text').autocomplete({
+                            source: '../../../autocomplete_series',
+                            focus: function (event, ui) {
+                                $(".ui-autocomplete > li").attr("title", ui.item.summary);
+                                return false;
+                            },
+                            select: function (event, ui) {
+                                $("#title_series_title_text").val(ui.item.label);
+                                $('#title_series_id').val(ui.item.value);
+                                return false;
+                            },
+                            create: function (event, ui) {
+                                this.element.css('z-index', '5000')
+                            }
+                        });
+                        create_url = window.location.protocol + '//' + window.location.host + '/titles/ajax/new_title';
+                        $('#new_title').submit(function (event) {
+                            event.preventDefault();
+                            $.ajax({
+                                data: $(this).serialize(),
+                                type: $(this).attr('method'),
+                                dataType: 'json',
+                                url: create_url,
+                                success: function (response) {
+                                    if (response['error'] == null) {
+                                        addTitle(response['title_text'], response['title_id'])
+                                        $("#"+medium+"_title_text").removeClass('bad_barcode');
+                                    } else {
+                                        alert(result['error']);
+                                    }
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    swal({
+                                        title: 'Ajax Error',
+                                        text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                                    }, function () {
+                                        window.location.replace(create_url)
+                                    })
+                                },
+                                complete: function () {
+                                    $('#title_popup').hideTitlePopup();
+                                }
+                            });
+                        });
+                    }
+                })
+            }
+            jQuery.fn.showTitlePopup = function() {
+                $('#overlay').css("display", "block");
+                this.css("position", "absolute");
+                this.css("display", "block");
+                this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop()) + "px");
+                this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+            };
+
+            jQuery.fn.hideTitlePopup = function() {
+                $('#overlay').css("display", "none");
+                this.css("display", "none");
+            };
+        });
+
+        // form pre-submission
+        $("#"+medium+"_form").submit(function (event) {
+            if ((!$("#"+medium+"_collection_id").val() || $("#"+medium+"_collection_id").val() == "") && !$("#"+medium+"_no_collection").is(':checked')) {
+                event.preventDefault();
+                swal('Cannot Submit Physical Object', "You must either specify a collection or check the 'No Collect?' checkbox.")
+            }
+        });
+
+        /**
+         *  Whenever the Medium input:select changes values we need to recreate the form based on the selected medium
+         *  (film, video, etc). However, metadata may have been added/changed in other fields so we must POST the form
+         *  to the original action (new or edit). A GET won't work as the form data is appended to the URL as parameters
+         *  and this will exceed the max limit of around 2000 characters (for IE) that browsers support.
+         */
+        $('#medium_types').change(function() {
+            // add hidden attribute to form denoting a medium change and submit the form
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'medium_changed',
+                value: true
+            }).appendTo('#physical_object_form');
+            $('#physical_object_form').attr('action', '<%= (action_name == 'new' || action_name == 'create') ? physical_objects_new_post_path : physical_objects_edit_post_path %>');
+            $('#physical_object_form').submit();
+            document.getElementById("physical_object_form").submit();
+        });
+
+        // this registers format specific (Film, Video, etc) event listeners. hookMetadataListeners() must be defined in the format specific
+        // 'physical_objects/<format>/_metadata_editable_js.erb' file even if that format does not require and javascript functionality for form input
+        hookMetadataListeners();
+
+    }
+
+    function addTitle(title_text, title_id) {
+        if (title_id_already_added(title_id)) {
+            sweetAlert(title_text+" has already been associated with this Physical Object");
+        } else {
+            // javascript "".split(',') returns [""] by design, so we have to remove that element from the array if present
+            var ids = getSelectedTitleIds();
+            ids.push(title_id);
+            ids.sort();
+            $('#title_ids').attr('value', ids.join(','));
+            var li = $(document.createElement('li')).attr({id: 'title_'+title_id, class: 'title_li' });
+            $(document.createElement('div')).attr('class', 'title_text').html(title_text).appendTo(li);
+            var remove_div = $(document.createElement('div')).attr('class', 'remove_title_button');
+            $(document.createElement('a')).click(function() { removeTitle($(this)); }).html('-').attr({ id: 'remove_title_button_'+title_id, class: 'button', href: '#', 'data-remote': 'true', title: 'Click to remove this Physical Object/Title association' }).appendTo(remove_div);
+            remove_div.appendTo(li);
+            li.appendTo($('#existing_titles'));
+            // clear title text
+            $("#"+medium+"_title_text").removeClass('bad_barcode').val('');
+        }
+    }
+
+    function removeTitle(jqueryObject) {
+        var id = jqueryObject.attr('id').replace('remove_title_button_', '');
+        $('#title_'+id).remove();
+        var ids = getSelectedTitleIds();
+        ids.splice(ids.indexOf(id), 1);
+        $('#title_ids').attr('value', ids.join(','));
+    }
+
+    //checks whether the specified title id has already been added to the hidden field #title_ids value attribute
+    function title_id_already_added(id) {
+        return $('#title_ids').attr('value').split(',').indexOf(id) > -1;
+    }
+
+    //returns $('#title_ids').attr('value') as an array with "" removed
+    function getSelectedTitleIds() {
+        var ids = $('#title_ids').attr('value').split(',');
+        if (ids.indexOf("") >= 0) {
+            ids.splice(ids.indexOf(""), 1);
+        }
+        return ids;
+    }
+
+    function series_value() {
+        return $("#"+medium+"_series_id").first().attr('value');
+    }
+    function series_id_blank() {
+        var val = $("#"+medium+"_series_id").first().attr('value');
+        return (typeof val === 'undefined' || val === '');
+    }
+
+    // make sure to register listeners for both Physical Object fields, AND format specific metadata fields.
+    $(document).ready(function() {
+        hookListeners();
+        $('#physical_object_form').submit(function(e) {
+        	//only film and video have a reel_number field so check for the presence before validating the format
+          let sel = $("#film_reel_number, #video_reel_number")
+	        if (sel.length > 0 && !validReelNumber(sel.val())) {
+	        	e.preventDefault();
+          }
+        })
+    });
+
+
+    function hookReelNumberValidator() {
+	    $("#film_reel_number, #video_reel_number").bind("input", function() {
+	    	let v = $(this).val()
+        if (validReelNumber(v)) {
+	        $(this).removeClass('bad_barcode')
+        } else {
+	        $(this).addClass('bad_barcode')
+        }
+	    });
+    }
+    function validReelNumber(val) {
+    	return val === "" || /^[\d]+ of [\d?]+$/.test(val);
+    }
+</script>

@@ -1,0 +1,12 @@
+<table>
+  <tbody>
+  <tr>
+    <th>Compilation</th>
+  </tr>
+  <% @comps.each do |comp| %>
+  <tr>
+    <td><%= link_to "#{comp}", compilation_physical_objects_path(comp) %></td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>

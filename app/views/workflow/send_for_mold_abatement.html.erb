@@ -1,0 +1,15 @@
+<h4>Scan an IU Barcode to Send for Mold Abatement</h4>
+<%= form_for 'physical_object', url: process_send_for_mold_abatement_path do |f| %>
+    <table>
+      <tr>
+        <th>Scan IU Barcode</th>
+        <td><%= f.text_field :iu_barcode %></td>
+      </tr>
+      <tr>
+        <td><%= f.submit 'Mark Sent' %> </td>
+        <td>to <b>Mold Abatement</b></td>
+      </tr>
+    </table>
+<% end %>
+<h4 class="m_bottom_10px">Physical Objects <i>On Site</i></h4>
+<%= render partial: 'physical_objects_table' %>

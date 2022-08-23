@@ -1,0 +1,9 @@
+<h4>Digital Provenance for <i><b><%= @physical_object.titles_text %></b></i></h4>
+<% @dp.each do |d| %>
+  <div class="digiprov_div">
+    <h4>Cage: <%= "#{d.cage_shelf.nil? ? "N/A" : d.cage_shelf.identifier}" %></h4>
+    <pre>
+      <%= d.digital_provenance_text %>
+    </pre>
+  </div>
+<% end %>

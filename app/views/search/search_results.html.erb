@@ -1,0 +1,24 @@
+<% if @pos.size == 0 %>
+<b>No results found for <%= params[:barcode] %></b>
+<% else %>
+  <b>Search Results for <i>'<%= params[:barcode] %>'</i></b>
+  <table>
+    <tbody>
+    <tr>
+      <th>Format</th>
+      <th>IU Barcode</th>
+      <th>Title</th>
+      <th>Collection</th>
+    <% @pos.each do |p| %>
+      <tr>
+        <td><%= (p.instance_of? PhysicalObject) ? p.specific.format : 'Cage Shelf' %></td>
+        <td>
+          <%= link_to "#{p.iu_barcode}", p %>
+        </td>
+        <td><%= p.is_media? ? p.titles_text : '' %></td>
+        <td><%= p.collection ? p.collection.name : '' %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% end %>

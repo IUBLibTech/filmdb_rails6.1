@@ -1,0 +1,51 @@
+<div id="cg_div">
+  <% if @pos.size > 0 %>
+    <h4>Component Group</h4>
+    <table class="w_100per">
+      <tbody>
+      <tr>
+        <th>CG Title</th>
+        <td colspan="5">
+          <%= select_tag :title_id, options_for_select(@titles.collect{|t| [t.title_text, t.id] }) %>
+        </td>
+        <th>Component Group Type</th>
+        <td>
+          <%= select_tag :cg_type, options_for_select(ComponentGroup::ALL_TYPES.collect{|t| [t, t]}), {class: "cg_type"} %>
+        </td>
+      </tr>
+      <tr>
+        <th>Barcode</th>
+        <th>Gauge</th>
+        <th>Generation</th>
+        <th>Scan Resolution</th>
+        <th>Color Space</th>
+        <th>Clean</th>
+        <th>Return on Reel</th>
+        <th>Set Location</th>
+      </tr>
+      <% @pos.each do |p| %>
+        <tr>
+          <td><%= p.iu_barcode %></td>
+          <td><%= p.specific.gauge %></td>
+          <td><%= p.specific.humanize_boolean_generation_fields %></td>
+          <td>
+            <%= select_tag "component_group[component_group_physical_objects][#{p.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]})  %>
+          </td>
+          <td>
+            <%= select_tag "component_group[component_group_physical_objects][#{p.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}) %>
+          </td>
+          <td>
+            <%= select_tag "component_group[component_group_physical_objects][#{p.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}) %>
+          </td>
+          <td>
+            <%= select_tag "component_group[component_group_physical_objects][#{p.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]]) %>
+          </td>
+          <td>
+            <%= select_tag "component_group[component_group_physical_objects][#{p.id}][location]", options_for_select([WorkflowStatus::BEST_COPY_ALF, WorkflowStatus::BEST_COPY_WELLS].collect { |s| [s, s] }), {class: 'location_select'} %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

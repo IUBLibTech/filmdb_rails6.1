@@ -1,0 +1,166 @@
+<% @map.keys.each do |t_id| %>
+  <% title = Title.includes(:physical_objects).find(t_id) %>
+  <%
+    if @map[t_id] != @title.id && @map[t_id].size == 0
+      next
+    end
+  %>
+  <div class="split_title_div">
+  <h4><%= link_to title.title_text, title_path(title), class: 'orange', target: '_blank' %></h4>
+  <table>
+    <tbody>
+    <tr>
+      <th>IU Barcode</th>
+      <th>Location</th>
+      <th>Gauge/Format</th>
+      <th>Generation</th>
+      <th>Scan Resolution</th>
+      <th>Color Space</th>
+      <th>Return on Reel</th>
+      <th>Clean</th>
+      <th>Add to CG</th>
+      <th>Return to Storage</th>
+      <th>Leave in Workflow</th>
+    </tr>
+    <% if @title.id == t_id %>
+      <tr>
+        <th colspan="10">Remaining Physical Objects</th>
+      </tr>
+      <% PhysicalObject.where(id: @map[t_id]).each do |p| %>
+        <% p = p.specific %>
+        <% ss = p.active_scan_settings.nil? ? nil : p.active_scan_settings %>
+        <% locked = (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+        <tr class="<%= p.digitized? ? (locked ? 'digitized_tr' : 'digitized_tr po_row') : (locked ? '' : 'po_row') %>">
+          <td><%= p.iu_barcode %></td>
+          <td><%= p.current_location %></td>
+          <td><%= p.medium_name %></td>
+          <td><%= p.humanize_boolean_generation_fields %></td>
+          <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, (ss.scan_resolution if ss)) %></td>
+          <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, (ss.color_space if ss)) %></td>
+          <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], (ss.return_on_reel if ss)) %></td>
+          <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, (ss.clean if ss)) %></td>
+          <% if (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+            <td>
+              <p class="warning"><%= p.current_location %></p>
+            </td>
+            <td>
+              <p class="warning">
+                <%= p.current_location %>
+              </p>
+            </td>
+            <td>
+              <p class="warning"><%= p.current_location %></p>
+            </td>
+          <% else %>
+            <td>
+              <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][checked]", "", false,  {class: 'po_check'} %>
+            </td>
+            <td>
+              <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return]", "", false,  {class: 'po_check'} %>
+            </td>
+            <td>
+              <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][workflow]", "", false,  {class: 'po_check'} %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr>
+        <th colspan="10">Existing Physical Objects</th>
+      </tr>
+      <% title.physical_objects.each do |p| %>
+        <% p = p.specific %>
+        <% ss = p.active_scan_settings.nil? ? nil : p.active_scan_settings %>
+        <% locked = (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+        <tr class="<%= p.digitized? ? (locked ? 'digitized_tr' : 'digitized_tr po_row') : (locked ? '' : 'po_row') %>">
+            <td><%= p.iu_barcode %></td>
+            <td><%= p.current_location %></td>
+            <td><%= p.medium_name %></td>
+            <td><%= p.humanize_boolean_generation_fields %></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, (ss.scan_resolution if ss)) %></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, (ss.color_space if ss)) %></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], (ss.return_on_reel if ss))%></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, (ss.clean if ss)) %></td>
+            <% if (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+              <td>
+                <p class="warning"><%= p.current_location %></p>
+              </td>
+              <td>
+                <p class="warning">
+                  <%= p.current_location %>
+                </p>
+              </td>
+              <td>
+                <p class="warning"><%= p.current_location %></p>
+              </td>
+            <% else %>
+              <td>
+                <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][checked]", "", false,  {class: 'po_check'} %>
+              </td>
+              <td>
+                <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return]", "", false,  {class: 'po_check'} %>
+              </td>
+              <td>
+                <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][workflow]", "", false,  {class: 'po_check'} %>
+              </td>
+            <% end %>
+          </tr>
+      <% end %>
+      <tr>
+        <th colspan="10">Retitled Physical Objects</th>
+      </tr>
+      <% PhysicalObject.where(id: @map[t_id]).each do |p| %>
+    <% p = p.specific %>
+        <% ss = p.active_scan_settings.nil? ? nil : p.active_scan_settings %>
+        <% locked = (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+        <tr class="<%= p.digitized? ? (locked ? 'digitized_tr' : 'digitized_tr po_row') : (locked ? '' : 'po_row') %>">
+            <td><%= p.iu_barcode %></td>
+            <td><%= p.current_location %></td>
+            <td><%= p.medium_name %></td>
+            <td><%= p.humanize_boolean_generation_fields %></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, (ss.scan_resolution if ss)) %></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, (ss.color_space if ss)) %></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], (ss.return_on_reel if ss)) %></td>
+            <td><%= select_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, (ss.clean if ss)) %></td>
+            <% if (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+              <td>
+                <p class="warning"><%= p.current_location %></p>
+              </td>
+              <td>
+                <p class="warning">
+                  <%= p.current_location %>
+                </p>
+              </td>
+              <td>
+                <p class="warning"><%= p.current_location %></p>
+              </td>
+            <% else %>
+              <td>
+                <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][checked]", "", false,  {class: 'po_check'} %>
+              </td>
+              <td>
+                <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return]", "", false,  {class: 'po_check'} %>
+              </td>
+              <td>
+                <%= check_box_tag "titles[#{t_id}]component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][workflow]", "", false,  {class: 'po_check'} %>
+              </td>
+            <% end %>
+          </tr>
+      <% end %>
+    <% end %>
+    <% if @map[t_id].size > 0 %>
+      <tr>
+        <th>Group Type</th>
+        <td>
+          <%= select_tag "titles[#{t_id}]component_group[group_type]", options_for_select([[ComponentGroup::BEST_COPY_ALF, ComponentGroup::BEST_COPY_ALF], [ComponentGroup::BEST_COPY_MDPI_WELLS, ComponentGroup::BEST_COPY_MDPI_WELLS], [ComponentGroup::REFORMATTING_MDPI, ComponentGroup::REFORMATTING_MDPI]]) %>
+        </td>
+        <th>Group Summary</th>
+        <td colspan="5">
+          <%= text_area_tag "titles[#{t_id}]component_group[group_summary]" %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>
+<% end %>

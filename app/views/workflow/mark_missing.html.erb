@@ -1,0 +1,14 @@
+<h4>Scan an IU Barcode to Mark Missing</h4>
+<%= form_for 'physical_object', url: process_mark_missing_path do |f| %>
+	<table>
+		<tr>
+			<th>Scan IU Barcode</th>
+			<td><%= f.text_field :iu_barcode %></td>
+		</tr>
+		<tr>
+			<td colspan="2"><%= f.submit 'Mark Missing' %> </td>
+		</tr>
+	</table>
+<% end %>
+<h4 class="m_bottom_10px">Physical Objects <i>Missing</i></h4>
+<%= render partial: 'physical_objects_table' %>

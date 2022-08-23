@@ -1,0 +1,137 @@
+<h4>Filters</h4>
+<%= form_tag stats_filter_index_path do %>
+		<table id="stats_form" class="_50">
+			<tr>
+				<td><b>Unit</b></td>
+				<td class="stats_form_input">
+					<%# options_for_select(Unit.all.collect{ |u| [u.abbreviation, u.id]}, include_blank: '')  %>
+					<%= select_tag :unit, options_from_collection_for_select(Unit.all, 'id', 'abbreviation', params[:unit] ), {include_blank: ''} %>
+				</td>
+			</tr>
+			<tr>
+				<td><b>Collection</b></td>
+				<td class="stats_form_input">
+					<%= text_field_tag :collection, "#{params[:collection].blank? ? '' : params[:collection]}", {id: 'collection_text'} %>
+					<%= hidden_field_tag 'collection_id', "#{params[:collection_id].blank? ? '' : params[:collection_id]}" %>
+				</td>
+			</tr>
+			<tr>
+				<td><b>Start Date</b></td>
+				<td class="stats_form_input"><%= text_field_tag :start,'', {id: 'start_date', class: 'datapicker'} %></td>
+			</tr>
+			<tr>
+				<td><b>End Date</b></td>
+				<td class="stats_form_input"><%= text_field_tag :end, '', {id: 'end_date', class: 'datapicker'} %></td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<%= submit_tag "Filter Results" %>
+				</td>
+			</tr>
+		</table>
+<% end  %>
+
+<h4>FilmbDB Statistics <%= @filter_msg %> <%= "[ #{@startTime.to_date.strftime("%m/%d/%Y")}: #{@endTime.to_date.strftime("%m/%d/%Y")}]" unless @startTime.nil? || @endTime.nil? %></h4>
+<table>
+	<tr>
+		<th>Physical Object Count</th>
+		<td><%= @physical_object_count %></td>
+	</tr>
+  <tr>
+    <th>Digitized Physical Object Count</th>
+    <td><%= @digitized_count %></td>
+  </tr>
+	<tr>
+		<th>Title Count</th>
+		<td><%= @title_count %></td>
+	</tr>
+  <tr>
+    <th>Fully Cataloged Titles</th>
+    <td><%= @title_cat_count %></td>
+  </tr>
+	<tr>
+		<th>Series Count</th>
+		<td><%= @series_count %></td>
+	</tr>
+</table>
+<h4>Physical Object Breakdown</h4>
+<div class="flex_wrap">
+  <% @medium_count.keys.sort.each do |m| %>
+    <div class="medium_metadata_link" data-medium_type="<%= m %>">
+      <div class="flex_wrap">
+        <div class="h">
+          <%= m.pluralize %>
+        </div>
+        <div class="v"><%= @medium_count[m] %></div>
+      </div>
+      <div class="stats"></div>
+    </div>
+  <% end  %>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+  var unit = '<%= params[:unit] %>';
+  var collection_id = '<%= params[:collection_id] %>'
+  var start = '<%= params[:start] %>'
+  var end = '<%= params[:end] %>'
+
+	$(document).ready(function() {
+	    $('.medium_metadata_link').click(function() {
+          var medium = $(this).attr('data-medium_type');
+          var statsDiv = $(this).children('.stats')
+          if (statsDiv.contents().size() > 0) {
+              statsDiv.html('');
+          } else {
+              statsDiv.html("<div style='text-align: center; padding: 5px'><img src='<%= asset_path('loading.gif') %>' alt='loading resource'></img></div>");
+            $.ajax({
+                url: '<%= ajax_medium_stats_path %>',
+                data: {
+                    medium: medium,
+                    unit: unit,
+                    collection_id: collection_id,
+                    start: start,
+                    end: end
+                },
+                success: function(result) {
+                    statsDiv.html(result);
+                },
+                error: function(jqXHR, exception) {
+                    swal({
+                        title: 'Ajax Error',
+                        text: 'An error occured while making an AJAX call. Please contact Carmel if this problem persists.'
+                    });
+                    statsDiv.html('');
+                }
+            });
+          }
+      });
+		//autcomplete for collections
+		$('#collection_text').focus(function() {
+//			if ($(this).data('autocomplete')) {
+//				$(this).autocomplete("destroy");
+//				$(this).removeData("autocomplete");
+//			}
+			var unit_val = $('#unit :selected').attr('value');
+			var source = unit_val == "" ? "../../../autocomplete_collection" : '../../../autocomplete_collection_for_unit/'+unit_val+"/";
+			$(this).autocomplete({
+				minLength: 2,
+				source: source,
+				focus: function (event, ui) {
+					//$(".ui-autocomplete > li").attr("title", ui.item.description);
+					return false;
+				},
+				select: function (event, ui) {
+					// need to set the unit if a collection is selected
+					unit_id = ui.item.unit_id
+					unit_title = ui.item.abbreviation
+					$("#collection_text").val(ui.item.label);
+					$('#collection_id').val(ui.item.value);
+          $('#unit').val(unit_id)
+					return false;
+				}
+			});
+		});
+		$('#start_date').datepicker();
+		$('#end_date').datepicker();
+	})
+</script>

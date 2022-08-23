@@ -1,0 +1,79 @@
+<% if action_name == 'best_copy_selection_update' %>
+<%= render partial: 'workflow/best_copy_cg_message' %>
+<% end %>
+<h4>Best Copy Selection</h4>
+<p style="float:left; width: 75%;">Scan an IU barcode below to retrieve its Best Copy component group</p>
+<p style="float: right; width: 25%;"><%= link_to "Merge Titles", title_merge_selection_path %></p>
+<table class="clear">
+	<tr>
+		<th>IU Barcode</th>
+		<td><input type="text" id="iu_barcode"/></td>
+	</tr>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('#iu_barcode').bind('input', function(){
+			var valid = validateIUBarcode($(this));
+			if (valid) {
+			    var url = './ajax_best_copy_selection_barcode/' + $(this).val();
+				$.ajax({
+					url: url,
+					method: 'POST',
+					error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occurred while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+					success: function (result) {
+						$('#cg').html(result);
+						$('.best_copy_check').change(function() {
+							pos = [];
+							$('.best_copy_check:checked').each(function() {
+								pos.push($(this).attr("value").substring(3));
+							});
+							$('#pos').attr('value', pos.join(','));
+						});
+						$('.mutually_exclusive').click(function() {
+							var checked_state = $(this).is(':checked');
+							$(this).parent('td').children('.mutually_exclusive').each(function() {
+								$(this).prop('checked', false);
+							});
+							$(this).prop('checked', checked_state);
+						});
+						$('#best_copy_update_form').submit(function(event) {
+							event.preventDefault();
+							resolution_selected = $('.mutually_exclusive:checked').length === 1;
+							if ($('.best_copy_check:checked').length === 0) {
+								swal({
+									title: 'Return All Physical Objects without creating a Component Group?',
+									text: 'If you select continue, all Physical Objects will be marked as returned to their storage locations without creating a Reformating (MDPI) Component Group.',
+									type: 'warning',
+									showCancelButton: true,
+									confirmButtonText: 'Continue',
+									reverseButtons: true
+								},
+								function() {
+									// for some reason jquery does not actually submit the form on this call... using DOM event
+									//$('#best_copy_update_form').submit();
+									document.getElementById('best_copy_update_form').submit();
+								})
+							} else {
+								if (resolution_selected) {
+									document.getElementById('best_copy_update_form').submit();
+								} else {
+									swal('You must select a scan resolution!');
+								}
+							}
+						});
+					}
+				});
+			}
+		});
+	});
+</script>
+<div id="cg"></div>
+<h4>Physical Objects in Best Copy Workflow</h4>
+<%= render partial: 'workflow/physical_objects_table' %>

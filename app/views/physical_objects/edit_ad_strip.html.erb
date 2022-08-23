@@ -1,0 +1,21 @@
+<%= form_for @physical_object, url: update_ad_strip_path do |f| %>
+  <table>
+    <tr>
+      <th>IU Barcode</th>
+      <td>
+        <%= f.text_field :iu_barcode %>
+      </td>
+    </tr>
+    <tr>
+      <th>AD Strip Value</th>
+      <td>
+        <%= f.select :ad_strip, options_for_select(@cv[:ad_strip]) %>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <%= f.submit 'Update AD Strip' %>
+      </td>
+    </tr>
+  </table>
+<% end %>

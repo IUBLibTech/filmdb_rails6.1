@@ -1,0 +1,19 @@
+.label, .field {
+    float: left;
+    width: 50%;
+}
+#fields, #sum_div {
+    float: left;
+    overflow: hidden;
+    width: 50%;
+    clear: both;
+}
+.lb, .fd {
+    float: left;
+    min-height: 28px;
+    width: 50%;
+}
+textarea {
+    width: 100%;
+    min-height: 95px;
+}

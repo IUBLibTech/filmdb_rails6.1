@@ -1,0 +1,21 @@
+// Place all the styles related to the Stats controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+.medium_metadata_link {
+  cursor: pointer;
+  width: 20%;
+}
+
+.h {
+  background: #e69a37;
+  font-weight: bold;
+  padding: 3px 3px 3px 1px;
+  width: 75%;
+  line-height: 1.5em;
+}
+.v {
+  width: 20%;
+  background: white;
+  line-height: 1.5em;
+  padding: 3px 3px 3px 1px;
+}

@@ -1,0 +1,12 @@
+<%= nested_form_for(@title, html: {autocomplete: 'off'}) do |f| %>
+  <h4>Title Original Identifiers</h4>
+  <div id="toi_div" class="fields_for_div">
+    <%= f.fields_for :title_original_identifiers do |toi| %>
+      <div class="label"><b>Identifier</b></div> <div class="field"><%= toi.text_field :identifier %></div>
+      <div class="label"><b>Identifier Type</b></div>
+      <div class="field"><%= toi.select :identifier_type, options_for_select(@title_cv[:title_original_identifier_type], toi.object.identifier_type), {include_blank: ''} %></div>
+      <div class="clear"><%= toi.link_to_remove(action_name == "edit" ? 'Delete' : 'Cancel') %></div>
+    <% end %>
+    <%= f.link_to_add "New Original Identifier", :title_original_identifiers %>
+  </div>
+<% end %>

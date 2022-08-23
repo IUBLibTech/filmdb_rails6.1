@@ -1,0 +1,78 @@
+<% film_column_headers = ["IU Barcode","MDPI Barcode", "All Title(s) on Media", "Matching Title (If more than one title on media)", "Series Title", "Series Part", "Title Country of Origin",
+    "Title Summary", "Title Original Identifiers", "Title Publishers", "Title Creators",
+    "Title Genres","Title Forms", "Title Dates",
+    "Title Locations", "Title Notes", "Title Subject", "Title Name Authority",
+    "IUCat Title Control Number","Catalog Key", "Alternative Title",
+    "Media Type","Medium","Version","Unit","Collection",
+    "Gauge", "Generation","Generation Notes", "Can Size", "Footage", "Duration", "Reel Dates",
+    "Base", "Stock", "Original Identifiers",
+    "Reel Number", "Multiple Items in Can", "Picture Type", "Frame Rate", "Color",
+    "Aspect Ratio", "Anamorphic", "Sound",
+    "Captions/Subtitles", "Format Type", "Content Type", "Sound Field",
+    "Track Count", "Languages", "Format Notes",
+    "Accompanying Documentation", "Accompanying Documentation Location", "Overall Condition", "Condition Notes",
+    "Research Value", "Research Value Notes", "AD Strip", "Shrinkage", "Mold",
+    "Conditions",
+    "Missing Footage", "Miscellaneous", "Conservation Actions", "Title Last Modified By"
+   ]
+   films = [], videos = [], recorded_sounds = []
+   @titles.each do |t|
+     t.physical_objects.each do |po|
+       case po.specific.medium
+       when "Film"
+         films << po
+       when "Video"
+         videos << po
+       when "Recorded Sound"
+         recorded_sounds << po
+       else
+         raise "Encountered an medium that cannot be handled in spreadsheet export: #{po.medium}"
+       end
+     end
+   end
+%>
+<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:html="http://www.w3.org/TR/REC-html40">
+  <% if @titles.any?{|t| t.physical_objects.any?{|p| p.medium == "Film"}} %>
+    <Worksheet ss:Name="Film">
+      <Table>
+        <Row>
+          <% film_column_headers.each do |column_name| %>
+            <Cell><Data ss:Type="String"><%= column_name %></Data></Cell>
+          <% end %>
+        </Row>
+        <% if films.any? %>
+          <% films.each do |f| %>
+            <%= render "titles/xls_film_row.xls.erb", po: f %>
+          <% end %>
+        <% end %>
+      </Table>
+    </Worksheet>
+  <% end %>
+  <% if @titles.any?{|t| t.physical_objects.any?{|p| p.medium == "Video"}} %>
+    <Worksheet ss:Name="Video">
+      <Table>
+        <Row>
+          <% column_headers.each do |column_name| %>
+            <Cell><Data ss:Type="String"><%= column_name %></Data></Cell>
+          <% end %>
+        </Row>
+      </Table>
+    </Worksheet>
+  <% end %>
+  <% if @titles.any?{|t| t.physical_objects.any?{|p| p.medium == "Recorded Sound"}} %>
+    <Worksheet ss:Name="Recorded Sound">
+      <Table>
+        <Row>
+          <% column_headers.each do |column_name| %>
+            <Cell><Data ss:Type="String"><%= column_name %></Data></Cell>
+          <% end %>
+        </Row>
+      </Table>
+    </Worksheet>
+  <% end %>
+</Workbook>

@@ -1,0 +1,6 @@
+<h2 class="warning"><%= pluralize(@physical_object.errors.count, "error") %> prevents <%= @physical_object.iu_barcode %> from being added to the cage shelf</h2>
+<ul>
+	<% @physical_object.errors.full_messages.each do |message| %>
+		<li><%= message %></li>
+	<% end %>
+</ul>

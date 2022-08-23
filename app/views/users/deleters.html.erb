@@ -1,0 +1,18 @@
+<table>
+  <tr>
+    <th>Who</th>
+    <th>Deleted</th>
+    <th>Identifier</th>
+    <th>When</th>
+  </tr>
+  <tbody>
+  <% @deletes.each do |d| %>
+    <tr>
+      <td><%= d.who_deleted %></td>
+      <td><%= d.object_type %></td>
+      <td><%= d.human_readable_identifier %></td>
+      <td><%= d.created_at %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

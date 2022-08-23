@@ -1,0 +1,35 @@
+<p class="notice">Title Split successful.</p>
+<% if @retitled.keys.size > 0 %>
+  <h2>The Following Physical Objects were reassigned to these titles</h2>
+  <% @retitled.keys.each do |tid| %>
+    <table>
+      <tr>
+        <th><%= Title.find(tid).title_text %></th>
+      </tr>
+      <% @retitled[tid][:retitled].each do |p| %>
+        <% p = p.specific %>
+        <tr>
+          <td><%= p.iu_barcode %></td>
+          <td><%= p.medium_name %></td>
+        </tr>
+      <% end %>
+    </table>
+    <h4>The following Physical Objects for this Title (including reassigned) need to be relocated</h4>
+    <table>
+      <tr>
+        <th>IU Barcode</th>
+        <th>Previous Location</th>
+        <th>New Location</th>
+      </tr>
+      <% @retitled[tid][:moved].each do |p| %>
+        <% p.reload %>
+        <tr>
+          <td><%= p.iu_barcode %></td>
+          <td><%= p.previous_location %></td>
+          <td><%= p.current_location %></td>
+        </tr>
+      <% end %>
+    </table>
+    <br><br><br>
+  <% end %>
+<% end %>

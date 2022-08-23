@@ -1,0 +1,30 @@
+<table>
+	<thead>
+	<tr>
+		<th>Cage Identifier</th>
+		<th>Shelf Identifiers</th>
+		<th>Notes</th>
+		<th>Actions</th>
+	</tr>
+	</thead>
+	<tbody>
+	<% @cages.each do |cage| %>
+    <tr>
+      <td><%= cage.identifier %></td>
+      <td class="_20">
+        <%= link_to "#{cage.top_shelf.identifier}", cage_shelf_path(cage.top_shelf) %>: <%= "#{cage.top_shelf.status}" %><br>
+        <%= link_to "#{cage.middle_shelf.identifier}", cage_shelf_path(cage.middle_shelf) %>: <%= "#{cage.middle_shelf.status}" %><br>
+        <%= link_to "#{cage.bottom_shelf.identifier}", cage_shelf_path(cage.bottom_shelf) %>: <%= "#{cage.bottom_shelf.status}" %></td>
+      <td><%= cage.notes %></td>
+      <td>
+        <%= link_to 'Show', cage %><br><%= link_to 'Edit', edit_cage_path(cage) %><br>
+        <% if cage.can_be_destroyed? && policy(Cage).destroy? %>
+          <%= link_to 'Destroy', cage, method: :delete, data: { confirm: 'Are you sure?' } %>
+        <% elsif cage.ready_to_ship? && !cage.shipped? %>
+          <%= link_to 'Mark Shipped to Memnon', mark_shipped_path(cage), method: :post %>
+        <% end  %>
+      </td>
+    </tr>
+	<% end %>
+	</tbody>
+</table>

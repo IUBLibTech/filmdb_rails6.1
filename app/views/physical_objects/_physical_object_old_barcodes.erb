@@ -1,0 +1,12 @@
+<% if @physical_object.physical_object_old_barcodes.size > 0  %>
+	<div id="old_barcodes">
+    <h4>Previous Barcodes</h4>
+    <ul>
+      <% @physical_object.physical_object_old_barcodes.each do |old| %>
+        <li>
+          <%= old.iu_barcode %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end  %>

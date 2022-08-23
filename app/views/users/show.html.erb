@@ -1,0 +1,64 @@
+<%= link_to 'Edit', edit_user_path(@user) %> |
+<%= link_to 'Back', url_for(:back) %>
+<table class="_50">
+  <tr>
+    <th>Username</th>
+    <td>
+	    <%= @user.username %>
+    </td>
+  </tr>
+  <tr>
+    <th>Email Address</th>
+    <td><%= @user.email_address %></td>
+  </tr>
+  <tr>
+    <th>First Name</th>
+    <td><%= @user.first_name %></td>
+  </tr>
+  <tr>
+    <th>Last Name</th>
+    <td><%= @user.last_name %></td>
+  </tr>
+  <tr>
+    <th>Active</th>
+    <td>
+      <%= @user.active? ? 'Yes' : 'No' %>
+    </td>
+  </tr>
+  <tr>
+    <th>Can Delete?</th>
+    <td>
+	    <%= @user.can_delete? ? 'Yes' : 'No' %> <br>
+    </td>
+  </tr>
+	<tr>
+		<th>Can Update Physical Object Location?</th>
+		<td>
+			<%= @user.can_update_physical_object_location? ? 'Yes' : 'No' %>
+		</td>
+	</tr>
+  <tr>
+    <th>Can Edit Users</th>
+    <td><%= @user.can_edit_users? ? 'Yes' : 'No' %></td>
+  </tr>
+  <tr>
+    <th>Can Add Controlled Vocabulary</th>
+    <td><%= @user.can_add_cv? ? 'Yes' : 'No' %></td>
+  </tr>
+  <tr>
+    <th>Read Only?</th>
+    <td><%= @user.read_only? ? 'Yes' : 'No' %></td>
+  </tr>
+	<tr>
+		<th>Worksite</th>
+		<td>
+			<%= @user.worksite_location %>
+		</td>
+	</tr>
+	<tr>
+		<th>Works at Wells and ALF?</th>
+		<td>
+			<%= @user.works_in_both_locations? ? 'Yes' : 'No' %>
+		</td>
+	</tr>
+</table>

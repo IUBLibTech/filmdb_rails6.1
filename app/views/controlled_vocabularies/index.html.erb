@@ -1,0 +1,77 @@
+<h1>Listing Controlled Vocabularies</h1>
+<%= form_for @cv do |f| %>
+<table class="left _50">
+  <thead>
+    <tr>
+      <th>Select Title Attribute</th>
+      <td colspan="2">
+        <%= f.select :model_attribute, options_for_select(@map.keys.collect{|t| [ControlledVocabulary.human_attribute_name(t),t]}.sort, 'Date') %>
+      </td>
+    </tr>
+    <tr>
+      <th>Create New Term</th>
+      <td colspan="2">
+        <%= f.text_field :value %>
+      </td>
+    </tr>
+    <tr>
+      <th></th>
+      <td colspan="2">
+        <%= f.submit "Create Term", id: 'createTermButton' %>
+      </td>
+    </tr>
+  </thead>
+</table>
+<div id="vocab_list" class="left _45 ml_10">
+  <h4 id="type_header">Existing Terms</h4>
+  <div id="list_content"></div>
+</div>
+<% end %>
+<script type="text/javascript" charset="utf-8">
+  var map = <%= @map.to_json.html_safe %>;
+  $(document).ready(function() {
+      $('#controlled_vocabulary_value').bind("input",function() {
+          updateMatches();
+      });
+      $('#controlled_vocabulary_model_attribute').change(function() {
+          updateMatches();
+      });
+      updateMatches();
+  });
+  function filterTerms(regExp, item) {
+      return regExp.test(item);
+  }
+  function updateMatches() {
+    var key = $('#controlled_vocabulary_model_attribute option:selected').val();
+    var typed = $('#controlled_vocabulary_value').val();
+    var reg = new RegExp(typed, 'gi');
+    var filtered = map[key].filter(function(item){
+        return filterTerms(reg, item);
+    });
+    var el = $('#list_content');
+    el.html("<ul id='list_content_ul'></ul>");
+    var el2 = $('#list_content_ul');
+    for (i = 0; i < filtered.length; i++) {
+      el2.append("<li>"+filtered[i]+"</li>")
+    }
+    $('#type_header').html("Existing "+$('#controlled_vocabulary_model_attribute option:selected').text()+" Terms");
+    reg = new RegExp(typed, 'im');
+    var exactMatch = false;
+    for (i = 0; i < map[key].length; i++) {
+        if (map[key][i].toLowerCase() === typed.toLowerCase() && typed.length > 0) {
+            exactMatch = true;
+            break;
+        }
+    }
+    if (typed.length === 0) {
+        $(':input[type="submit"]').prop('disabled', true);
+    } else if (exactMatch) {
+        $('#controlled_vocabulary_value').addClass('bad');
+        $(':input[type="submit"]').prop('disabled', true);
+    } else {
+        $(':input[type="submit"]').prop('disabled', false);
+        $('#controlled_vocabulary_value').removeClass('bad');
+    }
+  }
+
+</script>

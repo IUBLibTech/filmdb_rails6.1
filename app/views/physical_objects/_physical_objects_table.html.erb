@@ -1,0 +1,44 @@
+<% if @paginate %>
+	<%= render partial: 'paginator' %>
+<% end %>
+<table border="1">
+  <thead>
+  <tr>
+    <th>Barcode</th>
+    <th>Title(s)</th>
+    <th>Location</th>
+    <th>Workflow</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @physical_objects.each do |physical_object| %>
+    <tr class=<%= "digitized_tr" if physical_object.digitized? %>>
+      <td>
+	      <%= link_to physical_object do %>
+		      <%= physical_object&.iu_barcode %> <br/><%= physical_object&.mdpi_barcode %>
+	      <% end %>
+      </td>
+      <td>
+        <% physical_object.titles.each do |t| %>
+		      <%= link_to "#{t.title_text}", title_path(t) %> <br>
+	      <% end %>
+      </td>
+      <td><%= physical_object.current_workflow_status.type_and_location %></td>
+      <td><%= physical_object.active_component_group&.group_type %></td>
+      <td>
+        <%= link_to 'Show', physical_object %> <br/>
+        <%= link_to 'Edit', edit_physical_object_path(physical_object) %>
+	      <% if policy(physical_object).destroy? %>
+		      <br/>
+	        <%= link_to 'Destroy', physical_object, method: :delete, data: { confirm: 'Are you sure?' } %>
+	      <% end  %>
+	      <% if policy(physical_object).update_location? && physical_object.current_workflow_status.status_name == WorkflowStatus::PULL_REQUESTED %>
+		      <br/>
+		      <%= link_to 'Mark Missing', physical_object_mark_missing_path(physical_object), method: :post, data: { confirm: 'Are you sure?'} %>
+	      <% end %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

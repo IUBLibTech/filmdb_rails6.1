@@ -1,0 +1,124 @@
+<%= link_to 'Back to Best Copy Selection', workflow_best_copy_selection_path %> <br>
+<h3>Best Copy Selection for <b><i><%= link_to @title.title_text, title_path(@title), target: '_blank' %></i></b></h3>
+<br>
+<h4>Original Best Copy Component Group</h4>
+<table>
+  <tbody>
+  <tr>
+    <th>Group Summary</th>
+    <td colspan="5">
+      <textarea rows="4" cols="60"><%= @component_group.group_summary %></textarea>
+    </td>
+  </tr>
+  <tr>
+    <th>IU Barcode</th>
+    <th>Generation</th>
+    <th>Scan Resolution</th>
+    <th>Color</th>
+    <th>Return on Reel</th>
+    <th>Clean</th>
+    <th>Location</th>
+  </tr>
+  <% @component_group.physical_objects.each do |p| %>
+  <tr class="<%= p.digitized? ? 'digitized' : '' %>">
+    <td><%= link_to "#{p.iu_barcode}", physical_object_path(p), target: '_blank' %></td>
+    <td><%= p.generations_text %></td>
+    <% if p.current_scan_settings.nil? %>
+      <td></td><td></td><td></td><td></td>
+    <% else %>
+      <td><%= p.current_scan_settings.scan_resolution %></td>
+      <td><%= p.current_scan_settings.color_space %></td>
+      <td><%= p.current_scan_settings.return_on_reel ? "Yes" : "No" %></td>
+      <td><%= p.current_scan_settings.clean %></td>
+    <% end %>
+    <td><%= p.current_location %></td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>
+<br>
+<% if @component_group.pos_best_copy_able? %>
+  <h4>New Reformatting Component Group</h4>
+  <p>Select physical objects you wish to add to a <b>Reformatting Component Group</b>. Unselected physical objects will be returned
+    to their <i>last</i> storage location - In Storage (Ingested), In Storage (Awaiting Ingest), In Freezer, or Awaiting Freezer</p>
+  <%= form_tag title_component_group_best_copy_selection_create_path(@title, @component_group), method: :post do %>
+    <%= hidden_field_tag 'poids' %>
+    <table>
+      <tbody>
+      <tr>
+        <th>Reformatting CG Group Summary</th>
+        <td colspan="5">
+          <%= text_area_tag 'component_group[group_summary]' %>
+        </td>
+      </tr>
+      <tr>
+        <th>Add to CG</th>
+        <th>IU Barcode</th>
+        <th>Generation</th>
+        <th>Scan Resolution</th>
+        <th>Color</th>
+        <th>Return on Reel</th>
+        <th>Clean</th>
+      </tr>
+      <% @component_group.physical_objects.each do |p| %>
+      <% p = p.specific %>
+        <% if p.current_location == WorkflowStatus::MISSING %>
+        <tr>
+          <td class="warning"><%= p.current_location %></td>
+          <td><%= link_to "#{p.iu_barcode}", physical_object_path(p.acting_as.id), target: '_blank' %></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <% else %>
+          <tr>
+            <td>
+              <%= check_box_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][selected]" %>
+            </td>
+            <td><%= link_to "#{p.iu_barcode}", physical_object_path(p.acting_as), target: '_blank' %></td>
+            <td><%= p.generations_text %></td>
+            <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]},p.active_scan_settings.scan_resolution) %></td>
+            <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, p.active_scan_settings.color_space) %></td>
+            <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], p.active_scan_settings.return_on_reel) %></td>
+            <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, p.active_scan_settings.clean) %></td>
+          </tr>
+        <% end %>
+      <% end %>
+      <tr>
+        <td colspan="6"><%= submit_tag "Create Reformating CG" %></td>
+      </tr>
+      </tbody>
+    </table>
+  <% end %>
+<% else %>
+  <p class="warning">Not all physical objects are present. Reformatting Component Group cannot be created.</p>
+<% end %>
+<script type="text/javascript" charset="utf-8">
+  var po_ids = [];
+  var lastChecked = null;
+  $(document).ready(function() {
+     $('.po_check').click(function() {
+         po_ids = [];
+         $('.po_check:checked').each(function() {
+             po_ids.push($(this).attr('id').substring(3));
+             $('#poids').attr('value', po_ids.join());
+         })
+     });
+      $('input:checkbox').click(function(e) {
+          if (!lastChecked) {
+              lastChecked = this;
+              setChecked();
+              return;
+          }
+          if (e.shiftKey) {
+              var start = $('input:checkbox').index(this);
+              var end = $('input:checkbox').index(lastChecked);
+              $('input:checkbox').slice(Math.min(start, end), Math.max(start,end) + 1).prop('checked', lastChecked.checked)
+          }
+          setChecked();
+          lastChecked = this;
+      });
+  });
+</script>

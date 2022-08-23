@@ -1,0 +1,145 @@
+<h4>Recorded Sound Metadata Fields</h4>
+<b>Version</b><%= @physical_object.humanize_boolean_fields(RecordedSound::VERSION_FIELDS) %>
+<h4>Format</h4>
+<div class="flex_row">
+  <div class="flex_column">
+    <div class="inline">
+      <b>Format</b> <%= @physical_object.gauge %>
+    </div>
+    <div class="inline">
+      <b>Generation</b> <%= @physical_object.humanize_boolean_fields(RecordedSound::GENERATION_FIELDS) %>
+    </div>
+    <div class="inline">
+      <b>Sides</b> <%= @physical_object.sides %>
+    </div>
+    <div class="inline">
+      <b>Part</b> <%= @physical_object.part %>
+    </div>
+    <div class="inline">
+      <b>Size</b> <%= @physical_object.size %>
+    </div>
+  </div>
+  <div class="flex_column">
+    <div class="inline m_top_10px">
+      <b>Original Identifiers</b> <%= @physical_object.physical_object_original_identifiers.collect{|i| i.identifier}.join(", ") %>
+    </div>
+    <div class="inline">
+      <b>Duration</b> <%= @physical_object.duration %>
+    </div>
+    <div class="inline">
+      <b>Base</b> <%= @physical_object.base %>
+    </div>
+    <div class="inline">
+      <b>Multiple Items in Can</b> <%= bool_to_yes_no( @physical_object.multiple_items_in_can) %>
+    </div>
+    <div class="inline">
+      <b>Stock</b> <%= @physical_object.stock %>
+    </div>
+    <div class="inline">
+      <b>Capacity</b> <%= @physical_object.capacity %>
+    </div>
+    <div class="inline">
+      <b>Detailed Stock Information</b>
+    </div>
+    <div class="inline">
+      <%= @physical_object.detailed_stock_information %>
+    </div>
+  </div>
+</div>
+<div>
+  <h4>Sound</h4>
+  <div class="flex_row">
+    <div class="flex_column">
+      <div class="inline">
+        <b>Playback</b> <%= @physical_object.playback %>
+      </div>
+      <div class="inline">
+        <b>Noise Reduction</b> <%= @physical_object.noise_reduction %>
+      </div>
+      <div class="inline">
+        <b>Track Configuration</b> <%= @physical_object.track_configuration %>
+      </div>
+      <div class="inline">
+        <b>Content Type</b> <%= @physical_object.humanize_boolean_fields(RecordedSound::SOUND_CONTENT_FIELDS) %>
+      </div>
+    </div>
+    <div class="flex_column">
+      <div class="inline">
+        <b class="">Languages&nbsp;</b>
+      </div>
+      <div class="inline">
+        <% @physical_object.languages.each_with_index do |l, i| %>
+          <b><%= l.language %></b>
+        <% end %>
+      </div>
+      <div class="inline">
+        <b>Configuration</b> <%= @physical_object.humanize_boolean_fields(RecordedSound::SOUND_CONFIGURATION_FIELDS) %>
+      </div>
+    </div>
+  </div>
+</div>
+<div>
+  <h4>Condition</h4>
+  <div class="flex_row">
+    <div class="flex_column">
+      <div class="inline">
+        <b>Overall Condition</b> <%= @physical_object.condition_rating %>
+      </div>
+      <div class="inline">
+        <b>Condition Notes</b>
+      </div>
+      <div class="inline">
+        <%= @physical_object.condition_notes %>
+      </div>
+    </div>
+    <div class="flex_column">
+      <div class="inline">
+        <b>Research Value</b> <%= @physical_object.research_value %>
+      </div>
+      <div class="inline">
+        <b>Research Value Notes</b>
+      </div>
+      <div class="inline">
+        <%= @physical_object.research_value_notes %>
+      </div>
+    </div>
+  </div>
+</div>
+<div>
+  <h4>Rated Conditions</h4>
+  <div class="flex_row">
+    <% @physical_object.value_conditions.each do |vc| %>
+      <div class="mr_10">
+        <b><%= vc.condition_type %></b> <%= vc.value %><br/>
+        <% unless vc.comment.blank? %>
+          <b>Comment</b> <%= vc.comment %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<div>
+  <h4>Boolean Conditions</h4>
+  <div class="flex_row">
+    <% @physical_object.boolean_conditions.each do |vc| %>
+      <div class="mr_10">
+        <b><%= vc.condition_type %></b><br/>
+        <% unless vc.comment.blank? %>
+          <b>Comment</b> <%= vc.comment %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<div>
+  <h4>Miscellaneous</h4>
+  <div class="flex_row">
+    <%= @physical_object.miscellaneous %>
+  </div>
+</div>
+<div>
+  <h4>Conservation Actions</h4>
+  <div class="flex_row">
+    <%= @physical_object.conservation_actions %>
+  </div>
+</div>

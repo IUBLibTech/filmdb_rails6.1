@@ -1,0 +1,102 @@
+<p id="notice"><%= notice %></p>
+<%= link_to 'Back to Search', titles_path %>
+<h1>Listing Spread Sheet Searches</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Title</th>
+      <th>Series</th>
+      <th>Date</th>
+      <th>Publisher</th>
+      <th>Creator</th>
+      <th>Summary</th>
+      <th>Location</th>
+      <th>Subject</th>
+      <th>Collection</th>
+      <th>Digitization Status</th>
+      <th>Date Created</th>
+      <th>Completion Status</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @spread_sheet_searches.each do |ss| %>
+      <tr>
+        <td><%= ss.username %></td>
+        <td><%= ss.title_text %></td>
+        <td><%= ss.series_name %></td>
+        <td><%= ss.date_text %></td>
+        <td><%= ss.publisher_text %></td>
+        <td><%= ss.creator_text %></td>
+        <td><%= ss.summary_text %></td>
+        <td><%= ss.location_text %></td>
+        <td><%= ss.subject_text %></td>
+        <td><%= ss.collection_name %></td>
+        <td><%= ss.digitized_status %></td>
+        <td><%= ss.created_at.strftime("%B %d, %Y") %></td>
+        <td>
+          <% if ss.completed %>
+          <p class="green"><b>Complete</b></p>
+          <% elsif ss.in_progress? %>
+            <p data-inprogress="true" data-sss-id="<%= ss.id %>">
+              <%= ss.percent_complete %>
+            </p>
+          <% else %>
+            <p class="red"><b>FAILED</b></p>
+          <% end %>
+        </td>
+        <td>
+          <% if ss.completed %>
+            <%= link_to 'Download', spreadsheet_search_download_path(ss), download: ss.filename %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<script type="text/javascript" charset="utf-8">
+  let intervalId = null;
+  $(document).ready(function () {
+    intervalID = setInterval(function() {
+			let count = $("[data-inprogress='true']").size();
+      if (count > 0) {
+				ajaxUpdateProgress();
+      } else {
+	      clearInterval(intervalID);
+      }
+    }, 5000)
+  });
+
+	function ajaxUpdateProgress() {
+		$.ajax({
+			url: '<%= spreadsheet_search_progress_path %>',
+      type: "GET",
+      dataType: 'json',
+			error: function(obj, error, errorThrown) {
+        let x = 237;
+			},
+			success: function(result) {
+				let any_100 = false;
+				for (let x = 0 ; x < result.length; x++) {
+          let id = result[x][0];
+					let percent = result[x][1];
+					let el = $('[data-sss-id='+id+']')
+          el.fadeOut();
+          el.text(percent)
+          el.fadeIn();
+          if (percent === 100) {
+						el.removeAttr("data-inprogress")
+            any_100 = true
+          }
+        }
+				if (any_100) {
+					clearInterval(intervalID);
+					location.reload();
+        }
+			}
+		});
+  }
+</script>
+

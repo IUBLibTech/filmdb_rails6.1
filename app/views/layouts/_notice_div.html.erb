@@ -1,0 +1,12 @@
+<% unless flash[:warning].blank? && flash.now[:warning].blank? %>
+    <div>
+      <p class="warning">
+        <%= raw (flash[:warning].blank? ? flash.now[:warning] : flash[:warning]) %>
+      </p>
+    </div>
+<% end %>
+<% unless flash[:notice].blank? && flash.now[:notice].blank? %>
+  <div>
+    <p class="notice"><%= flash[:notice] ? flash[:notice].to_s.html_safe : flash.now[:notice].to_s.html_safe %></p>
+  </div>
+<% end %>

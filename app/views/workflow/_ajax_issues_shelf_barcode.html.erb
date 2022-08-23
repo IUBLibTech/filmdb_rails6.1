@@ -1,0 +1,65 @@
+<% if @others != false  %>
+	<table>
+		<tr>
+			<th colspan="4">These physical objects belong to the same component group</th>
+		</tr>
+		<tr>
+			<th>IU Barcode</th>
+			<th>Title</th>
+			<th>Current Location</th>
+			<th>Issues (If also on Issues Shelf)</th>
+		</tr>
+		<% @others.each do |p| %>
+			<tr>
+				<td><%= link_to "#{p.iu_barcode}", edit_physical_object_path(p), target: '_blank' %></td>
+				<td><%= p.titles_text %></td>
+				<td><%= p.current_workflow_status.status_name %></td>
+				<td><% if p.current_workflow_status.status_name == WorkflowStatus::ISSUES_SHELF %><%= p.condition_notes %><% end %></td>
+			</tr>
+		<% end %>
+	</table>
+<% end %>
+<div class="m_top_10px m_bottom_10px">
+	<%= form_for @physical_object, url: ajax_issues_shelf_update_path(@physical_object.id) do |f| %>
+		<table>
+			<tr>
+				<th colspan="2">Workflow Status updated to</th>
+			</tr>
+			<tr>
+				<th>Title</th>
+				<td>
+					<%= @physical_object.titles_text %>
+				</td>
+			</tr>
+			<tr>
+				<th>Reason Pulled</th>
+				<td>
+					<%= @physical_object.active_component_group.group_type %>
+				</td>
+			</tr>
+			<tr>
+				<th>Condition Notes</th>
+				<td>
+					<%= @physical_object.condition_notes %>
+				</td>
+			</tr>
+			<tr>
+				<th>IU Barcode</th>
+				<td></td>
+			</tr>
+			<tr>
+				<th>Status</th>
+				<td><%= f.select :current_workflow_status, options_for_select(WorkflowStatus::STATUSES_TO_NEXT_WORKFLOW[WorkflowStatus::ISSUES_SHELF].collect { |s| [s, s] }), {include_blank: 'Select Next Workflow Location'} %></td>
+			</tr>
+			<tr>
+				<th>Did you update <%= link_to "#{@physical_object.iu_barcode}", edit_physical_object_path(@physical_object.id), target: '_blank' %>'s metadata?</th>
+				<td>
+					<%= f.check_box 'updated' %>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2"><%= f.submit "Update Location"%></td>
+			</tr>
+		</table>
+	<% end %>
+</div>

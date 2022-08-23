@@ -1,0 +1,65 @@
+<p class="notice">Title merge successful.</p>
+<ul class="notice">
+  <% if @mergees&.size > 0 %>
+    <li><%= @mergees.size %> other Titles were merged into this Title record</li>
+  <% end %>
+  <% unless @component_group.nil? %>
+    <li>A <%= @component_group.group_type %> Component Group was created containing: <br>
+      <table>
+        <tbody>
+        <tr>
+          <th>IU Barcode</th>
+          <th>Gauge/Format</th>
+          <th>Generation</th>
+          <th>Location</th>
+          <th>Scan Settings</th>
+        </tr>
+        <% @component_group.physical_objects.each do |p|%>
+        <% p = p.specific %>
+          <tr>
+            <td><%= p.iu_barcode %></td>
+            <td><%= p.medium_name %></td>
+            <td><%= p.generations_text %></td>
+            <td><%= p.current_location %></td>
+            <td>
+              <ul>
+                <li>Scan Resolution: <%= p.active_scan_settings.scan_resolution %></li>
+                <li>Color Space: <%= p.active_scan_settings.color_space %></li>
+                <li>Return on Reel: <%= p.active_scan_settings.return_on_reel ? "Yes" : "No" %></li>
+                <li>Clean: <%= p.active_scan_settings.clean %></li>
+              </ul>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </li>
+  <% end %>
+
+  <% if @unchecked && @unchecked.size > 0 %>
+    <li>
+      <%= @unchecked.size %> Physical Objects were returned to Storage
+    </li>
+  <% end %>
+  <% if @moved.size > 0 %>
+    <li>
+      The following Physical Objects will need to be moved from their physical location <br>
+      <table>
+        <tbody>
+        <tr>
+          <th>IU Barcode</th>
+          <th>Current Physical Location</th>
+          <th>Move To</th>
+        </tr>
+        <% @moved.each do |p| %>
+          <tr>
+            <td><%= p.iu_barcode %></td>
+            <td><%= p.previous_location %></td>
+            <td><%= p.current_location %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </li>
+  <% end %>
+</ul>

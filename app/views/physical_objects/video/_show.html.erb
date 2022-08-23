@@ -1,0 +1,160 @@
+<h4>Video Metadata Fields</h4>
+<b>Version</b><%= @physical_object.humanize_boolean_fields(Video::VERSION_FIELDS) %>
+<h4>Format</h4>
+<div class="">
+  <div class="left _50">
+    <b>Format</b> <%= @physical_object.gauge %><br/>
+    <b class="">Generation</b> <%= @physical_object.humanize_boolean_fields(Video::GENERATION_FIELDS) %><br>
+    <h5>Generation Notes</h5>
+    <div class="simple_text">
+      <%= format_newlines(@physical_object.generation_notes) %>
+    </div>
+  </div>
+  <div class="left _50">
+    <b>Original Identifiers:&nbsp;</b>
+    <% @physical_object.physical_object_original_identifiers.each_with_index do |id, i| %>
+      <%= (i == @physical_object.physical_object_original_identifiers.size - 1 ? "#{id.identifier}" : "#{id.identifier}, ")%>
+    <% end %>
+  </div>
+  <div class="left _50">
+    <b>Reel Number</b> <%= @physical_object.reel_number %>
+  </div>
+  <div class="left _50">
+    <b>Size</b> <%= @physical_object.size%>
+  </div>
+  <div class="left _50">
+    <b>Recording Standard</b> <%= @physical_object.recording_standard %>
+  </div>
+  <div class="left _50">
+    <b >Playback Speed&nbsp;</b><%= @physical_object.playback_speed %>
+  </div>
+  <div class="left _50">
+    <b>Dates</b> <%= @physical_object.dates_text %>
+  </div>
+  <div class="left _50">
+    <b>Capacity</b> <%= @physical_object.tape_capacity %>
+  </div>
+  <div class="left _50">
+    <b>Duration</b> <%= @physical_object.duration %>
+  </div>
+  <div class="left _50">
+    <b>Base</b> <%= @physical_object.base %> <br>
+  </div>
+  <div class="left _50">
+    <b>Stock</b> <%= @physical_object.stock %>
+  </div>
+  <div class="left _50">&nbsp;</div>
+  <div class="left _50">
+    <b>Detailed Stock Information</b> <%= @physical_object.detailed_stock_information %>
+  </div>
+</div>
+<div class="clear">
+  <div id="image_metadata" class="metadata_section left _50">
+    <h4>Image</h4>
+    <div id="image_metadata_content_div">
+
+      <div class="">
+        <b>Picture Type&nbsp;</b>
+        <%= @physical_object.humanize_boolean_fields(Video::PICTURE_TYPE_FIELDS) %>
+      </div>
+      <div id="" class="">
+        <b class="block">Color&nbsp;</b>
+        <%= @physical_object.humanize_boolean_fields(Video::COLOR_FIELDS) %>
+      </div>
+      <div>
+        <b class="block">Aspect Ratio&nbsp;</b>
+        <%= @physical_object.humanize_boolean_fields(Video::ASPECT_RATIO_FIELDS) %>
+      </div>
+    </div>
+  </div>
+  <div id="sound_metadata" class="left _50">
+    <h4>Sound</h4>
+    <div>
+      <b class="block">Sound</b><%= @physical_object.sound %>
+    </div>
+    <div>
+      <b>Captions/Subtitles&nbsp;</b><%= @physical_object.captions_or_subtitles? ? 'Yes' : 'No'%>
+    </div>
+    <div>
+      <b>Silent</b> <%= @physical_object.silent %>
+    </div>
+    <div>
+      <b>Format Type&nbsp;</b>
+      <%= @physical_object.humanize_boolean_fields(Video::SOUND_FORMAT_FIELDS) %>
+    </div>
+    <div>
+      <b >Content Type&nbsp;</b>
+      <%= @physical_object.humanize_boolean_fields(Video::SOUND_CONTENT_FIELDS) %>
+    </div>
+    <div>
+      <b >Sound Field&nbsp;</b>
+      <%= @physical_object.humanize_boolean_fields(Video::SOUND_CONFIGURATION_FIELDS) %>
+    </div>
+    <div>
+      <b> Sound Deduction </b>
+      <%= @physical_object.humanize_boolean_fields(Video::SOUND_REDUCTION_FIELDS) %>
+    </div>
+    <div>
+      <b class="">Languages&nbsp;</b>
+      <% @physical_object.languages.each_with_index do |l, i| %>
+        <b><%= l.language %></b> - <%= l.language_type %>&nbsp;&nbsp;
+      <% end %>
+    </div>
+  </div>
+</div>
+<div>
+  <h4>Condition</h4>
+  <div class="h_55px">
+    <div class="left _45 rp_10px">
+      <b>Overall Condition</b> <%= @physical_object.condition_rating %>
+      <h5>Condition Notes</h5>
+      <div class="simple_text">
+        <%= format_newlines(@physical_object.condition_notes) %>
+      </div>
+    </div>
+    <div class="left _50">
+      <b>Research Value</b> <%= @physical_object.research_value %><br/>
+      <h5>Research Value Notes</h5>
+      <div class="simple_text">
+        <%= format_newlines(@physical_object.research_value_notes) %>
+      </div>
+    </div>
+  </div>
+  <div class="clear">
+    <b>Mold</b> <%= @physical_object.mold %><br/>
+  </div>
+  <div>
+    <h4>Rated Condition</h4>
+    <% @physical_object.value_conditions.each do |vc| %>
+      <div class="left condition">
+        <b><%= vc.condition_type %></b> <%= vc.value %><br/>
+        <% unless vc.comment.blank? %>
+          <b>Comment</b> <%= vc.comment %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <div>
+    <h4>Boolean Conditions</h4>
+    <% @physical_object.boolean_conditions.each do |bc| %>
+      <div class="left condition">
+        <b><%= bc.condition_type %></b><br/>
+        <% unless bc.comment.blank? %>
+          <%= bc.comment %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <div class="clear">
+    <h4> Miscellaneous</h4>
+    <div class="simple_text">
+      <%= format_newlines(@physical_object.miscellaneous) %>
+    </div>
+  </div>
+</div>
+<div id="conservation_actions_metadata" class="metadata_section">
+  <h4>Conservation actions</h4>
+  <div class="simple_text">
+    <%= format_newlines(@physical_object.conservation_actions) %>
+  </div>
+</div>

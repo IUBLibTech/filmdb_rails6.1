@@ -1,0 +1,61 @@
+<h4>Move <i><%= @component_group.group_type %></i> Component Group Physical Objects into MDPI Workflow</h4>
+<% if @component_group.is_mdpi_workflow? %>
+  <p class="warning">
+    Cannot move a Component Group already in MDPI Workflow
+  </p>
+<% else %>
+  <%= form_for @new_cg, url: move_to_mdpi_workflow_create_url do |f| %>
+    <table>
+      <tbody>
+      <tr>
+        <th>Group Type</th>
+        <td colspan="7">
+          <%= f.select :group_type, options_for_select(@component_group_cv) %>
+        </td>
+      </tr>
+      <tr>
+        <th>Group Summary</th>
+        <td colspan="7">
+          <%= f.text_area :group_summary %>
+        </td>
+      </tr>
+      <tr>
+        <th>Add to CG</th>
+        <th>IU Barcode</th>
+        <th>Generation</th>
+        <th>Scan Resolution</th>
+        <th>Color Space</th>
+        <th>Return on Reel</th>
+        <th>Clean</th>
+        <th>Location/Workflow</th>
+      </tr>
+      <% @title.physical_objects.each do |p| %>
+      <% p = p.specific %>
+        <% add_able = (p.in_active_workflow? && p.active_component_group == @component_group) || p.in_storage? %>
+        <tr>
+          <% if add_able %>
+            <td>
+              <%= check_box_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][selected]" %>
+            </td>
+          <% else %>
+            <td class="warning">
+              N/A
+            </td>
+          <% end %>
+          <td><%= link_to "#{p.iu_barcode}", physical_object_path(p.acting_as), target: '_blank' %></td>
+          <td><%= p.generations_text %></td><td><%= select_tag "new_cg[component_group_physical_objects_attributes][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]},p.active_scan_settings&.scan_resolution) %></td>
+          <td><%= select_tag "new_cg[component_group_physical_objects_attributes][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, p.active_scan_settings&.color_space) %></td>
+          <td><%= select_tag "new_cg[component_group_physical_objects_attributes][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], p.active_scan_settings&.return_on_reel) %></td>
+          <td><%= select_tag "new_cg[component_group_physical_objects_attributes][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, p.active_scan_settings&.clean) %></td>
+          <td class="<% !add_able ? 'warning' : '' %>"><%= "#{p.current_location} [#{p.active_component_group&.group_type}]" %></td>
+        </tr>
+      <% end %>
+        <tr>
+          <td colspan="8">
+            <%= f.submit "Create MDPI CG" %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  <% end %>
+<% end %>

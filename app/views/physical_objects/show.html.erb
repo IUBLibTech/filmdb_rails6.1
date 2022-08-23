@@ -1,0 +1,74 @@
+<%= link_to 'Edit', edit_physical_object_path(@physical_object.acting_as) %> |
+<%= link_to 'Back', url_for(:back) %> |
+<%= link_to 'New Physical Object', new_physical_object_path %>
+<% if @continue_url %>
+   &nbsp;|&nbsp;<%= link_to @continue_text, @continue_url %>
+<% end %>
+<div style="overflow: auto">
+	<% unless @physical_object.active_component_group.nil? %>
+		<div class="left" style="height: 30px; padding-top: 10px; width: 200px;">
+			<b>In Workflow For:</b> <%= @physical_object.active_component_group.group_type %>
+		</div>
+	<% end %>
+  <% if @physical_object.digitized %>
+    <div class="digitized">
+      Digitized
+    </div>
+  <% end %>
+  <div style="height: 20px">
+    <div class="right _35">
+      <b>Inventoried By: </b><%= @physical_object.inventorier.name %>&nbsp;(<%= @physical_object.acting_as.created_at.strftime('%Y-%m-%d %H:%M:%S') %>)
+    </div>
+  </div>
+  <div style="heigh: 20px">
+    <div class="right _35">
+      <b>Modified By: </b><%= @physical_object.modifier.name %>&nbsp;(<%= @physical_object.updated_at.strftime('%Y-%m-%d %H:%M:%S') %>)
+    </div>
+  </div>
+</div>
+<% if @physical_object.specific.is_a? EquipmentTechnology %>
+  <%= render partial: "physical_objects/#{physical_object_specific_medium}/show" %>
+<% else %>
+  <div id="core_metadata" class="metadata_section clear">
+    <h4>Core Metadata</h4>
+    <div class="left _50">
+      <b>Title(s)</b>
+      <% @physical_object.titles.each_with_index do |t, i| %>
+        <%= link_to t.title_text, title_path(t), class: 'title_link' %><% if @physical_object.titles.size > i + 1 %>|<% end %>
+      <% end %><br/>
+      <b>Alternative Title</b> <%= @physical_object.alternative_title %><br/>
+      <b>Compilation</b> <%= @physical_object.compilation %><br>
+      <b>Medium</b> <%= @physical_object.format %><br/>
+      <b>Unit</b> <%= @physical_object.unit.abbreviation %><br/>
+      <b>Collection</b> <%= @physical_object.collection&.name %><br/>
+    </div>
+    <div class="left _50">
+      <b>Workflow Status</b> <%= link_to @physical_object.current_workflow_status.type_and_location, physical_object_workflow_history_path(@physical_object.acting_as), class: "#{@physical_object.missing? ? 'missing' : ''}" %><br/>
+      <b>Storage Location</b> <%= @physical_object.storage_location %><br>
+      <b>ALF/Freezer Location</b> <%= @physical_object.alf_shelf %> <br>
+      <b>IU Barcode</b> <%= @physical_object.iu_barcode %><% if @physical_object.physical_object_old_barcodes.size > 0 %><%= link_to "*", "#old_barcodes" %><% end %><br/>
+      <b>MDPI Barcode</b> <%= @physical_object.mdpi_barcode %><br/>
+      <b>IUCAT Title No.</b> <%= @physical_object.title_control_number %><br/>
+      <b>Catalog Key</b> <%= @physical_object.catalog_key %><br/>
+    </div>
+  </div>
+  <% unless @physical_object.format_notes.blank? %>
+    <div id="format_notes_metadata" class="metadata_section m_top_10px">
+      <h4>Format Notes</h4>
+      <%= format_newlines(@physical_object.format_notes) %>
+    </div>
+  <% end %>
+  <% unless @physical_object.accompanying_documentation.blank? && @physical_object.accompanying_documentation_location.blank? %>
+    <div id="accompanying_documentation_metadata" class="metadata_section">
+      <h4>Accompanying Documentation</h4>
+      <div>
+        <%= format_newlines(@physical_object.accompanying_documentation) %>
+      </div>
+      <div>
+        <b>Location</b> <%= @physical_object.accompanying_documentation_location %>
+      </div>
+    </div>
+  <% end %>
+  <%= render partial: "physical_objects/#{physical_object_specific_medium}/show" %>
+  <%= render partial: 'physical_objects/physical_object_old_barcodes' %>
+<% end %>

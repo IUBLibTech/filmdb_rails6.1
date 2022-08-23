@@ -1,0 +1,37 @@
+<div id="alf_form_div" class="left _45">
+  <% if @msg %>
+    <p class="warning"><%= @msg %></p>
+  <% else  %>
+    <h4><%= @physical_object.iu_barcode %></h4>
+    <p>This Physical Object was pulled for <b>non MDPI</b> workflow.</p>
+
+    <% if @physical_object.same_active_component_group_members? != false %>
+      <p class="notice">
+        <% bcs = @physical_object.same_active_component_group_members?&.collect{|p| p.iu_barcode}  %>
+        <%= "#{bcs.join(', ')} also #{bcs.size == 1 ? 'belongs' : 'belong'} to this title and #{bcs.size == 1 ? 'has' : 'have'} not yet been received from storage." %>
+      </p>
+    <% end %>
+
+    <%= form_for @physical_object, url: receive_from_storage_path, html: { id: 'receive_physical_object_form'} do |f| %>
+      <%= f.hidden_field :iu_barcode %>
+      <table>
+        <tr>
+          <th>Reason Pulled</th>
+          <td>
+            <%= @physical_object.active_component_group&.group_type %>
+          </td>
+        </tr>
+        <tr>
+          <th>Title</th>
+          <td><%= @physical_object.titles.collect{ |t| t.title_text }.join(', ') %></td>
+        </tr>
+        <tr>
+          <th>Update Location to <b><i>Alf (non MDPI)</i></b></th>
+          <td colspan="2">
+            <%= f.submit "Update" %>
+          </td>
+        </tr>
+      </table>
+    <% end %>
+  <% end  %>
+</div>

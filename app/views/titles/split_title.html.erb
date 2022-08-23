@@ -1,0 +1,223 @@
+<%= form_tag update_split_title_path, id: 'split_title_form' do %>
+  <%= hidden_field_tag 'title_map' %>
+<h4>Splitting <%= link_to @title.title_text, title_path(@title), class: 'orange' %></h4>
+  <% if @title.fully_cataloged %>
+    <br>
+    <%= image_tag('paw.png') %>
+  <% end %>
+<p>Reassign Physical Objects in this Title by selecting their new titles in the title field below</p>
+<table>
+  <tbody>
+  <tr>
+    <th>IU Barcode</th>
+    <th>Reassign to Title</th>
+    <th>Location</th>
+  </tr>
+  <% @title.physical_objects.each do |p| %>
+  <% p = p.specific %>
+  <tr id="<%= "po_#{p.acting_as.id}" %>">
+    <td><%= link_to "#{p.iu_barcode}", physical_object_path(p), target: '_blank' %></td>
+    <% if p.current_location == WorkflowStatus::BEST_COPY_MDPI_WELLS || p.current_location == WorkflowStatus::BEST_COPY_ALF %>
+      <td id="po_<%= p.acting_as.id %>"><%= text_field_tag "retitled[physical_objects[#{p.acting_as.id}]]", nil, class: 'title_text', size: 50 %></td>
+    <% else %>
+      <td class="warning">Not at Best Copy</td>
+    <% end %>
+    <td><%= p.current_location %></td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>
+<div id="title_sum" class="left _75 ml_10" >
+
+</div>
+<h3>Component Group Creation</h3>
+<div id="split_titles_div">
+
+</div>
+<div>
+  <%= submit_tag "Retitle Physical Objects" %>
+</div>
+<% end %>
+<script type="text/javascript" charset="utf-8">
+  var title_id = <%= @title.id %>;
+  var pos = <%= @title.physical_objects.collect{|p| p.id}.to_json %>;
+  var title_map = new Map();
+  // tracks physical object title (re)assignment. this is initialized to have the splitting title's id mapped to an array
+  // of its physical object's ids. As POs are reassigning to other titles, new title id keys are added, with the reassigned
+  // PO id being appended to the array for the new title. See retitlePo() and resetPoAssoc() below for how this works
+  title_map.set(title_id, pos);
+
+  $(document).ready(function() {
+      $('.title_text').autocomplete({
+        minLength: 3,
+        //source: '<%= autocomplete_title_path %>',
+        source: function (request, response) {
+            var url = "<%= autocomplete_title_path %>";
+            $.ajax({
+                url: url,
+                dataType: "json",
+                data: {
+                    term: request.term,
+                    exclude: [<%= @title.id %>]
+                },
+                success: function (data) {
+                    response(data)
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    swal({
+                        title: 'Ajax Error',
+                        text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                    }, function() {
+                        window.location.replace(url)
+                    });
+                }
+            });
+        },
+        focus: function (event, ui) {
+            ajaxTitleSummary(ui.item['value']);
+            return false;
+        },
+        select: function (event, ui) {
+            toggleTitleSum();
+            $(this).val(ui.item['label']);
+            $(this).attr('value', ui.item['label']);
+            $(this).attr('title_id', ui.item['value']);
+            retitlePo($(this));
+            getCgTable();
+            $(this).blur();
+            return false;
+        }
+    }).focusout(function () {
+        toggleTitleSum();
+    }).focusin(function() {
+        if ($(this).val().length > 0) {
+            resetPoAssoc($(this));
+            $(this).val('');
+            $(this).attr('value', '');
+            $(this).attr('title_id', null);
+            getCgTable();
+        }
+      });
+      $('#split_title_form').submit(function(event) {
+          event.preventDefault();
+          safe = allChecked();
+          if (safe) {
+              document.getElementById('split_title_form').submit();
+          } else {
+              swal("Cannot Process Request", "You must explicitly select whether each Physical Object should be added to the Component Group, returned to storage, or left in workflow.");
+          }
+          return false;
+      });
+  });
+
+  function ajaxTitleSummary(id) {
+      var url = '../../titles/ajax/' + id;
+      $.ajax({
+          url: url,
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+          success: function (result) {
+              $('#title_sum').html(result).show();
+          }
+      })
+  }
+
+  function allChecked() {
+      var rv = true;
+    $('.po_row').each(function() {
+        kids = $(this).find('input:checked');
+        if (kids.size() === 0) {
+            return rv = false;
+        }
+    });
+    return rv;
+  }
+
+  function toggleTitleSum() {
+      $('#title_sum').hide().html('');
+  }
+
+  // this function is responsible for updating title_map when a physical object is reassigned to another title.
+  // The autocomplete text box (wrapped as a JQuery object) is passed to this function.
+  function retitlePo(jq) {
+      if (title_map.size > 1) {
+          var x = 237;
+      }
+      var newTitleId = jq.attr('title_id');
+      var poId = Number(jq.parent().parent().attr('id').substring(3));
+      removePoFromMap(poId);
+      var array = title_map.get(Number(newTitleId));
+      if (array == null) {
+          title_map.set(Number(newTitleId), [Number(poId)]);
+      } else {
+          array.push(poId);
+          array.sort();
+      }
+      setTitleMapHash();
+  }
+  // after clearing a title assignment for a physical object, reassigns the PO to the source title.
+  function resetPoAssoc(jq) {
+      var poId = Number(jq.parent().parent().attr('id').substring(3));
+      removePoFromMap(poId);
+      var array = title_map.get(Number(title_id));
+      array.push(Number(poId));
+      array.sort();
+  }
+  function removePoFromMap(poId) {
+      title_map.forEach(function(value, key, map) {
+          if (value != null && value.indexOf(poId) > -1) {
+              value.splice(value.indexOf(poId), 1);
+          }
+      });
+      setTitleMapHash();
+  }
+
+  function setTitleMapHash() {
+      $('#title_map').val(JSON.stringify([...title_map]));
+  }
+
+  function getCgTable() {
+      $.ajax({
+          url: "<%= split_title_cg_table_path %>",
+          method: "POST",
+          data: {
+              title_map: JSON.stringify([...title_map]),
+              id: <%= @title.id %>
+          },
+          success: function(data) {
+              $('#split_titles_div').html(data);
+              registerCheckboxes();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+              swal("Ajax Error", "An error occurred while making an AJAX call at function: getCgTable()")
+          }
+      });
+  }
+
+  // after loading the ajax call results of getCgTable we need to register the checkboxes with event listeners so that
+  // we can make them mutually exclusive in their selectivity.
+  function registerCheckboxes() {
+      $('input:checkbox').change(function() {
+          if (this.checked) {
+              var kids = $(this).parent().parent().find('input:checkbox');
+              if (kids[0] == this) {
+                  $(kids[1]).attr('checked', false);
+                  $(kids[2]).attr('checked', false);
+              } else if (kids[1] == this) {
+                  $(kids[0]).attr('checked', false);
+                  $(kids[2]).attr('checked', false);
+              } else {
+                  $(kids[0]).attr('checked', false);
+                  $(kids[1]).attr('checked', false);
+              }
+          }
+      });
+  }
+
+</script>

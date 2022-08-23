@@ -1,0 +1,21 @@
+<p class="notice">A <%= @cg.group_type %> Component Group was successfully created and moved into workflow</p>
+<br>
+<p>The following Physical Objects were added to the Component Group and have had their physical locations updated to:</p>
+<ul class="notice">
+  <% @pos.each do |p| %>
+  <li>
+    <%= "#{p.iu_barcode} moved to #{p.current_location}" %>
+  </li>
+  <% end %>
+</ul>
+<br><br>
+<% if @return.size > 0 %>
+  <p>The following Physical Objects should be returned to storage:</p>
+  <ul class="notice">
+    <% @return.each do |p| %>
+      <li>
+        <%= "#{p.iu_barcode} returned to #{p.current_location}" %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

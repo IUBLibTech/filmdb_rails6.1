@@ -1,0 +1,38 @@
+<h4>Issues Shelf</h4>
+<p>Scan an IU barcode below to retrieve record</p>
+<table>
+	<tr>
+		<th>IU Barcode</th>
+		<td><input type="text" id="iu_barcode"/></td>
+	</tr>
+</table>
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('#iu_barcode').bind('input', function(){
+			valid = validateIUBarcode($(this));
+			url = window.location.origin +"/workflow/ajax_issues_shelf_barcode/" + $(this).val();
+			if (valid) {
+				$.ajax({
+					url: url,
+					method: 'POST',
+					error: function(jqXHR, textStatus, errorThrown) {
+              swal({
+                  title: 'Ajax Error',
+                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+              }, function() {
+                  window.location.replace(url)
+              });
+          },
+					success: function (result) {
+						$('#cg').html(result);
+					}
+				});
+			}
+		});
+	});
+</script>
+<div id="cg">
+</div>
+<h4 class="m_top_10px">Physical Objects on the Issues Shelf</h4>
+<%= render partial: 'workflow/physical_objects_table' %>
+

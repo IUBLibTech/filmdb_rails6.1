@@ -1,0 +1,17 @@
+<%= form_for(@spread_sheet_search) do |f| %>
+  <% if @spread_sheet_search.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@spread_sheet_search.errors.count, "error") %> prohibited this spread_sheet_search from being saved:</h2>
+
+      <ul>
+      <% @spread_sheet_search.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

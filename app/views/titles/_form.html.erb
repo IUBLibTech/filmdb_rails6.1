@@ -1,0 +1,190 @@
+<%= nested_form_for(@title, html: {autocomplete: 'off'}) do |f| %>
+  <% if @title.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@title.errors.count, "error") %> prohibited this title from being saved:</h2>
+      <ul>
+      <% @title.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div id="title_form" class="metadata_section">
+    <%= f.hidden_field :created_by_id %>
+    <%= f.hidden_field :modified_by_id %>
+    <div>
+      <div class="left _50">
+        <div class="label"><b>Title</b></div>
+        <div class="field"><%= f.text_field :title_text %></div>
+        <div class="label"><b>Series Name</b></div>
+        <div class="field">
+          <%= f.hidden_field :series_id %>
+          <%= f.text_field :series_title_text %>
+        </div>
+        <div class="label"><b>Series Part</b></div>
+        <div class="field"><%= f.text_field :series_part %></div>
+        <div class="label"><b>Country of Origin</b></div>
+        <div class="field"><%= f.text_field :country_of_origin%></div>
+        <div class="label"><b>Fully Cataloged</b></div>
+        <div class="field"><%= f.check_box :fully_cataloged %></div>
+      </div>
+      <div class="left _50">
+        <div class="clear"><b>Title Summary</b></div>
+        <div class="">
+          <%= f.text_area :summary %>
+        </div>
+      </div>
+      <div class="clear _50">
+        <div class="label short_label"><b>Stream URL</b></div>
+        <div class="field"><%= f.text_field :stream_url, class: "" %></div>
+      </div>
+    </div>
+    <h4>Title Original Identifiers</h4>
+    <div id="toi_div" class="fields_for_div">
+      <%= f.fields_for :title_original_identifiers do |toi| %>
+        <div class="label"><b>Identifier</b></div> <div class="field"><%= toi.text_field :identifier %></div>
+        <div class="label"><b>Identifier Type</b></div>
+        <div class="field"><%= toi.select :identifier_type, options_for_select(@title_cv[:title_original_identifier_type], toi.object.identifier_type), {include_blank: ''} %></div>
+        <div class="clear"><%= toi.link_to_remove(action_name == "edit" ? 'Delete' : 'Cancel') %></div>
+      <% end %>
+      <%= f.link_to_add "New Original Identifier", :title_original_identifiers %>
+    </div>
+    <h4>Creators</h4>
+    <div id="creators_div" class="fields_for_div">
+      <%= f.fields_for :title_creators do |tc| %>
+          <div class="label"><b>Creator</b></div> <div class="field"><%= tc.text_field :name, class: 'tc_name'%></div>
+          <div class="label"><b>Role</b></div> <div class="field"><%= tc.select :role, options_for_select(@title_cv[:title_creator_role_type], tc.object.role) %></div>
+          <div class="clear"><%= tc.link_to_remove(action_name == 'edit' ? 'Delete' : 'Cancel') %></div>
+      <% end %>
+      <%= f.link_to_add "New Creator", :title_creators %>
+    </div>
+    <h4>Publishers</h4>
+    <div id="publishers_div" class="fields_for_div">
+      <%= f.fields_for :title_publishers do |tp| %>
+          <div class="label"><b>Publisher</b></div> <div class="field"><%= tp.text_field :name, class: 'tp_name' %></div>
+          <div class="label"><b>Role</b></div>
+          <div class="field"><%= tp.select :publisher_type, options_for_select(@title_cv[:title_publisher_role_type], tp.object.publisher_type) %></div>
+          <div class="clear"><%= tp.link_to_remove(action_name == 'edit' ? 'Delete' : 'Cancel') %></div>
+      <% end %>
+      <%= f.link_to_add "New Publisher", :title_publishers %>
+    </div>
+    <h4>Genres</h4>
+    <div id="genres_div" class="fields_for_div">
+      <%= f.fields_for :title_genres do |tg| %>
+        <div class="label">
+          <b>Genre</b>
+        </div>
+        <div class="field">
+          <%= tg.select :genre, options_for_select(@genre_cv[:genre], tg.object.genre) %>
+        </div>
+        <div class="clear"><%= tg.link_to_remove(action_name == 'edit' ? 'Delete' : 'Cancel') %></div>
+      <% end %>
+      <%= f.link_to_add "New Genre", :title_genres %>
+    </div>
+    <h4>Forms</h4>
+    <div id="forms_div" class="fields_for_div">
+      <%= f.fields_for :title_forms do |tf| %>
+        <div class="label">
+          <b>Form</b>
+        </div>
+        <div class="field">
+          <%= tf.select :form, options_for_select(@form_cv[:form], tf.object.form) %>
+        </div>
+        <div class="clear"><%= tf.link_to_remove(action_name == 'edit' ? 'Delete' : 'Cancel') %></div>
+      <% end %>
+      <%= f.link_to_add "New Form", :title_forms %>
+    </div>
+    <h4>Dates</h4>
+    <div id="dates_div">
+      <%= f.fields_for :title_dates do |td| %>
+          <div class="label"><b>Type</b> <%= td.select :date_type, options_for_select(@title_date_cv[:date_type], td.object.date_type) %></div>
+          <div class="label"><b>Date</b> <%= td.text_field :date_text, class: 'title_date_year' %></div>
+          <div class="clear"><%= td.link_to_remove(action_name == 'edit' ? 'Delete' : 'Cancel') %></div>
+      <% end %>
+      <%= f.link_to_add "New Date", :title_dates %>
+    </div>
+    <h4 class="m_bottom_5px">Copyright</h4>
+    <div>
+      <div>
+        <div class="cp_info">
+          <div class="left _50">
+            <div>
+              <label for="title_in_copyright"><b>In Copyright?</b></label> <%= f.select :in_copyright, options_for_select([["Yes", "Yes"],["No", "No"],["Unknown", "Unknown"]], @title.in_copyright), include_blank: true  %>
+              <label for="title_expiration_date_edtf"><b>Expiration Date</b></label><%= f.text_field :copyright_end_date_edtf %>
+            </div>
+            <div style="margin-top: .5rem"><b>Copyright Verified By</b></div>
+            <div>
+              <%= f.check_box :copyright_verified_by_iu_cp_research %><label class="check_box_left" for="">IU Libraries Copyright Research</label>
+              <%= f.check_box :copyright_verified_by_viewing_po %><label class="check_box_left" for="">Viewing Physical object</label>
+              <%= f.check_box :copyright_verified_by_other %><label class="check_box_left" for="">Other</label>
+            </div>
+          </div>
+          <div class="left _50">
+            <div><b>Copyright Notes</b></div>
+            <%= f.text_area :copyright_notes %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h4>Locations</h4>
+
+    <div id="dates_div">
+      <%= f.fields_for :title_locations do |tl| %>
+        <div class="label"><b>Location</b> <br>
+          <%= tl.text_field :location %> <br>
+          <%= tl.link_to_remove(action_name == 'edit' ? 'Delete' : 'Cancel') %>
+        </div>
+      <% end %>
+      <%= f.link_to_add "New Location", :title_locations %>
+    </div>
+
+    <h4>Notes</h4>
+    <div id="notes_div">
+      <%= f.text_area :notes %>
+    </div>
+	  <h4>Subject</h4>
+	  <div id="notes">
+		  <%= f.text_area :subject %>
+	  </div>
+	  <h4>Name Authority</h4>
+	  <div id="name_authority">
+		  <%= f.text_area :name_authority %>
+	  </div>
+    <div class="actions">
+      <%= f.submit (action_name == 'new' ? 'Create' : "Update"), id: 'title_submit' %>
+    </div>
+  </div>
+<% end %>
+<% if controller_name == 'titles' %>
+<script type="text/javascript">
+  $(document).ready(function() {
+	  // autocomplete for series
+	  $('#title_series_title_text').autocomplete({
+		  source: '../../../autocomplete_series',
+		  focus: function (event, ui) {
+			  $(".ui-autocomplete > li").attr("title", ui.item.summary);
+			  return false;
+		  },
+		  open: function(event, ui) {
+			  $('#title_series_title_text').unbind('keydown.remove_series');
+		  },
+		  select: function (event, ui) {
+			  $("#title_series_title_text").val(ui.item.label);
+			  $('#title_series_id').val(ui.item.value);
+			  return false;
+		  },
+		  close: function(event, ui) {
+			  $('#title_series_title_text').bind('keydown.remove_series', function(e) {
+				  if (e.keyCode !== 9) {
+            $('#title_series_id').val('')
+          }
+			  });
+		  }
+	  }).bind('keydown.remove_series', function(e) {
+		  if (e.keyCode !== 9) {
+        $('#title_series_id').val('')
+      }
+	  });
+  });
+</script>
+<% end %>

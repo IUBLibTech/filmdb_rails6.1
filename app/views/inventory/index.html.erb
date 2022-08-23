@@ -1,0 +1,74 @@
+<h2>What Would You Like To Inventory?</h2>
+<ul class="inventory_ul">
+  <li class="inventory_li">
+    <div>
+      Collection: <input type="text", id="collection_name" /><a href='', id='collection_link'>Inventory</a>
+    </div>
+  </li>
+  <li class="inventory_li">
+    <div>
+      Title: <input type='text', id="title_name" /><a href='', id='title_link'>Inventory</a>
+    </div>
+  </li>
+  <li class="inventory_li">
+    <div>
+      Series: <i>Disabled Pending Discussion</i><!-- <input type='text', id="series_name" /><a href='', id='series_link'>Inventory</a> -->
+    </div>
+  </li>
+  <li class="inventory_li"><%= link_to 'New Physical Object', new_physical_object_path %></li>
+</ul>
+
+<script type="text/javascript">
+  //autcomplete for collections
+  $('#collection_name').autocomplete({
+    source: '../../../autocomplete_collection',
+    focus: function (event, ui) {
+      return false;
+    },
+    select: function (event, ui) {
+      $("#collection_name").val(ui.item.label);
+      $('#collection_link').attr('href', '/collections/'+ui.item.value+'/new_physical_object');
+      $('#collection_link').css('display', 'inline');
+      return false;
+    }
+  });
+  $('#collection_name').keypress(function() {
+    $('#collection_link').css('display', 'none');
+  });
+
+  // autocomplete for title
+  $('#title_name').autocomplete({
+    source: '../../../autocomplete_title',
+    focus: function (event, ui) {
+      $(".ui-autocomplete > li").attr("title", ui.item.summary);
+      return false;
+    },
+    select: function (event, ui) {
+      $("#title_name").val(ui.item.label);
+      $('#title_link').attr('href', '/titles/'+ui.item.value+'/new_physical_object');
+      $('#title_link').css('display', 'inline');
+      return false;
+    }
+  });
+  $('#title_name').keypress(function() {
+    $('#title_link').css('display', 'none');
+  });
+
+  // autocomplete for series
+  /*$('#series_name').autocomplete({
+    source: '../../../autocomplete_series',
+    focus: function (event, ui) {
+      $(".ui-autocomplete > li").attr("title", ui.item.summary);
+      return false;
+    },
+    select: function (event, ui) {
+      $("#series_name").val(ui.item.label);
+      $('#series_link').attr('href', '/series/'+ui.item.value+'/new_physical_object');
+      $('#series_link').css('display', 'inline');
+      return false;
+    }
+  });
+  $('#series_name').keypress(function() {
+    $('#series_link').css('display', 'none');
+  });*/
+</script>

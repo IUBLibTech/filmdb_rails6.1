@@ -1,0 +1,39 @@
+<h4>Workflow History</h4>
+<table>
+	<tr>
+		<th>Title(s)</th>
+		<td colspan="5"><%= @physical_object.titles_text %></td>
+	</tr>
+	<tr>
+		<th>IU Barcode</th>
+		<td colspan="5"><%= link_to @physical_object.iu_barcode, physical_object_path(@physical_object) %></td>
+	</tr>
+	<% @physical_object.workflow_statuses.order(created_at: :desc).each_with_index do |s, i| %>
+		<% if i == 0%>
+			<tr style="color: #red; font-weight: bold">
+		<% else %>
+			<tr>
+		<% end %>
+			<th>Physical Location</th>
+			<td class="<%= s.status_name == 'Missing' ? 'missing' : '' %>">
+				<%= s.status_name %>
+			</td>
+		<th>Reason in Workflow</th>
+		<td>
+			<%= s.component_group.nil? ? 'N/A' : "#{s.component_group.group_type}" %>
+		</td>
+			<th>Updater</th>
+			<td>
+				<%= s&.user&.name %>
+			</td>
+			<th>Date</th>
+			<td>
+				<%= s.created_at.strftime("%B %d, %Y") %>
+			</td>
+      <th>In workflow for Title</th>
+      <td>
+        <%= link_to "#{s.component_group.title.title_text}", title_path(s.component_group.title) unless s.component_group.nil? %>
+      </td>
+		</tr>
+	<% end %>
+</table>

@@ -1,0 +1,99 @@
+<% if @physical_objects.size > 0 %>
+  <br><br>
+<p class="warning">
+  <i>Select physical objects below to add to a new Component Group.</i>
+</p>
+<ul class="bullets">
+  <li>Reformatting Component Groups can only be created from Physical Objects that are at Best Copy (ALF or Wells)</li>
+  <li>Best Copy Component Groups can be created from Physical Objects anywhere in workflow <i><b>except</b></i> Shipped Externally</li>
+  <li>Unselected Physical Objects in active workflow will be marked returned to storage in their last storage location.</li>
+  <li>Selected Physical Objects will be added to the new Component Group and have their locations updated:
+    <ul>
+      <li>Best Copy Component Groups will have members in active workflow moved to Best Copy</li>
+      <li>Best Copy Component Groups will have members in storage Queued for Pull Request</li>
+      <li>Reformatting Component Groups will have members moved to the 2k/4k Shelf</li>
+    </ul>
+  </li>
+</ul>
+<table id="po_table">
+	<tbody>
+  <tr>
+    <td colspan="7">
+      <h4>Create Merged Component group</h4>
+      <div id="cg_attributes_form" class="boxsizingBorder">
+        <div><b>Group Type: </b><%= select_tag "component_group[group_type]", options_for_select([[ComponentGroup::BEST_COPY_ALF, ComponentGroup::BEST_COPY_ALF], [ComponentGroup::BEST_COPY_MDPI_WELLS, ComponentGroup::BEST_COPY_MDPI_WELLS], [ComponentGroup::REFORMATTING_MDPI, ComponentGroup::REFORMATTING_MDPI]]) %></div>
+        <div>
+          <b class="block">Group Summary</b>
+          <%= text_area_tag "component_group[group_summary]" %>
+        </div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="9">
+      <h4>Physical Objects</h4>
+    </td>
+  </tr>
+	<tr>
+    <th>IU Barcode</th>
+    <th>Location</th>
+		<th>Gauge/Format</th>
+    <th>Generation</th>
+    <th>Scan Resolution</th>
+    <th>Color Space</th>
+    <th>Return on Reel</th>
+    <th>Clean</th>
+    <th>Add to CG</th>
+    <th>Return to Storage</th>
+    <th>Leave in Workflow</th>
+	</tr>
+	<% @physical_objects.each do |p| %>
+  <% p = p.specific %>
+    <% locked = (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+    <tr class="<%= p.digitized? ? (locked ? 'digitized_tr' : 'digitized_tr po_row') : (locked ? '' : 'po_row') %>">
+		<td>
+			<%= p.iu_barcode %>
+		</td>
+		<td <% if p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY %>class="warning" <% end %>>
+			<%= p.current_location %>
+		</td>
+		<td>
+			<%= p.medium_name %>
+		</td>
+		<td>
+			<%= p.humanize_boolean_generation_fields %>
+		</td>
+    <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, p.active_scan_settings.nil? ? '' : p.active_scan_settings.scan_resolution) %></td>
+    <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, p.active_scan_settings.nil? ? '' : p.active_scan_settings.color_space) %></td>
+    <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]],  p.active_scan_settings.nil? ? '' : p.active_scan_settings.return_on_reel) %></td>
+    <td><%= select_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, p.active_scan_settings.nil? ? '' : p.active_scan_settings.clean) %></td>
+
+      <% if (p.current_location == WorkflowStatus::SHIPPED_EXTERNALLY || p.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS) %>
+      <td>
+        <p class="warning"><%= p.current_location %></p>
+      </td>
+      <td>
+        <p class="warning">
+          <%= p.current_location %>
+        </p>
+      </td>
+      <td>
+        <p class="warning"><%= p.current_location %></p>
+      </td>
+    <% else %>
+      <td>
+        <%= check_box_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][checked]", "", false,  {class: 'po_check add'} %>
+      </td>
+      <td>
+        <%= check_box_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][return]", "", false,  {class: 'po_check return'} %>
+      </td>
+      <td>
+        <%= check_box_tag "component_group[component_group_physical_objects_attributes][#{p.acting_as.id}][workflow]", "", false,  {class: 'po_check leave'} %>
+      </td>
+    <% end %>
+
+	</tr>
+	<% end %>
+	</tbody>
+</table>
+<% end %>

@@ -1,0 +1,46 @@
+<%= link_to 'New Title', new_title_path %>
+<h1>Listing Titles <%= params[:selected] && params[:selected] == 'true' ? 'Selected' : 'Not Yet Select' %> For Digitization</h1>
+<%= form_tag titles_path do %>
+<%= link_to "Not Yet Selected For Digitization", selected_titles_path('false') %> | <%= link_to "Selected For Digitization", selected_titles_path('true') %>
+<% end %>
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Series</th>
+      <th>Physical Object Workflow Statuses</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @titles.each do |title| %>
+    <tr>
+      <td><%= link_to title.title_text, title_path(title), target: '_blank' %></td>
+      <td><%= title.series&.title %></td>
+      <td>
+	      <ul>
+		      <% title.physical_objects.each do |p| %>
+		      <li>
+			      <%= link_to "#{p.iu_barcode}", physical_object_path(p) %> [<%= "#{p.current_workflow_status.status_name}" %>]
+		      </li>
+		      <% end %>
+	      </ul>
+      </td>
+      <td>
+        <%= link_to 'Show', title_path(title) %><br/>
+        <%= link_to 'Edit', edit_title_path(title) %><br/>
+        <% if policy(Title).destroy? %>
+		      <% if title.physical_objects.size == 0  %>
+            <%= link_to 'Destroy', title, method: :delete, data: { confirm: 'Are you sure?' } %>
+		      <% else %>
+			      <b class="gray" title="This title cannot be deleted, it has physical objects which must be reassigned or deleted first">Destroy</b>
+		      <% end %>
+	      <% end %>
+      </td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+

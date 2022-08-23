@@ -1,0 +1,23 @@
+<div>
+  <%= f.hidden_field :title_ids, value: "#{@physical_object.physical_object_titles.collect { |t| t.title_id }.uniq.join(',')}", id: 'title_ids', name: 'physical_object[title_ids]' %>
+  <ul id="existing_titles">
+    <% @physical_object.physical_object_titles.uniq.collect{|t| t.title_id}.each do |t| %>
+    <li id="title_<%= t %>" class="title_li">
+      <div class="title_text">
+        <%= Title.find(t).title_text %>
+      </div>
+      <div  class="remove_title_button">
+        <%= link_to "-", '#', remote: true, class: 'remove_button', id: "remove_title_button_#{t}", title: 'Click to remove this Title' %>
+      </div>
+    </li>
+    <% end %>
+  </ul>
+</div>
+<div>
+  <b class='title_label'>Add Title</b>
+	<%= f.text_field :title_text, class: 'ajax_complete' %>
+	<%= link_to "+", '#', remote: true, class: 'button', id: 'title_button', title: 'Click to add existing, or create a new Title' %>
+</div>
+<script type="text/javascript">
+  $('.remove_button').click(function() { removeTitle($(this)); })
+</script>
