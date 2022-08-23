@@ -56,8 +56,8 @@
 </table>
 <h4>Physical Object Breakdown</h4>
 <div class="flex_wrap">
-  <% @medium_count.keys.sort.each do |m| %>
-    <div class="medium_metadata_link" data-medium_type="<%= m %>">
+  <% @medium_count.keys.sort.each_with_index do |m, i| %>
+    <div class="medium_metadata_link <%= 'flex_first' if i == 0 %>" data-medium_type="<%= m %>">
       <div class="flex_wrap">
         <div class="h">
           <%= m.pluralize %>

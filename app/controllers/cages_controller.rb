@@ -9,7 +9,7 @@ class CagesController < ApplicationController
 
 	before_action :set_cage_shelf, only: [:shelf_physical_objects, :add_physical_object_to_shelf, :remove_physical_object]
 
-	skip_before_filter :verify_authenticity_token, only: [:mark_shipped]
+	skip_before_action :verify_authenticity_token, only: [:mark_shipped]
 	protect_from_forgery with: :null_session, only: [:mark_shipped]
 
 	def index
@@ -26,8 +26,7 @@ class CagesController < ApplicationController
 
   # GET /cages/new
   def new
-	  max = Cage.maximum('id')
-    @cage = Cage.new(identifier: "Cage #{max.nil? ? 1 : max + 1}")
+    @cage = Cage.new
 	  @cage.top_shelf.identifier = "Top Shelf"
 	  @cage.middle_shelf.identifier ="Middle Shelf"
 	  @cage.bottom_shelf.identifier = "Bottom Shelf"
@@ -40,9 +39,9 @@ class CagesController < ApplicationController
     respond_to do |format|
       if @cage.save
 				# FIXME: not able to figure out how to set the bi-directional associations in Cage.initialize
-				@cage.top_shelf.update_attributes(cage_id: @cage.id)
-				@cage.middle_shelf.update_attributes(cage_id: @cage.id)
-				@cage.bottom_shelf.update_attributes(cage_id: @cage.id)
+				@cage.top_shelf.update(cage_id: @cage.id)
+				@cage.middle_shelf.update(cage_id: @cage.id)
+				@cage.bottom_shelf.update(cage_id: @cage.id)
         format.html { redirect_to @cage, notice: 'Cage was successfully created.' }
         format.json { render :show, status: :created, location: @cage }
       else
@@ -68,7 +67,7 @@ class CagesController < ApplicationController
 
 	def mark_ready_to_ship
 		if @cage.can_be_shipped?
-			@cage.update_attributes(ready_to_ship: true)
+			@cage.update(ready_to_ship: true)
 			flash[:notice] = "Cage #{@cage.identifier} is ready to ship to Memnon"
 			redirect_to :cages
 		else
@@ -79,7 +78,7 @@ class CagesController < ApplicationController
 
 	def unmark_ready_to_ship
 		if @cage.ready_to_ship
-			@cage.update_attributes(ready_to_ship: false)
+			@cage.update(ready_to_ship: false)
 			flash[:notice] = "#{@cage.identifier} was changed to 'Not Ready to Ship'"
 		else
 			flash[:warning] = "#{@cage.identifier} was not marked 'Ready to Ship' - not change made to database."
@@ -91,7 +90,7 @@ class CagesController < ApplicationController
 		if @cage.ready_to_ship
 			begin
 				PhysicalObject.transaction do
-					@cage.update_attributes!(shipped: true)
+					@cage.update!(shipped: true)
 					batch_count = CageShelf.where('shipped is not null').size
 					shipped = DateTime.now
 					if @cage.top_shelf.physical_objects.size > 0
@@ -259,7 +258,7 @@ class CagesController < ApplicationController
 		if @physical_object.errors.any?
 			render partial: 'ajax_add_po_failure_errors'
 		else
-			render text: ''
+			render plain: ''
 		end
 	end
 

@@ -4,6 +4,11 @@ class PhysicalObjectsController < ApplicationController
   include PhysicalObjectsHelper
   include MailHelper
 
+  # when the user is creating/editing a PO and changes the medium, this results in a POST to #edit so that a new form can
+  # be built specific to the PO specific selected, as well as seeding the new form with any entered values that are shared
+  # across POs
+  skip_before_action :verify_authenticity_token, only: [:edit, :new]
+
   before_action :set_physical_object, only: [:show, :show_xml, :edit, :update, :destroy, :mark_missing]
   before_action :acting_as_params, only: [:update_ad_strip]
   # GET /physical_objects
@@ -43,7 +48,7 @@ class PhysicalObjectsController < ApplicationController
   end
 
   def compilations
-    @comps = PhysicalObject.uniq.order(:compilation).where("compilation is not null AND compilation != ''").pluck(:compilation)
+    @comps = PhysicalObject.distinct.order(:compilation).where("compilation is not null AND compilation != ''").pluck(:compilation)
   end
   def compilation_physical_objects
     @physical_objects = PhysicalObject.where(compilation: params[:comp])
@@ -183,7 +188,7 @@ class PhysicalObjectsController < ApplicationController
         Modification.new(object_type: 'PhysicalObject', object_id: @physical_object.acting_as.id, user: @physical_object.modifier).save!
         if o_medium == s_medium
           @physical_object.modifier = User.current_user_object
-          #@success = @physical_object.update_attributes!(physical_object_params)
+          #@success = @physical_object.update!(physical_object_params)
           @physical_object.acting_as.date_inventoried = c
         else
           specific_to_delete = @physical_object.specific
@@ -200,7 +205,7 @@ class PhysicalObjectsController < ApplicationController
         # check to see if titles have changed in the update
         process_titles
         @physical_object.modifier = User.current_user_object
-        @success = @physical_object.update_attributes!(physical_object_params)
+        @success = @physical_object.update!(physical_object_params)
       end
     rescue Exception => error
       puts error.message
@@ -250,7 +255,7 @@ class PhysicalObjectsController < ApplicationController
     else
       set_cv
       nitrate = @physical_object.specific.base_nitrate
-      @physical_object.specific.update_attributes(ad_strip: adv)
+      @physical_object.specific.update(ad_strip: adv)
       flash[:notice] = "Physical Object [#{bc}] was updated with AD Strip Value: #{adv}"
       # Filmdb no longer emails notification about nitrate
       # if @physical_object.specific.base_nitrate && !nitrate
@@ -291,9 +296,9 @@ class PhysicalObjectsController < ApplicationController
   def ajax_show_storage
     po = PhysicalObject.where(iu_barcode: params[:iu_barcode]).first
     if po.nil?
-      render text: "Could Not Find Physical Object With IU Barcode: #{params[:iu_barcode]}"
+      render plain: "Could Not Find Physical Object With IU Barcode: #{params[:iu_barcode]}"
     else
-      render text: "#{params[:iu_barcode]} Should Be Returned to: <b>#{(po.storage_location.blank? ? "<b><i>Object Just inventoried...</i><b>" : po.storage_location)}</b>".html_safe
+      render plain: "#{params[:iu_barcode]} Should Be Returned to: <b>#{(po.storage_location.blank? ? "<b><i>Object Just inventoried...</i><b>" : po.storage_location)}</b>".html_safe
     end
   end
 
@@ -307,7 +312,7 @@ class PhysicalObjectsController < ApplicationController
 
   def ajax_lookup_barcode
     po = PhysicalObject.find(params[:id])
-    render text: po.iu_barcode
+    render plain: po.iu_barcode
   end
 
   def digiprovs

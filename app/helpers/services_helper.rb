@@ -16,7 +16,7 @@ module ServicesHelper
 		request = Net::HTTP::Get.new(uri.request_uri)
 		request.basic_auth(Settings.pod_qc_user, Settings.pod_qc_pass)
 		result = http.request(request)
-		render text: result.to_yaml
+		render plain: result.to_yaml
   end
 
 	private

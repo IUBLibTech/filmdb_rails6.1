@@ -15,7 +15,6 @@ class UsersController < ApplicationController
     authorize User
   end
 
-
   # GET /users/new_physical_object
   def new
     authorize User
@@ -67,6 +66,11 @@ class UsersController < ApplicationController
       format.html { redirect_to users_url }
       format.json { head :no_content }
     end
+  end
+
+  # for users not authorized to access filmdb
+  def denied
+    render "users/denied"
   end
 
   def show_update_location

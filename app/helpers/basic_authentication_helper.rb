@@ -1,6 +1,5 @@
 # Authentication method for BasicAuth
-# 
-# FIXME: can't seem to get before_action to work here
+#
 module BasicAuthenticationHelper
 
   protected

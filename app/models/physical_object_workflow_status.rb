@@ -1,0 +1,2 @@
+class PhysicalObjectWorkflowStatus < ApplicationRecord
+end

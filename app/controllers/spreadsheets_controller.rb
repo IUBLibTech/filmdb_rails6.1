@@ -83,7 +83,7 @@ class SpreadsheetsController < ApplicationController
         # what to do with series dates, total episodes, and series production number if they differ across merge candidates?
 
         s.titles.each do |t|
-          t.update_attributes(series_id: @master.id)
+          t.update(series_id: @master.id)
         end
         s.delete
       end

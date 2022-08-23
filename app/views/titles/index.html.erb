@@ -66,7 +66,7 @@
       </div>
       <div>
         <% if @titles && @titles.size > 0 %>
-          <%= link_to "Download Search Results", title_xls_search_path(params.symbolize_keys.merge)  %>
+          <%= link_to "Download Search Results", title_xls_search_path(params.permit(:authenticity_token, :ts, :commit, :title_text, :series_name_text, :date, :publisher_text, :creator_text, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status).to_h.symbolize_keys.merge)  %>
         <% end %>
       </div>
 		</td>

@@ -1,0 +1,3 @@
+class ManualRollBackError < StandardError
+
+end

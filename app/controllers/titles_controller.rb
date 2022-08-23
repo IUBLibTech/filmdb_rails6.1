@@ -99,7 +99,8 @@ class TitlesController < ApplicationController
         format.html { redirect_to @title, notice: 'Title was successfully created.' }
         format.json { render :show, status: :created, location: @title }
       else
-        format.html { render :new_physical_object }
+        flash[:warning] = @title.errors
+        format.html { render :new_title }
         format.json { render json: @title.errors, status: :unprocessable_entity }
       end
     end
@@ -272,7 +273,7 @@ class TitlesController < ApplicationController
     if (params[:merge_all] == 'true' || (params[:merge_all] == 'false' && !@title.in_active_workflow?))
       render partial: 'title_merge_selection_table_row'
     else
-      render text: "Active"
+      render plain: "Active"
     end
   end
   # ajax call that renders a table containing all the physical objects for the specified title ids
@@ -325,7 +326,7 @@ class TitlesController < ApplicationController
               @component_group.save
               po.active_component_group = @component_group
               po.save
-              po.active_scan_settings.update_attributes(scan_resolution: settings[:scan_resolution], color_space: settings[:color_space], return_on_reel: settings[:return_on_reel], clean: settings[:clean])
+              po.active_scan_settings.update(scan_resolution: settings[:scan_resolution], color_space: settings[:color_space], return_on_reel: settings[:return_on_reel], clean: settings[:clean])
             end
           end
           @return.each do |poid|

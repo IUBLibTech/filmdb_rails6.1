@@ -74,7 +74,7 @@ module SeriesPartFixHelper
         puts "Bad Title found [#{t}] at row #{row}"
         UNFOUND_TITLES << [iu_barcode, title_text, series_part, row]
       else
-        t.update_attributes(series_part: series_part)
+        t.update(series_part: series_part)
       end
     end
   end

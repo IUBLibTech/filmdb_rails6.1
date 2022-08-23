@@ -1,0 +1,2 @@
+class CageShelfPhysicalObject < ApplicationRecord
+end

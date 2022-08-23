@@ -1,0 +1,2 @@
+class DeleteLogEntry < ApplicationRecord
+end

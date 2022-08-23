@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  #get '/denied.html', to: 'users#denied', as: 'denied'
+
   get '/ajax/title_date/type/', to: 'ajax#title_date_type', as: 'ajax_title_date_type'
   get '/ajax/title_genre/genre/', to: 'ajax#title_genre', as: 'ajax_title_genre'
   get '/ajax/title_form/form', to: 'ajax#title_form', as: 'ajax_title_form'

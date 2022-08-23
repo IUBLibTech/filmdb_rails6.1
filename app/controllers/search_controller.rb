@@ -24,7 +24,7 @@ class SearchController < ApplicationController
 			po = PhysicalObjectOldBarcode.includes(:physical_object).where(iu_barcode: params[:barcode]).first&.physical_object
 		end
 
-		@pos = PhysicalObject.joins(:physical_object_original_identifiers).where("physical_object_original_identifiers.identifier = ?", params[:barcode])
+		@pos = PhysicalObject.joins(:physical_object_original_identifiers).where("physical_object_original_identifiers.identifier = ?", params[:barcode]).to_a
 		@pos << po unless po.nil?
 		if @pos.size == 0
 			# check for cage shelves

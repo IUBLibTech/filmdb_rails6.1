@@ -6,6 +6,8 @@ class WorkflowController < ApplicationController
 	include WorkflowHelper
 	include ApplicationHelper
 
+	protect_from_forgery with: :null_session, only: [:correct_freezer_loc_post]
+
 	before_action :set_physical_object, only: [:process_receive_from_storage ]
 	before_action :set_onsite_pos, only: [:send_for_mold_abatement,
 																				:process_send_for_mold_abatement, :receive_from_storage, :process_receive_from_storage,
@@ -56,22 +58,16 @@ class WorkflowController < ApplicationController
 						p.workflow_statuses << ws
 						p.save!
 					end
-					@pr = push_pull_request(pos, User.current_user_object)
-					flash[:notice] = "Storage has been notified to pull #{@pr.automated_pull_physical_objects.size} records."
+					push_pull_request(pos, User.current_user_object)
+					flash[:notice] = "Storage has been notified to pull #{@pr.automated_pull_physical_objects.size} #{"record".pluralize(@pr.automated_pull_physical_objects.size)}."
 				end
 			rescue Exception => e
-				#logger.error e.message
-				#logger.error e.backtrace.join("\n")
 				puts e.message
 				puts e.backtrace.join("\n")
 				flash[:warning] = "An error occurred when trying to push the request to the ALF system: #{e.message} (see log files for full details)"
 			end
 		end
-		if @pr
-			redirect_to show_pull_request_path(@pr)
-		else
-			redirect_to :pull_request
-		end
+		redirect_to :pull_request
 	end
 
 	def ajax_cancel_queued_pull_request
@@ -200,29 +196,29 @@ class WorkflowController < ApplicationController
 	def ajax_return_to_storage_lookup
 		po = PhysicalObject.where(iu_barcode: params[:iu_barcode]).first
 		if po.nil?
-			render text: "Error: Could not find Physical Object with IU barcode: #{params[:iu_barcode]}"
+			render plain: "Error: Could not find Physical Object with IU barcode: #{params[:iu_barcode]}"
 		elsif po.current_workflow_status.is_storage_status?
 			# no longer preventing PO's from being moved around IN storage
-			# render text: "<div class='return_warn'>#{po.iu_barcode} is already in storage</div>".html_safe
-			render text: "#{params[:iu_barcode]} Should Be Stored: <b>#{(po.storage_location.blank? ? WorkflowStatus::IN_STORAGE_INGESTED : po.storage_location)}</b>".html_safe
+			# render plain: "<div class='return_warn'>#{po.iu_barcode} is already in storage</div>".html_safe
+			render plain: "#{params[:iu_barcode]} Should Be Stored: <b>#{(po.storage_location.blank? ? WorkflowStatus::IN_STORAGE_INGESTED : po.storage_location)}</b>".html_safe
 		elsif po.current_location == WorkflowStatus::JUST_INVENTORIED_WELLS || po.current_location == WorkflowStatus::JUST_INVENTORIED_ALF
-			render text: "#{params[:iu_barcode]} Should Be Returned to: <b>#{(po.storage_location.blank? ? WorkflowStatus::IN_STORAGE_INGESTED : po.storage_location)}</b>".html_safe
+			render plain: "#{params[:iu_barcode]} Should Be Returned to: <b>#{(po.storage_location.blank? ? WorkflowStatus::IN_STORAGE_INGESTED : po.storage_location)}</b>".html_safe
 		elsif po.current_workflow_status.missing?
-			render text: "<div class='return_warn'>#{po.iu_barcode} should be returned to #{po.storage_location}. However, it was previously marked <i>Missing</i>. "+
+			render plain: "<div class='return_warn'>#{po.iu_barcode} should be returned to #{po.storage_location}. However, it was previously marked <i>Missing</i>. "+
 					"If you do not wish to return it to storage, use 'Mark Item Found' instead.</div>".html_safe
 
 		# just inventoried PhysicalObjects do not have an active component group (since they've only just been created) so
 		# this test MUST occur after the test for current location equaling one of the Just Inventoried locations
 		elsif po.active_component_group.nil?
-			render text: "<div class='return_warn'>#{po.iu_barcode} does not have an <i>active</i> Component Group. This indicates an error elsewhere. Please contact Carmel!</div>".html_safe
+			render plain: "<div class='return_warn'>#{po.iu_barcode} does not have an <i>active</i> Component Group. This indicates an error elsewhere. Please contact Carmel!</div>".html_safe
 		elsif po.active_component_group.physical_objects.size == 1
-			render text: "#{po.iu_barcode} should be returned to #{po.storage_location}."
+			render plain: "#{po.iu_barcode} should be returned to #{po.storage_location}."
 		elsif po.active_component_group.physical_objects.size > 1
-			render text: "<div class='return_warn'>#{params[:iu_barcode]} belongs to a Component Group with other Physical Objects. "+
+			render plain: "<div class='return_warn'>#{params[:iu_barcode]} belongs to a Component Group with other Physical Objects. "+
 					"Returning #{params[:iu_barcode]} will remove it from this Component Group. If you wish to continue, the item"+
 					" should be returned to #{po.storage_location}.</div>".html_safe
 		else
-			render text: "An unknown state has been encountered with #{params[:iu_barcode]}. Please contact Carmel."
+			render plain: "An unknown state has been encountered with #{params[:iu_barcode]}. Please contact Carmel."
 		end
 	end
 
@@ -584,7 +580,7 @@ class WorkflowController < ApplicationController
 
 		s = WorkflowStatus.build_workflow_status(params[:physical_object][:current_workflow_status], @physical_object)
 		@physical_object.workflow_statuses << s
-		@physical_object.specific.update_attributes(mold: params[:physical_object][:mold])
+		@physical_object.specific.update(mold: params[:physical_object][:mold])
 		flash[:notice] = "#{@physical_object.iu_barcode} was updated to #{@physical_object.current_workflow_status.status_name}, with Mold attribute set to: #{@physical_object.specific.mold}"
 		redirect_to :return_from_mold_abatement
 	end

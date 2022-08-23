@@ -1,0 +1,3 @@
+class PullRequestError < StandardError
+
+end

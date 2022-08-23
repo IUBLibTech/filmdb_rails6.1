@@ -53,7 +53,7 @@ module FixSpreadsheetBugHelper
           # ["IU Barcode","Spreadsheet Name", "Row", "Reason for Failure"]
           @bcsv << [bc, f.split('/').last, index + 1, "Could not match IU Barcode"]
         else
-          po.update_attributes(catalog_key: (row[@headers['Catalog Key']].nil? ? nil : row[@headers['Catalog Key']].to_i))
+          po.update(catalog_key: (row[@headers['Catalog Key']].nil? ? nil : row[@headers['Catalog Key']].to_i))
           if all_blank?(row)
             next
           elsif row[@headers['Title']].include?(' | ')
@@ -65,11 +65,11 @@ module FixSpreadsheetBugHelper
           elsif po.titles.first.title_text != row[@headers['Title']]
             @bcsv << [bc, f.split('/').last, index + 1, "Title mismatch", "SS Title: #{row[@headers['Title']]}\nFilmdb Title: #{po.titles.first.title_text}"]
           elsif po.titles.first.digitized?
-            # po.update_attributes(generation_notes: row[@headers['Generation Notes']])
+            # po.update(generation_notes: row[@headers['Generation Notes']])
             @bcsv << [bc, f.split('/').last, index + 1, "PO Generation Notes and Catalog Key were corrected, but Title was digitized - manually check Subject and Name Authority fields"]
           else
-            po.update_attributes(generation_notes: row[@headers['Generation Notes']], catalog_key: row[@headers['Catalog Key']])
-            po.titles.first.update_attributes(subject: row[@headers['Subject']], name_authority: row[@headers['Name Authority']])
+            po.update(generation_notes: row[@headers['Generation Notes']], catalog_key: row[@headers['Catalog Key']])
+            po.titles.first.update(subject: row[@headers['Subject']], name_authority: row[@headers['Name Authority']])
           end
         end
       end

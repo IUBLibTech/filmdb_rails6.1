@@ -1,5 +1,5 @@
 class StatsController < ApplicationController
-
+	include StatsHelper
 	before_action :set_filters
 	before_action :set_counts
 
@@ -23,7 +23,7 @@ class StatsController < ApplicationController
 
 	def ajax_medium_stats
 		if params[:medium] == 'Film'
-			@generations = generations(Film)
+			@generations = film_gens
 			@gauges = Film.joins("INNER JOIN physical_objects ON physical_objects.actable_id = films.id").where(po_sql_where).where("gauge is not null AND gauge != ''").group(:gauge).count
 			@can_sizes = can_sizes(Film)
 			@bases = bases(Film)
@@ -32,7 +32,7 @@ class StatsController < ApplicationController
 			@conditions = PhysicalObject.where(po_sql_where).where(medium: 'Film').where("condition_rating is not null and condition_rating != ''").group(:condition_rating).count
 			render partial: 'film_metadata_stats'
 		elsif params[:medium] == 'Video'
-			@generations = generations(Video)
+			@generations = video_gens
 			@gauges = Video.joins("INNER JOIN physical_objects ON physical_objects.actable_id = videos.id").where(po_sql_where).where("gauge is not null AND gauge != ''").group(:gauge).count
 			@bases = bases(Video)
 			@sounds = sounds(Video)
@@ -40,15 +40,17 @@ class StatsController < ApplicationController
 			@conditions = PhysicalObject.where(po_sql_where).where(medium: 'Video').where("condition_rating is not null and condition_rating != ''").group(:condition_rating).count
 			render partial: 'video_metadata_stats'
 		elsif params[:medium] == 'Recorded Sound'
-			@generations = generations(RecordedSound)
-			@gauges = RecordedSound.joins("INNER JOIN physical_objects ON physical_objects.actable_id = recorded_sounds.id").where(po_sql_where).where("gauge is not null and gauge !=''").group(:gauge).count
+			@generations = rs_gens
+			@gauges = RecordedSound.joins("INNER JOIN physical_objects ON physical_objects.actable_id = recorded_sounds.id")
+														 .where(po_sql_where).where("gauge is not null and gauge !=''").group(:gauge).count
 			@bases = bases(RecordedSound)
 			@sounds = [] # not applicable to recorded sound
 			@colors = [] # not applicable to recorded sound
-			@conditions = PhysicalObject.where(po_sql_where).where(medium: 'Recorded Sound').where("condition_rating is not null and condition_rating != ''").group(:condition_rating).count
+			@conditions = PhysicalObject.where(po_sql_where).where(medium: 'Recorded Sound')
+																	.where("condition_rating is not null and condition_rating != ''").group(:condition_rating).count
 			render partial: 'recorded_sound_metadata_stats'
 		else
-			render text: "Unsupported medium: #{params[:medium]}", status: 400
+			render plain: "Unsupported medium: #{params[:medium]}", status: 200
 		end
 	end
 
@@ -102,12 +104,7 @@ class StatsController < ApplicationController
 		@filter_msg = (@collection ? "[#{@collection.unit.abbreviation} - #{@collection.name}]" : (@unit ? "[#{@unit.abbreviation}]" : "[Global]"))
 	end
 
-	def po_sql_where
-		sql = @unit ? " unit_id = #{@unit.id}" : ""
-		sql += @collection ? (sql.length > 0 ? " AND " : "")+"collection_id = #{@collection.id}" : ""
-		sql += @startTime ? (sql.length > 0 ? " AND " : "")+"physical_objects.created_at >= '#{@startTime}' AND physical_objects.created_at <= '#{@endTime}' " : ""
-		sql
-	end
+
 
 	def title_count_sql
 		"select distinct(titles.id) from physical_objects, titles, physical_object_titles "+
@@ -129,15 +126,6 @@ class StatsController < ApplicationController
 			"WHERE #{po_sql_where} AND physical_objects.id = physical_object_titles.physical_object_id AND titles.id = physical_object_titles.title_id AND titles.series_id = series.id"
 	end
 
-	def generations(cl)
-		gens = Hash.new
-		cl::GENERATION_FIELDS.each do |gf|
-			count =  cl.where(gf => true).joins("INNER JOIN physical_objects ON physical_objects.actable_id = #{cl.to_s.downcase.pluralize}.id").where(po_sql_where).size
-			gens[cl::GENERATION_FIELDS_HUMANIZED[gf]] = count unless count == 0
-		end
-		gens
-	end
-
 	def bases(cl)
 		b = Hash.new
 		if cl == Film
@@ -146,9 +134,9 @@ class StatsController < ApplicationController
 				b[Film::BASE_FIELDS_HUMANIZED[bf]] = count unless count == 0
 			end
 		elsif cl == Video
-			count = Video.joins("INNER JOIN physical_objects ON physical_objects.actable_id = videos.id").where(po_sql_where).group(:base).size
-			b = count
-			b["Not Specifiec"] = b.delete("") unless b[""].nil?
+			# Film can have multiple bases in a single reel (individual columns in the DB) but Video has a single base field.
+			# Use a group by instead of searching through each base field
+			b = Video.group(:base).where("base is not null and base != ''").count
 		end
 		b
 	end

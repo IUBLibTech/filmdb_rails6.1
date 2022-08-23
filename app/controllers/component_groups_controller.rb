@@ -190,7 +190,7 @@ class ComponentGroupsController < ApplicationController
         p.workflow_statuses << ws
         p.current_workflow_status = ws
         p.save
-        p.active_scan_settings.update_attributes(scan_resolution: settings[:scan_resolution], color_space: settings[:color_space], return_on_reel: settings[:return_on_reel], clean: settings[:clean])
+        p.active_scan_settings.update(scan_resolution: settings[:scan_resolution], color_space: settings[:color_space], return_on_reel: settings[:return_on_reel], clean: settings[:clean])
       end
       @return.each do |p|
         p.active_component_group = nil
@@ -229,7 +229,7 @@ class ComponentGroupsController < ApplicationController
         if bad.size > 0
           raise ManualRollBackError.new
         else
-          render text: 'success'
+          render plain: 'success'
         end
       end
     rescue ManualRollBackError => e
@@ -267,7 +267,7 @@ class ComponentGroupsController < ApplicationController
         if bad.keys.size > 0
           raise ManualRollBackError.new
         else
-          render text: 'success'
+          render plain: 'success'
         end
       end
     rescue ManualRollBackError => e
@@ -281,8 +281,8 @@ class ComponentGroupsController < ApplicationController
 
   def ajax_edit_summary
 		update = params[:cg_summary_edit][:summary]
-		@component_group.update_attributes(group_summary: update)
-		render text: "success"
+		@component_group.update(group_summary: update)
+		render plain: "success"
   end
 
   # place holder for ajax form to submit change to a component groups summary text

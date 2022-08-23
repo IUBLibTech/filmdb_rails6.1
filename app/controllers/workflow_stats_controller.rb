@@ -2,7 +2,7 @@ class WorkflowStatsController < ApplicationController
 	include PhysicalObjectsHelper
 
 	def shipped_so_far
-		@physical_objects = PhysicalObject.joins(:workflow_statuses).where("workflow_statuses.status_name = '#{WorkflowStatus::SHIPPED_EXTERNALLY}' and physical_object_id is not null").uniq
+		@physical_objects = PhysicalObject.joins(:workflow_statuses).where("workflow_statuses.status_name = '#{WorkflowStatus::SHIPPED_EXTERNALLY}' and physical_object_id is not null").distinct
 		#@total = @physical_objects.inject(0){|sum, p| p.estimated_duration_in_sec + sum}
 		respond_to do |format|
 			format.csv {send_data pos_to_cvs(@physical_objects), filename: 'shipped_so_far.csv' }

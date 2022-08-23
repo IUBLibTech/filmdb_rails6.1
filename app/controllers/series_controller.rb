@@ -108,7 +108,7 @@ class SeriesController < ApplicationController
       Series.transaction do
         @mergees.each do |s|
           s.titles.each do |t|
-            t.update_attributes!(series_id: @master.id)
+            t.update!(series_id: @master.id)
           end
           if !s.production_number.blank? && @master.production_number != s.production_number
             @master.production_number += " | #{s.production_number}"

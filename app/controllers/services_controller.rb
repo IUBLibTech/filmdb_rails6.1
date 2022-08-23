@@ -52,7 +52,7 @@ class ServicesController < ActionController::Base
 			file_path = write_xml(@cage)
 			@result = post_multipart(file_path)
 
-			render text: @result.body
+			render plain: @result.body
 
 			# if parse_result
 			# 	render 'services/successul_push_to_pod'
@@ -237,7 +237,7 @@ class ServicesController < ActionController::Base
 		request = Net::HTTP::Get.new(uri.request_uri)
 		request.basic_auth(Settings.pod_qc_user, Settings.pod_qc_pass)
 		result = http.request(request)
-		render text: result.to_yaml
+		render plain: result.to_yaml
 	end
 
 	private

@@ -1,0 +1,78 @@
+development:
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  encoding: utf8
+  database: <%= Rails.application.credentials[:database] %>
+  username: <%= Rails.application.credentials[:username] %>
+  password: <%= Rails.application.credentials[:password] %>
+  host: <%= Rails.application.credentials[:host] %>
+  port: <%= Rails.application.credentials[:port] %>
+
+local:
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  encoding: utf8
+  database: <%= Rails.application.credentials[:database] %>
+  username: <%= Rails.application.credentials[:username] %>
+  password: <%= Rails.application.credentials[:password] %>
+  host: <%= Rails.application.credentials[:host] %>
+  port: <%= Rails.application.credentials[:port] %>
+
+local_p:
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  encoding: utf8
+  database: <%= Rails.application.credentials[:database] %>
+  username: <%= Rails.application.credentials[:username] %>
+  password: <%= Rails.application.credentials[:password] %>
+  host: <%= Rails.application.credentials[:host] %>
+  port: <%= Rails.application.credentials[:port] %>
+
+test_dev:
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  encoding: utf8
+  database: <%= Rails.application.credentials[:database] %>
+  username: <%= Rails.application.credentials[:username] %>
+  password: <%= Rails.application.credentials[:password] %>
+  host: <%= Rails.application.credentials[:host] %>
+  port: <%= Rails.application.credentials[:port] %>
+
+test:
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  encoding: utf8
+  database: <%= Rails.application.credentials[:database] %>
+  username: <%= Rails.application.credentials[:username] %>
+  password: <%= Rails.application.credentials[:password] %>
+  host: <%= Rails.application.credentials[:host] %>
+  port: <%= Rails.application.credentials[:port] %>
+
+production:
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  encoding: utf8
+  database: <%= Rails.application.credentials[:database] %>
+  username: <%= Rails.application.credentials[:username] %>
+  password: <%= Rails.application.credentials[:password] %>
+  host: <%= Rails.application.credentials[:host] %>
+  port: <%= Rails.application.credentials[:port] %>
+
+production_dev:
+  adapter: mysql2
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  encoding: utf8
+  database: <%= Rails.application.credentials[:database] %>
+  username: <%= Rails.application.credentials[:username] %>
+  password: <%= Rails.application.credentials[:password] %>
+  host: <%= Rails.application.credentials[:host] %>
+  port: <%= Rails.application.credentials[:port] %>
+
+
