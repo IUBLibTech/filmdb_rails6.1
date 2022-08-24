@@ -117,4 +117,9 @@ Rails.application.configure do
   # config.active_record.database_selector = { delay: 2.seconds }
   # config.active_record.database_resolver = ActiveRecord::Middleware::DatabaseSelector::Resolver
   # config.active_record.database_resolver_context = ActiveRecord::Middleware::DatabaseSelector::Resolver::Session
+
+  config.hosts << "filmdb.dlib.indiana.edu"
+  config.hosts << "media.dlib.indiana.edu"
+  config.hosts << "pod.mdpi.dlib.indiana.edu"
+  config.hosts << "squirrel.dlib.indiana.edu"
 end

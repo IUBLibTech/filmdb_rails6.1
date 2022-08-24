@@ -75,4 +75,8 @@ Rails.application.configure do
   # config.action_cable.disable_request_forgery_protection = true
 
   config.web_console.development_only = false
+  config.hosts << "filmdb-test.dlib.indiana.edu"
+  config.hosts << "media.dlib.indiana.edu"
+  config.hosts << "pod-test.mdpi.dlib.indiana.edu"
+  config.hosts << "squirrel.dlib.indiana.edu"
 end

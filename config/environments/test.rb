@@ -57,4 +57,9 @@ Rails.application.configure do
 
   # Annotate rendered view with file names.
   # config.action_view.annotate_rendered_view_with_filenames = true
+
+  config.hosts << "filmdb-test.dlib.indiana.edu"
+  config.hosts << "media.dlib.indiana.edu"
+  config.hosts << "pod-test.mdpi.dlib.indiana.edu"
+  config.hosts << "squirrel.dlib.indiana.edu"
 end
