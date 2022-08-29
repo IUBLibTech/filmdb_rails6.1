@@ -59,6 +59,7 @@ Rails.application.routes.draw do
   patch '/physical_objects/:id/edit', to: 'physical_objects#edit', as: 'edit_physical_object_medium'
 
   get '/equipment_technology/', to: 'physical_objects#equipment_technology', as: 'equipment_technology'
+  get '/equipment_technology/download', to: "physical_objects#download_equipment_technology", as: 'equipment_technology_download'
 
   #post '/physical_object_location', to: 'physical_objects#update_location', as: 'update_location'
   get '/test_email/', to: 'physical_objects#test_email', as: 'test_email'

@@ -29,7 +29,12 @@ class SearchController < ApplicationController
 		if @pos.size == 0
 			# check for cage shelves
 			@obj = CageShelf.where(mdpi_barcode: params[:barcode]).first
-			redirect_to @obj
+			if @obj
+				redirect_to @obj
+			else
+				flash.now[:warning] = "Could not find a Physical Object with Barcode: #{params[:barcode]}"
+				render 'search/search_results'
+			end
 		elsif @pos.size == 1
 			redirect_to @pos.first
 		else

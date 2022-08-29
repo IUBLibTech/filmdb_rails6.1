@@ -3,6 +3,7 @@ class PhysicalObjectsController < ApplicationController
 
   include PhysicalObjectsHelper
   include MailHelper
+  include EquipmentTechnologyHelper
 
   # when the user is creating/editing a PO and changes the medium, this results in a POST to #edit so that a new form can
   # be built specific to the PO specific selected, as well as seeding the new form with any entered values that are shared
@@ -223,6 +224,11 @@ class PhysicalObjectsController < ApplicationController
       set_cv
       render :edit
     end
+  end
+
+  def download_equipment_technology
+    #see EquipmentTechnologyHelper
+    gen_eq_spreadsheet
   end
 
   def duplicate
