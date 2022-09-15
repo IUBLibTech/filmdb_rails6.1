@@ -356,6 +356,7 @@ class PhysicalObject < ApplicationRecord
 	# End HUMANIZE methods comment
 
 
+
   def belongs_to_title?(title_id)
     PhysicalObjectTitle.where(physical_object_id: id, title_id: title_id).size > 0
   end
@@ -408,6 +409,13 @@ class PhysicalObject < ApplicationRecord
     ! /^[0-9\?]+ of [0-9\?]$/.match(text).nil?
   end
 
+	def original_identifiers_text
+		oit = ""
+		physical_object_original_identifiers.each_with_index do |id, i|
+      (i == physical_object_original_identifiers.size - 1) ? (oit << "#{id.identifier}") : (oit << "#{id.identifier}, ")
+		end
+		oit
+	end
 
 	def medium_name
 		medium

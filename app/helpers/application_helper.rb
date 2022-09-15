@@ -72,6 +72,11 @@ module ApplicationHelper
 		end
 	end
 
+	def eq_file_location
+		# in here so it can used in views
+		"tmp/#{User.current_username}_#{"equipment"}.xlsx"
+	end
+
 	def medium_symbol_from_params(params)
 		if params[:film]
 			:film

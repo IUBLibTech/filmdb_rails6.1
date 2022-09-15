@@ -71,6 +71,7 @@
     <ul class="nav">
       <li><%= link_to 'Import Spreadsheet', spreadsheets_path %></li>
 			<li><%= link_to "ALF 3 Move", alf_barcode_upload_path %></a></li>
+			<li><%= link_to "Download Equipment Spreadsheet", equipment_technology_download_path, download: "#{eq_file_location.split(File::SEPARATOR).last}" %></li>
     </ul>
   </div>
   <div class="menuItem">

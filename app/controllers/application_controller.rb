@@ -56,8 +56,6 @@ class ApplicationController < ActionController::Base
     name == 'index' ? 'View' : (name == 'destroy' ? 'Delete' : name)
   end
 
-
-
   # def update_user_loc
   #   if session[:username]
 		#   @user = User.where(username: session[:username]).first

@@ -19,7 +19,7 @@ class Title < ApplicationRecord
 
 	belongs_to :series, autosave: true, optional: true
 	belongs_to :spreadsheet, autosave: true, optional: true
-  belongs_to :creator, class_name: "User", foreign_key: "created_by_id", autosave: true
+  belongs_to :creator, class_name: "User", foreign_key: "created_by_id", autosave: true, optional: true
   belongs_to :modifier, class_name: "User", foreign_key: "modified_by_id", autosave: true
 
 	# mysql bad handshake causing the direct DB lookup to no longer work - MySQL 5.5 vs 5.1 coupled with Mysql2 gem being compiled against 5.5

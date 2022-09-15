@@ -10,40 +10,25 @@ module AlfHelper
 
 	# this method is responsible for generating and upload the ALF system pull request file
 	def push_pull_request(physical_objects, user)
-		if physical_objects.length > 0
-			upload_request_file(physical_objects, user)
-		end
+		# transaction incase anything goes wrong while writing the upload file and saving the PullRequest object
+		# see #generate_upload_file for details
+		#PullRequest.transaction do
+			if physical_objects.length > 0
+				file = generate_upload_file(physical_objects, user)
+				debugger
+				unless Rails.application.credentials[:use_caia_soft]
+					scp(file)
+				else
+					caia_soft_upload(file)
+				end
+			end
+		#end
 	end
 
 	private
-	# generates an array containing lines to be written to the ALF batch ingest file
-	def upload_request_file(pos, user)
-		file_contents = generate_pull_file_contents(pos, user)
-		file_path = gen_file
-		logger.info "Pull request file: #{file_path}"
-		success = false
-		PullRequest.transaction do
-			logger.info "File should contain #{file_contents.size} POs"
-			if file_contents.size > 0
-				File.write(file_path, file_contents.join("\n"))
-				logger.info "#{file_path} created"
-			end
-			@pr = PullRequest.new(filename: file_path, file_contents: (file_contents.size > 0 ? file_contents.join("\n") : ''), requester: User.current_user_object)
-			pos.each do |p|
-				@pr.physical_object_pull_requests << PhysicalObjectPullRequest.new(physical_object_id: p.id, pull_request_id: @pr.id)
-			end
-			if file_contents.size > 0
-				success = scp(file_path)
-			end
-			@pr.save!
-			@pr
-		end
-		success
-	end
-
-	# based on the alf.cfg file. Because of infrastructure migration changes, uploading this file is no longer needed.
-	# The app user's home directory has a symlinked directory to the GFA endpoint as well as a non-symlinked "test"
-	# directory. Just move the file instead of uploading.
+	# Because of infrastructure migration changes, scp is no longer necessary. The app user's home directory has a
+	# symlinked directory to the GFA endpoint as well as a non-symlinked "test" directory. This method now simply does a
+	# file system move of the file to the symlinked directory (or test dir if not in production)
 	def scp(file)
 		filename = File.split(file).last
 		destination_file = File.join(Dir.home, pull_request_upload_dir, filename)
@@ -99,14 +84,46 @@ module AlfHelper
 	# generates a filename including path of the format <path>/<date>.<process_number>.webform.file where date is the
 	# date the function is called and formated yyyymmdd, and process_number is a 0 padded 5 digit number repesenting the
 	# (hopefully) id of the PullRequest the file will be associated with
-	def gen_file
+	def gen_file_name
 		#"./tmp/#{Date.today.strftime("%Y%m%d")}.#{gen_process_number}.webform.file"
-		File.join(Rails.root, 'tmp', "#{Date.today.strftime("%Y%m%d")}.#{gen_process_number}.webform.file")
+		pre = Rails.application.credentials[:use_caia_soft] ? "alfrequest." : ""
+		File.join(Rails.root, 'tmp', "#{pre}#{Date.today.strftime("%Y%m%d")}.#{gen_process_number}.webform.file")
 	end
 
 	def gen_process_number
 		id = PullRequest.maximum(:id)
 		sprintf "%05d", (id.nil? ? 1 : id+1)
+	end
+
+	# generates a pull request file for ALF containing the requested Physical Objects.
+	def generate_upload_file(pos, user)
+		file_contents = generate_pull_file_contents(pos, user)
+		file_path = gen_file_name
+		if file_contents.size > 0
+			File.write(file_path, file_contents.join("\n"))
+			logger.info "#{file_path} created"
+		end
+		@pr = PullRequest.new(filename: file_path, file_contents: (file_contents.size > 0 ? file_contents.join("\n") : ''), requester: User.current_user_object)
+		pos.each do |p|
+			@pr.physical_object_pull_requests << PhysicalObjectPullRequest.new(physical_object_id: p.id, pull_request_id: @pr.id)
+		end
+		@pr.save!
+		@pr
+		file_path
+	end
+
+	def caia_soft_upload(file)
+		url = Rails.application.credentials[:caia_soft_endpoint]
+		key_name = Rails.application.credentials[:caia_soft_api_key_name]
+		key = Rails.application.credentials[:caia_soft_api_key]
+
+		uri = URI(url)
+		request = Net::HTTP::Post.new(uri)
+		request[key_name] = key
+		request.use_ssl = true
+		request.set_form([['upload', File.open(file)]], 'multipart/form-data')
+		response = request.request(request)
+		debugger
 	end
 
 end

@@ -132,9 +132,11 @@ class Video < ApplicationRecord
     # through self.send() below, this results in a SECOND call to creating that metadata on the underlying physical object.
     # This only appears to happen during create action on physical objects however, make sure to remove the keys for these
     # metadata fields BEFORE iterating through them for the Film attributes
-    # NESTED_ATTRIBUTES.each do |na|
-    #   args.delete(na) unless args.nil?
-    # end
+    unless args.nil?
+      NESTED_ATTRIBUTES.each do |na|
+        args.delete(na) unless args.nil?
+      end
+    end
 
     acting_as.media_type = 'Moving Image'
     # this is necessary, as is the order of the test, because when creating this type of PhysicalObject through the UI the
