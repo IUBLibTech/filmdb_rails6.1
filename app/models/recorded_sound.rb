@@ -70,9 +70,12 @@ class RecordedSound < ApplicationRecord
     # through self.send() below, this results in a SECOND call to creating that metadata on the underlying physical object.
     # This only appears to happen during create action on physical objects however, make sure to remove the keys for these
     # metadata fields BEFORE iterating through them for the Film attributes
-    NESTED_ATTRIBUTES.each do |na|
-      args.delete(na)
+    unless args.nil?
+      NESTED_ATTRIBUTES.each do |na|
+        args.delete(na)
+      end
     end
+
     acting_as.media_type = 'Recorded Sound'
 
     # this is necessary, as is the order of the test, because when creating this type of PhysicalObject through the UI the
@@ -83,8 +86,10 @@ class RecordedSound < ApplicationRecord
       args.keys.each do |k|
         self.send((k.dup.to_s << "=").to_sym, args[k])
       end
-    else
-      raise "What is args?!?!?"
+    elsif args.is_a? Hash
+      args.keys.each do |k|
+        self.send((k.to_s << "=").to_sym, args[k])
+      end
     end
   end
 

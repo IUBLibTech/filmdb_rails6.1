@@ -95,8 +95,10 @@ class EquipmentTechnology < ApplicationRecord
     # This only appears to happen during the #create action on physical objects however
     #
     # Make sure to remove the keys for these metadata fields BEFORE iterating through them for the EquipmentTechnology attributes
-    NESTED_ATTRIBUTES.each do |na|
-      args.delete(na)
+    unless args.nil?
+      NESTED_ATTRIBUTES.each do |na|
+        args.delete(na)
+      end
     end
     if args.is_a? ActionController::Parameters
       args.keys.each do |a|
@@ -106,8 +108,6 @@ class EquipmentTechnology < ApplicationRecord
       args.keys.each do |k|
         self.send((k.to_s << "=").to_sym, args[k])
       end
-    else
-      raise "What is args?!?!?"
     end
   end
 

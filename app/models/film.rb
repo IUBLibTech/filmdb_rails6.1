@@ -126,17 +126,19 @@ class Film < ApplicationRecord
 
   def initialize(args = {})
     super
+    # !!!! IMPORTANT - how the nested_form gem and active-record_acts_as gem interact with form submission and params.require.permit
+    # creates duplicate entries for PhysicalObjectOriginalIdentifiers, PhysicalObjectDates, Languages, RatedConditions, and
+    # BooleanConditions. The above super call ends up ALSO calling the initializer for PhysicalObjects which holds the
+    # actual associations for these objects. They get created correctly. However, I think that when each of these is passed
+    # through self.send() below, this results in a SECOND call to creating that metadata on the underlying physical object.
+    # This only appears to happen during create action on physical objects however, make sure to remove the keys for these
+    # metadata fields BEFORE iterating through them for the Film attributes
+    unless args.nil?
+      NESTED_ATTRIBUTES.each do |na|
+        args.delete(na) unless args.nil?
+      end
+    end
     if args.is_a? ActionController::Parameters
-      # !!!! IMPORTANT - how the nested_form gem and active-record_acts_as gem interact with form submission and params.require.permit
-      # creates duplicate entries for PhysicalObjectOriginalIdentifiers, PhysicalObjectDates, Languages, RatedConditions, and
-      # BooleanConditions. The above super call ends up ALSO calling the initializer for PhysicalObjects which holds the
-      # actual associations for these objects. They get created correctly. However, I think that when each of these is passed
-      # through self.send() below, this results in a SECOND call to creating that metadata on the underlying physical object.
-      # This only appears to happen during create action on physical objects however, make sure to remove the keys for these
-      # metadata fields BEFORE iterating through them for the Film attributes
-      # NESTED_ATTRIBUTES.each do |na|
-      #   args.delete(na) unless args.nil?
-      # end
       args.keys.each do |a|
         self.send(a.dup << "=", args[a])
       end

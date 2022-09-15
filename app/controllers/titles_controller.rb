@@ -11,16 +11,22 @@ class TitlesController < ApplicationController
   def search
 	  if params[:title_text]
 		  # find out whether or not to do pagination
-		  @count = Title.title_search_count(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text], params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
-		                               (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status], current_user, 0, Title.all.size)
+		  @count = Title.title_search_count(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
+                            params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
+                            (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
+                            current_user, 0, Title.all.size)
 		  if @count > Title.per_page
 			  @paginate = true
 			  @page = (params[:page] ? params[:page].to_i : 1)
-			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text], params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
-			                               (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status], current_user, (@page - 1) * Title.per_page, Title.per_page)
+			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
+                             params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
+                             (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
+                             current_user, (@page - 1) * Title.per_page, Title.per_page)
 		  else
-			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text], params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
-			                               (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status], current_user, 0, @count)
+			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
+                             params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
+                             (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
+                             current_user, 0, @count)
 		  end
     end
     respond_to do |format|
@@ -590,8 +596,11 @@ class TitlesController < ApplicationController
     )
   end
   def page_link_path(page)
-	  titles_search_path(page: page, title_text: params[:title_text], series_name_text: params[:series_name_text], date: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text],
-	                     collection_id: (params[:collection_id] == '0' ? 0 : params[:collection_id]), digitized_status: params[:digitized_status])
+	  titles_search_path(page: page, title_text: params[:title_text], series_name_text: params[:series_name_text],
+                       date: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text],
+                       summary_text: params[:summary_text], location_text: params[:location_text],
+                       subject_text: params[:subject_text], collection_id: (params[:collection_id] == '0' ? 0 : params[:collection_id]),
+                       digitized_status: params[:digitized_status])
   end
 	helper_method :page_link_path
 
