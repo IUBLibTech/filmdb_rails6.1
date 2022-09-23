@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_26_145955) do
+ActiveRecord::Schema.define(version: 2022_09_19_170712) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -514,6 +514,10 @@ ActiveRecord::Schema.define(version: 2022_04_26_145955) do
     t.text "file_contents", size: :medium
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean "caia_soft"
+    t.text "json_payload", size: :medium
+    t.boolean "caia_soft_upload_success"
+    t.text "caia_soft_response", size: :medium
   end
 
   create_table "recorded_sounds", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|

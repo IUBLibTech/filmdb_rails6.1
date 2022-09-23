@@ -75,7 +75,7 @@
 					<%= link_to "#{t.title_text}", title_path(t) %> <br>
 				<% end %>
 			</td>
-			<td><%=  p.iu_barcode %></td>
+			<td><%=  link_to p.iu_barcode, physical_object_path(p.acting_as), target: '_blank' %></td>
 			<td><%= p.has_attribute?(:can_size) ? p.can_size : '' %></td>
 			<td><%= p.medium_name %></td>
 			<td><%=  p.current_location %></td>
