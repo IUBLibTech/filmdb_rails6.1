@@ -23,4 +23,17 @@ class PullRequest < ApplicationRecord
 		mans
 	end
 
+	# returns a hash mapping IU barcodes to the corresponding "result" field for that particular PhysicalObject
+	def cs_po_map
+		map = {}
+		response = JSON.parse(caia_soft_response)
+		response["results"].each do |p|
+			vals = {}
+			# "results"=>[{"item"=>"30000136732413", "deny"=>"Y", "istatus"=>"Item in Collection BL cannot circulate to Stop MI - Location default"}]}
+			map[p["item"].to_i] = p.except("item")
+		end
+		map
+	end
+
+
 end

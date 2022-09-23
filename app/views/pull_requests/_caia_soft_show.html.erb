@@ -1,0 +1,32 @@
+<p>This pull request was made against ALF's new inventory software, CaiaSoft. Below is the status of the pull request</p>
+<% if @pull_request.caia_soft_upload_success %>
+  <p>CaiaSoft successfully received the pull request</p>
+    <table>
+      <tr>
+        <th>IU Barcode</th>
+        <th>Title</th>
+        <th>Expected Storage Location</th>
+        <th>Pull Request Status</th>
+        <th>Reason if Denied</th>
+      </tr>
+      <% map = @pull_request.cs_po_map %>
+      <% @pull_request.physical_objects.each do |p| %>
+        <% denied = (map[p.iu_barcode] != nil && map[p.iu_barcode]["deny"]) == "Y" %>
+        <% cl = denied ? "warning" : ""%>
+        <tr>
+          <td><%= link_to "#{p.iu_barcode}", physical_object_path(p) %></td>
+          <td><%= p.titles_text %></td>
+          <% if p.storage_location != WorkflowStatus::IN_STORAGE_INGESTED %>
+            <td class="warning"><%= p.storage_location %> - Manual Pull</td>
+          <% else %>
+            <td><%= p.storage_location %></td>
+          <% end %>
+          <td class="<%= cl %>"><%=  denied ? "Denied" : "Accepted" %></td>
+          <td class="<%= cl %>"><%= map[p.iu_barcode]["istatus"] if denied %></td>
+        </tr>
+      <% end %>
+    </table>
+<% else %>
+  <p class="warning">CaiaSoft did not receive the Pull Request. If this problem persists. Please contact Carmel or Andrew.</p>
+<% end %>
+

@@ -52,14 +52,23 @@ class WorkflowController < ApplicationController
 			pos = PhysicalObject.where(id: ids)
 			bad_req = []
 			begin
-				PhysicalObject.transaction do
-					pos.each do |p|
-						ws = WorkflowStatus.build_workflow_status(WorkflowStatus::PULL_REQUESTED, p)
-						p.workflow_statuses << ws
-						p.save!
+				# the main difference between this logic branch is that when using CaiaSoft, the code responsible for pushing the
+				# request is also responsible for updating the WorkflowStatus of the PhysicalObjects that were part of the request.
+				# This is a code refactoring that was not implemented on the previous (GFA) code as that is being replaced.
+				unless Rails.application.credentials[:use_caia_soft]
+					PhysicalObject.transaction do
+						pos.each do |p|
+							ws = WorkflowStatus.build_workflow_status(WorkflowStatus::PULL_REQUESTED, p)
+							p.workflow_statuses << ws
+							p.save!
+						end
+						@pr = push_pull_request(pos, User.current_user_object)
+						flash[:notice] = "Storage has been notified to pull #{@pr.automated_pull_physical_objects.size} #{"record".pluralize(@pr.automated_pull_physical_objects.size)}."
 					end
+				else
+					# @pr is a global variable saved if the push was successful
 					push_pull_request(pos, User.current_user_object)
-					flash[:notice] = "Storage has been notified to pull #{@pr.automated_pull_physical_objects.size} #{"record".pluralize(@pr.automated_pull_physical_objects.size)}."
+
 				end
 			rescue Exception => e
 				puts e.message
@@ -67,7 +76,13 @@ class WorkflowController < ApplicationController
 				flash[:warning] = "An error occurred when trying to push the request to the ALF system: #{e.message} (see log files for full details)"
 			end
 		end
-		redirect_to :pull_request
+		# the PullRequest object has information about which POs were queued for an ALF team pull, and which POs have to be
+		# manually pulled by IULMIA staff (freezer items for instance)
+		if @pr
+			redirect_to show_pull_request_path(@pr)
+		else
+			redirect_to :pull_request
+		end
 	end
 
 	def ajax_cancel_queued_pull_request

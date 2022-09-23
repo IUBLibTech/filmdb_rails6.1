@@ -1,5 +1,8 @@
 module AlfHelper
 	require 'net/sftp'
+	require 'net/http'
+	require 'json'
+	require 'uri'
 
 	# 4th field after AL/MI is patron id, not email address, try to figure out which field is email address and use the IULMIA account that Andy monitors
 	PULL_LINE_MDPI = "\"REQI\",\":IU_BARCODE\",\"IULMIA – MDPI\",\":TITLE\",\"AM\",\"AM\",\"\",\"\",\":EMAIL_ADDRESS\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"PHY\""
@@ -7,22 +10,45 @@ module AlfHelper
 	ALF = "ALF"
 	WELLS_052 = "Wells"
 
+	CURL_COMMAND = "curl -X POST -H '$API_KEY_NAME:$API_KEY' -H 'Content-Type: application/json' -d '$REQUEST' $CS_ENDPOINT"
 
 	# this method is responsible for generating and upload the ALF system pull request file
+	#{"success"=>true, "error"=>"", "request_count"=>"1",
+	# "results"=>[{"item"=>"30000136732413", "deny"=>"Y", "istatus"=>"Item in Collection BL cannot circulate to Stop MI - Location default"}]}
+	#
 	def push_pull_request(physical_objects, user)
-		# transaction incase anything goes wrong while writing the upload file and saving the PullRequest object
+		# transaction in case anything goes wrong while writing the upload file and saving the PullRequest object
 		# see #generate_upload_file for details
-		#PullRequest.transaction do
-			if physical_objects.length > 0
+		if physical_objects.length > 0
+			unless Rails.application.credentials[:use_caia_soft]
 				file = generate_upload_file(physical_objects, user)
-				debugger
-				unless Rails.application.credentials[:use_caia_soft]
-					scp(file)
+				scp(file)
+			else
+				result = cs_upload_curl(physical_objects, user)
+				# Make sure the curl process exited successfully and if yes, parse the result
+				exit_status = $?.exitstatus
+				if exit_status == 0
+					response = JSON.parse(result)
+					if response["success"] == true
+						@pr.caia_soft_upload_success = true
+						@pr.caia_soft_response = result
+						@pr.save
+						@pr.physical_objects.each do |p|
+							ws = WorkflowStatus.build_workflow_status(WorkflowStatus::PULL_REQUESTED, p)
+							p.workflow_statuses << ws
+							p.current_workflow_status = ws
+							p.save!
+						end
+					else
+						@pr.caia_soft_upload_success = false
+						@pr.caia_soft_response = result
+						@pr.save!
+					end
 				else
-					caia_soft_upload(file)
+					raise "CURL execution failed with exit code: #{exit_status}"
 				end
 			end
-		#end
+		end
 	end
 
 	private
@@ -43,23 +69,6 @@ module AlfHelper
 		(Rails.env == "production" || Rails.env == "production_dev") ?
 			Rails.application.credentials[:alf_upload_dir] : Rails.application.credentials[:alf_upload_test_dir]
 	end
-
-	# determines the correct scp user based on the contents of credentials.yml for the Rails.env Filmdb is running in
-	# def pull_request_user
-	# 	Rails.application.credentials[:alf_username]
-	# end
-	# # determines the correct GFS host based on the contents of credentials.yml in the Rails.env Filmdb is running in
-	# def pull_request_host
-	# 	Rails.application.credentials[:alf_host]
-	# end
-	#
-	# def pull_request_password
-	# 	Rails.application.credentials[:alf_password]
-	# end
-
-	# def pulling_from?
-	# 	"#{pull_request_user}@#{pull_request_host} uploads to #{pull_request_upload_dir}"
-	# end
 
 	def generate_pull_file_contents(physical_objects, user)
 		str = []
@@ -95,7 +104,8 @@ module AlfHelper
 		sprintf "%05d", (id.nil? ? 1 : id+1)
 	end
 
-	# generates a pull request file for ALF containing the requested Physical Objects.
+	# generates a pull request file for ALF containing the requested Physical Objects. This is the OLD way of uploading FILES
+	# to GFA. The furture way (ETA late Oct 2022), uses a POST request with JSON payload to Caiasoft server: see #cs_upload_curl
 	def generate_upload_file(pos, user)
 		file_contents = generate_pull_file_contents(pos, user)
 		file_path = gen_file_name
@@ -112,18 +122,81 @@ module AlfHelper
 		file_path
 	end
 
-	def caia_soft_upload(file)
-		url = Rails.application.credentials[:caia_soft_endpoint]
-		key_name = Rails.application.credentials[:caia_soft_api_key_name]
-		key = Rails.application.credentials[:caia_soft_api_key]
+	# uploads a request payload to the CaiaSoft inventory system ALF uses as a GFA replacement
+	# NOTE: This uses standard Ruby Net/Http libs but is REALLY slow - simple request of single PO takes 2+ minutes to
+	# complete... See #cs_upload_curl as an alternative
+	def cs_upload_libs(pos, user)
+		uri = cs_endpoint
+		key_name = cs_api_key_name
+		key = cs_api_key
 
-		uri = URI(url)
-		request = Net::HTTP::Post.new(uri)
-		request[key_name] = key
-		request.use_ssl = true
-		request.set_form([['upload', File.open(file)]], 'multipart/form-data')
-		response = request.request(request)
-		debugger
+		http = Net::HTTP.new(uri.host, uri.port)
+		http.use_ssl = true
+		req = Net::HTTP::Post.new(uri.path, 'Content-Type' => 'application/json')
+		req[key_name] = key
+		req.body = cs_json_payload(pos, user)
+		res = http.request(req)
+	end
+
+	# this uses system curl command to send the JSON payload. It behaves as expected - almost instantaneous response from
+	# the CS server
+	def cs_upload_curl(pos, user)
+		url = cs_endpoint
+		key_name = cs_api_key_name
+		key = cs_api_key
+		payload = cs_json_payload(pos, user)
+		`curl -X POST -H '#{key_name}:#{key}' -H 'Content-Type: application/json' -d '#{payload}' #{url}`
+	end
+
+	# generates the JSON payload for upload as for the resquest's body to the CaiaSoft inventory system, and creates the
+	# global PullRequest object @pr - does NOT save @pr: this should be handled by other code that checks whether the
+	# pull request was successful on the CaiaSoft end
+	def cs_json_payload(pos, user)
+		payload = []
+		PullRequest.transaction do
+			@pr = PullRequest.new(filename: nil, file_contents: nil, requester: user, caia_soft: true)
+			pos.each do |p|
+				# ALF staff only pull ingested and "normal" storage items. If a PO is in the freezer or awaiting freezer,
+				# or in ALF but not yet ingested into GFA/CaiaSoft, IULMIA staff manually pull these items themselves - only send
+				# POs where storage location is ingested
+				if p.storage_location == WorkflowStatus::IN_STORAGE_INGESTED
+					payload << cs_line(p, user)
+				end
+				# ALL POs (freezer, awaiting, or otherwise) need to belong to the PullRequest even though IULMIA staff
+				# manually pull certain items
+				@pr.physical_object_pull_requests << PhysicalObjectPullRequest.new(physical_object_id: p.id, pull_request_id: @pr.id)
+			end
+			@pr.json_payload = payload.to_s
+		end
+		{"requests": payload}.to_json
+	end
+
+	def parse_cs_json_response(result)
+		response = JSON.parse(result)
+	end
+
+	# Generates a single entry in the JSON payload for CaiaSoft, rquired fields are:
+	# (item) barcode, request_type, and stop
+	def cs_line(po, user)
+		stop = "MI" #po.active_component_group.deliver_to_alf? ? "AM" : "MI"
+		{"request_type" => "PYR", "barcode" => "#{po.iu_barcode}", "stop" =>  stop, "requestor" => "IULMIA", "patron_id" => "#{user.email_address}",
+		 "title" => "#{po.titles_text.truncate(20, omission: '')}"}
+	end
+
+	def cs_endpoint
+		URI(Rails.application.credentials[:caia_soft_endpoint])
+	end
+	def cs_api_key_name
+		Rails.application.credentials[:caia_soft_api_key_name]
+	end
+	def cs_api_key
+		Rails.application.credentials[:caia_soft_api_key]
+	end
+
+	def test_cs
+		user = User.where(username: 'jaalbrec').first
+		pos = [PhysicalObject.find(237)]
+		output = cs_upload_curl(pos, user)
 	end
 
 end

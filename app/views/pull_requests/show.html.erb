@@ -1,4 +1,5 @@
 <h4>Pull Request Details</h4>
+<p class="notice"><%= @pull_request.caia_soft? ? "CaiaSoft Pull Request" : "GFA Pull Request"%></p>
 <table>
 	<tr>
 		<th>Date Requested</th>
@@ -13,37 +14,41 @@
 		<td><%= @pull_request.physical_objects.size %></td>
 	</tr>
 </table>
-<br>
-<h4>Ingested Physical Objects (ALF Automated Pull)</h4>
-<table>
-	<tr>
-		<th>IU Barcode</th>
-		<th>Title</th>
-		<th>Expected Storage Location</th>
-	</tr>
-	<% @ingested.each do |p| %>
+<% if @pull_request.caia_soft? %>
+	<%= render partial: 'caia_soft_show' %>
+<% else %>
+	<br>
+	<h4>Ingested Physical Objects (ALF Automated Pull)</h4>
+	<table>
 		<tr>
-			<td><%= p.iu_barcode %></td>
-			<td><%= p.titles_text %></td>
-			<td><%= p.storage_location %></td>
+			<th>IU Barcode</th>
+			<th>Title</th>
+			<th>Expected Storage Location</th>
 		</tr>
-	<% end %>
-</table>
-<br>
-<h4>Non-ingested Physical Objects (ALF/Freezer Manual Pulls)</h4>
-<table>
-	<tr>
-		<th>IU Barcode</th>
-		<th>Title</th>
-		<th>Expected Storage Location</th>
-		<th>Alf Shelf (If Applicable)</th>
-	</tr>
-	<% @not_ingested.each do |p| %>
+		<% @ingested.each do |p| %>
+			<tr>
+				<td><%= p.iu_barcode %></td>
+				<td><%= p.titles_text %></td>
+				<td><%= p.storage_location %></td>
+			</tr>
+		<% end %>
+	</table>
+	<br>
+	<h4>Non-ingested Physical Objects (ALF/Freezer Manual Pulls)</h4>
+	<table>
 		<tr>
-			<td><%= p.iu_barcode %></td>
-			<td><%= p.titles_text %></td>
-			<td><%= p.storage_location %></td>
-			<td><%= p.storage_location == WorkflowStatus::IN_STORAGE_AWAITING_INGEST ? (p.alf_shelf.blank? ? '' : p.alf_shelf) : 'N/A' %></td>
+			<th>IU Barcode</th>
+			<th>Title</th>
+			<th>Expected Storage Location</th>
+			<th>Alf Shelf (If Applicable)</th>
 		</tr>
-	<% end %>
-</table>
+		<% @not_ingested.each do |p| %>
+			<tr>
+				<td><%= p.iu_barcode %></td>
+				<td><%= p.titles_text %></td>
+				<td><%= p.storage_location %></td>
+				<td><%= p.storage_location == WorkflowStatus::IN_STORAGE_AWAITING_INGEST ? (p.alf_shelf.blank? ? '' : p.alf_shelf) : 'N/A' %></td>
+			</tr>
+		<% end %>
+	</table>
+<% end %>
