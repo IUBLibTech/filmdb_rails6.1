@@ -162,12 +162,20 @@ class PhysicalObjectsController < ApplicationController
           new_one = Film.new(po_only_params)
         elsif s_medium == 'Video'
           new_one = Video.new(po_only_params)
+        elsif s_medium == 'Recorded Sound'
+          new_one = RecordedSound.new(po_only_params)
+        elsif s_medium == "Equipment/Technology"
+          new_one = EquipmentTechnology.new(po_only_params)
         end
-        # copy any title associations based on the state of the form when the medium switch occurred
-        params[:physical_object][:title_ids].split(',').each do |t_id|
-          t = Title.find(t_id.to_i)
-          new_one.titles << t unless new_one.titles.include? t
+
+        unless new_one.is_a? EquipmentTechnology
+          # copy any title associations based on the state of the form when the medium switch occurred
+          params[:physical_object][:title_ids].split(',').each do |t_id|
+            t = Title.find(t_id.to_i)
+            new_one.titles << t unless new_one.titles.include? t
+          end
         end
+
         @physical_object = new_one.specific
       end
     end
