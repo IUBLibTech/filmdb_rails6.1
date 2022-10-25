@@ -117,7 +117,6 @@ class SpreadSheetSearch < ApplicationRecord
     Video.write_xlsx_header_row( videos )
     RecordedSound.write_xlsx_header_row( recorded_sounds )
     total = titles.size.to_f
-    debugger
     titles.each_with_index do |t, i|
       # we want to avoid excessive writes to the database while updating the completion status of the job
       # so only write when -percent_complete- state jumps forward by 5%. Remember, percent_complete is the
