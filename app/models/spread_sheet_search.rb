@@ -96,9 +96,9 @@ class SpreadSheetSearch < ApplicationRecord
         )
       end
     end
-    titles = titles.joins(:title_publishers).includes(:title_publishers).where("title_publishers.name LIKE ?", "%#{publisher_text}%") unless publisher_text.blank?
-    titles = titles.joins(:title_creators).inlcudes(:title_creators).where("title_creators.name like ?", "%#{creator_text}%") unless creator_text.blank?
-    titles = titles.joins(:title_locations).includes(:title_locations).where("title_locations.location ?", "%#{location_text}%") unless location_text.blank?
+    titles = titles.joins(:title_publishers).includes(:title_publishers).where("title_publishers.name like ?", "%#{publisher_text}%") unless publisher_text.blank?
+    titles = titles.joins(:title_creators).includes(:title_creators).where("title_creators.name like ?", "%#{creator_text}%") unless creator_text.blank?
+    titles = titles.joins(:title_locations).includes(:title_locations).where("title_locations.location like ?", "%#{location_text}%") unless location_text.blank?
     if collection_id == 0
       titles = titles.joins(:physical_objects).includes(:physical_objects)
     else
