@@ -58,7 +58,7 @@ class TitlesController < ApplicationController
         collection_id: params[:collection_id], digitized_status: params[:digitized_status], percent_complete: 0, request_ts: params[:request_ts]
       )
       ss.save!
-      ss.create
+      ss.delay.create
       flash[:notice] = "Your search is running and will be available here for download when it completes."
       redirect_to spread_sheet_searches_path
     end
