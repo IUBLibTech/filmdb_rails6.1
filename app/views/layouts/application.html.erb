@@ -11,7 +11,7 @@
 	<div id="release">
 		Version <%= APP_VERSION %>
 	</div>
-	<% if Rails.env != 'production'  %>
+	<% unless Rails.env == 'production' or Rails.env == 'production_dev'  %>
 		<div id="environment"><%= Rails.env.upcase %></div>
 	<% end %>
   <div class="user">
