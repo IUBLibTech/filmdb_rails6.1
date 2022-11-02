@@ -371,6 +371,10 @@ class Title < ApplicationRecord
 		end
 	end
 
+	def title_date_search(start_date, end_date)
+
+	end
+
 	private
 	# looks up POD group key identifier (GR000xxx) and converts it to its database ID value: GR000...xxx stripping away
 	# the GR and leading zeroes. Returning a hash with two keys: status which is the HTTP status code of the request, and gid

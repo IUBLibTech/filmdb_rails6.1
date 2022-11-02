@@ -64,7 +64,6 @@ class SpreadSheetSearch < ApplicationRecord
   end
   #handle_asynchronously :create
 
-  private
   def run_query
     titles = title_text.blank? ? Title.all : Title.where("title_text like '%#{title_text}%'")
     unless digitized_status == 'all'
@@ -82,23 +81,24 @@ class SpreadSheetSearch < ApplicationRecord
     unless date_text.blank?
       dates = date_text.gsub(' ', '').split('-')
       if dates.size == 1
+        d1 = EDTF.parse(dates[0])
         titles = titles.joins(:title_dates).includes(:title_dates).where(
           "title_dates.end_date is null AND year(title_dates.start_date) = ? OR "+
-            "(title_dates.end_date is not null AND year(title_dates.start_date) <= ? AND year(title_dates.end_date) >= ?)", dates[0], dates[0], dates[0])
+            "(title_dates.start_date <= ? AND title_dates.end_date >= ?)", d1,d1,d1)
       else
+        d1 = EDTF.parse(dates[0])
+        d2 = EDTF.parse(dates[1])
         titles = titles.joins(:title_dates).includes(:title_dates).where(
-          "(title_dates.end_date is null AND year(title_dates.start_date) >= ? AND year(title_dates.start_date) <= ?  OR "+
-            "(title_dates.end_date is not null AND "+
-            "((year(title_dates.start_date) >= ? AND year(title_dates.start_date) <= ?) OR "+
-            "(year(title_dates.end_date) >= ? AND year(title_dates.end_date) <= ? OR "+
-            "(year(title_dates.start_date) < ? AND year(title_dates.end_date) > ?)))",
-          dates[0], dates[1], dates[0], dates[1], dates[0], dates[1], dates[0], dates[1]
+          "(title_dates.start_date BETWEEN ? AND ?) "+
+            "OR (title_dates.end_date BETWEEN ? AND ?) "+
+            "OR (title_dates.start_date < ? AND title_dates.end_date > ?)",
+          d1, d2, d1, d2, d1, d2
         )
       end
     end
-    titles = titles.joins(:title_publishers).includes(:title_publishers).where("title_publishers.name LIKE ?", "%#{publisher_text}%") unless publisher_text.blank?
-    titles = titles.joins(:title_creators).inlcudes(:title_creators).where("title_creators.name like ?", "%#{creator_text}%") unless creator_text.blank?
-    titles = titles.joins(:title_locations).includes(:title_locations).where("title_locations.location ?", "%#{location_text}%") unless location_text.blank?
+    titles = titles.joins(:title_publishers).includes(:title_publishers).where("title_publishers.name like ?", "%#{publisher_text}%") unless publisher_text.blank?
+    titles = titles.joins(:title_creators).includes(:title_creators).where("title_creators.name like ?", "%#{creator_text}%") unless creator_text.blank?
+    titles = titles.joins(:title_locations).includes(:title_locations).where("title_locations.location like ?", "%#{location_text}%") unless location_text.blank?
     if collection_id == 0
       titles = titles.joins(:physical_objects).includes(:physical_objects)
     else
@@ -107,7 +107,7 @@ class SpreadSheetSearch < ApplicationRecord
     titles
   end
 
-  def generate_spreadsheet(results)
+  def generate_spreadsheet(titles)
     x = Axlsx::Package.new
     wb = x.workbook
     films = wb.add_worksheet(name: "Films")
@@ -116,8 +116,8 @@ class SpreadSheetSearch < ApplicationRecord
     Film.write_xlsx_header_row( films)
     Video.write_xlsx_header_row( videos )
     RecordedSound.write_xlsx_header_row( recorded_sounds )
-    total = results.size.to_f
-    results.each_with_index do |t, i|
+    total = titles.size.to_f
+    titles.each_with_index do |t, i|
       # we want to avoid excessive writes to the database while updating the completion status of the job
       # so only write when -percent_complete- state jumps forward by 5%. Remember, percent_complete is the
       # total JOB completion state: at this point in code, the time taken to run the query AND where we are in spreadsheet
@@ -133,7 +133,8 @@ class SpreadSheetSearch < ApplicationRecord
         puts "Completed another 5% of spreadsheet id: #{id}, now #{total_percent}% complete."
         update(percent_complete: total_percent.to_i)
       end
-      t.physical_objects.each do |po|
+      t.physical_objects.each_with_index do |po, i|
+        puts "\t\t#{i} of #{total.to_i}"
         if po.specific.medium == "Film"
           @worksheet = films
         elsif po.specific.medium == "Video"
@@ -141,7 +142,7 @@ class SpreadSheetSearch < ApplicationRecord
         elsif po.specific.medium == "Recorded Sound"
           @worksheet = recorded_sounds
         else
-          raise "Unsupported spreadsheet download medium: #{po.specific.medium}"
+          next
         end
         po.specific.write_xlsx_row(t, @worksheet)
       end

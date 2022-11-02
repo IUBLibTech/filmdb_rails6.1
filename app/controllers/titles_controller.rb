@@ -53,7 +53,7 @@ class TitlesController < ApplicationController
     else
       ss = SpreadSheetSearch.new(
         user_id: User.current_user_object.id, title_text: params[:title_text], series_name: params[:series_name_text],
-        date_text: params[:date_text], publisher_text: params[:publisher_text], creator_text: params[:creator_text],
+        date_text: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text],
         summary_text: params[:summary_text], location_text: params[:location_text], subject_text: params[:subject_text],
         collection_id: params[:collection_id], digitized_status: params[:digitized_status], percent_complete: 0, request_ts: params[:request_ts]
       )
