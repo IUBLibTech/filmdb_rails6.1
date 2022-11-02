@@ -22,7 +22,7 @@ class SessionsController < ActionController::Base
   end
 
   def which_iu_login
-    if Rails.env == "production"
+    if Rails.env == "production" || Rails.env == "production_dev"
       iu_login
     else
       iu_login_staging
