@@ -1,7 +1,7 @@
 class Series < ApplicationRecord
   has_many :titles, autosave: true
-  belongs_to :creator, class_name: "User", foreign_key: "created_by_id", autosave: true
-  belongs_to :modifier, class_name: "User", foreign_key: "modified_by_id", autosave: true
+  belongs_to :creator, class_name: "User", foreign_key: "created_by_id", autosave: true, optional: true
+  belongs_to :modifier, class_name: "User", foreign_key: "modified_by_id", autosave: true, optional: true
 
   # returns an array of distinct series titles that are associated with the spreadsheet but also not (series created
   # in other spreadsheets or created manually that have the same title text as the records in the spreadsheet)
