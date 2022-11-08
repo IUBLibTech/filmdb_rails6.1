@@ -21,8 +21,7 @@ module AlfHelper
 		# see #generate_upload_file for details
 		if physical_objects.length > 0
 			unless Rails.application.credentials[:use_caia_soft]
-				file = generate_upload_file(physical_objects, user)
-				scp(file)
+				upload_gfa(physical_objects, user)
 			else
 				result = cs_upload_curl(physical_objects, user)
 				# Make sure the curl process exited successfully and if yes, parse the result
@@ -48,6 +47,23 @@ module AlfHelper
 					raise "CURL execution failed with exit code: #{exit_status}"
 				end
 			end
+		end
+	end
+
+	def upload_gfa(physical_objects, user)
+		file = generate_upload_file(physical_objects, user)
+		contents = file[:file_contents]
+		path = file[:file_path]
+		scp(path)
+		PullRequest.transaction do
+			@pr = PullRequest.new(filename: path, file_contents: (contents.size > 0 ? contents.join("\n") : ''), requester: User.current_user_object)
+			physical_objects.each do |p|
+				ws = WorkflowStatus.build_workflow_status(WorkflowStatus::PULL_REQUESTED, p)
+				p.workflow_statuses << ws
+				p.save!
+				@pr.physical_objects << p
+			end
+			@pr.save!
 		end
 	end
 
@@ -113,13 +129,7 @@ module AlfHelper
 			File.write(file_path, file_contents.join("\n"))
 			logger.info "#{file_path} created"
 		end
-		@pr = PullRequest.new(filename: file_path, file_contents: (file_contents.size > 0 ? file_contents.join("\n") : ''), requester: User.current_user_object)
-		pos.each do |p|
-			@pr.physical_object_pull_requests << PhysicalObjectPullRequest.new(physical_object_id: p.id, pull_request_id: @pr.id)
-		end
-		@pr.save!
-		@pr
-		file_path
+		{file_path: file_path, file_contents: file_contents}
 	end
 
 	# uploads a request payload to the CaiaSoft inventory system ALF uses as a GFA replacement
