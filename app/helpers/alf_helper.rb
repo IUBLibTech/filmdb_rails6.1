@@ -1,4 +1,5 @@
 module AlfHelper
+	require 'net/scp'
 	require 'net/sftp'
 	require 'net/http'
 	require 'json'
@@ -54,7 +55,7 @@ module AlfHelper
 		file = generate_upload_file(physical_objects, user)
 		contents = file[:file_contents]
 		path = file[:file_path]
-		scp(path)
+		scp_old(path)
 		PullRequest.transaction do
 			@pr = PullRequest.new(filename: path, file_contents: (contents.size > 0 ? contents.join("\n") : ''), requester: User.current_user_object)
 			physical_objects.each do |p|
@@ -77,6 +78,16 @@ module AlfHelper
 		File.rename(file, destination_file)
 	end
 
+	def scp_old(file)
+		Net::SCP.start(Rails.application.credentials[:alf_cedar_host], Rails.application.credentials[:alf_cedar_username], password: Rails.application.credentials[:alf_cedar_password]) do |scp|
+			# when testing, make sure to use alf['upload_test_dir'] - this is the sftp user account home directory
+			# when ready to move into production testing change this to alf['upload_dir'] - this is the ALF automated ingest directory
+			success = scp.upload!(file, "#{pull_request_upload_dir}")
+			raise "Failed to scp file to Cedar: #{pull_request_upload_dir}" unless success
+			logger.info "scp.upload! returned #{success}"
+			success
+		end
+	end
 
 
 	# determines the correct scp destination based on the contents of credentials.yml for the Rails.env Filmdb is running in
