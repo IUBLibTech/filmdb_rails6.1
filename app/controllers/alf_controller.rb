@@ -25,7 +25,7 @@ class AlfController < ApplicationController
             csv << ["Invalid Barcode: #{bc}", '', '', '', '']
           else
             po = po.specific
-            csv << [bc, po.titles_text, po.titles.collect{|t| t.series ? t.series.title : ''}.join(" | "), po&.collection.name, po&.reel_number]
+            csv << [bc, po.titles_text, po.titles.collect{|t| t.series ? t.series.title : ''}.join(" | "), po.collection&.name, po&.reel_number]
           end
         end
       end
