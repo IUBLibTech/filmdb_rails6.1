@@ -252,7 +252,8 @@ module PhysicalObjectsHelper
           boolean_conditions_attributes: [:id, :condition_type, :comment, :_destroy],
           languages_attributes: [:id, :language, :language_type, :_destroy],
           physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
-          physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy]
+          physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy],
+          edge_codes: [:code]
       )
     elsif params[:video]
       params.require(:video).permit(
@@ -275,6 +276,7 @@ module PhysicalObjectsHelper
           :picture_type_credits_only, :picture_type_picture_effects, :picture_type_picture_outtakes, :picture_type_other,
           :picture_type_not_applicable,
           :image_color_bw, :image_color_color, :image_color_mixed, :image_color_other, :image_aspect_ratio_4_3, :image_aspect_ratio_16_9,
+          :image_aspect_ratio_5_4, :image_aspect_ratio_16_10, :image_aspect_ratio_21_9,
           :image_aspect_ratio_other, :captions_or_subtitles, :silent, :sound_format_type_magnetic, :sound_format_type_digital,
           :sound_format_type_sound_on_separate_media, :sound_format_type_other, :sound_content_type_music_track, :sound_content_type_effects_track,
           :sound_content_type_dialog, :sound_content_type_composite_track, :sound_content_type_outtakes, :sound_configuration_mono,

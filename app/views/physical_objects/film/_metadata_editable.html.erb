@@ -193,6 +193,15 @@
         <% end %>
         <%= f.link_to_add 'New Date', :physical_object_dates %>
       </div>
+      <div class="label"><b>Edge Codes</b></div>
+      <div class="value">
+        <%= f.fields_for :edge_codes do |ec|%>
+        <div class="left condition">
+          Code: <%= ec.select :code, options_for_select(EdgeCodeHelper.options_for_select, ec.object.code), {}, { class: 'edge_code_select' } %>
+        </div>
+        <% end %>
+        <%= f.link_to_add 'New Edge Code', :edge_codes %>
+      </div>
     </div>
     <div id="base_fields" class="left">
       <b class="block">Base</b>

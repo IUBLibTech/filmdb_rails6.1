@@ -67,10 +67,11 @@ class Video < ApplicationRecord
   }
 
   ASPECT_RATIO_FIELDS = [
-      :image_aspect_ratio_4_3, :image_aspect_ratio_16_9, :image_aspect_ratio_other
+      :image_aspect_ratio_4_3, :image_aspect_ratio_16_9, :image_aspect_ratio_5_4, :image_aspect_ratio_16_10, :image_aspect_ratio_21_9, :image_aspect_ratio_other
   ]
   ASPECT_RATIO_FIELDS_HUMANIZED = {
-      image_aspect_ratio_4_3: '4:3', image_aspect_ratio_16_9: '16:9', image_aspect_ratio_other: 'Other'
+      image_aspect_ratio_4_3: '4:3', image_aspect_ratio_16_9: '16:9', image_aspect_ratio_5_4: "5:4",
+      image_aspect_ratio_16_10: "16:10", image_aspect_ratio_21_9: "21:9", image_aspect_ratio_other: 'Other'
   }
 
   SOUND_FORMAT_FIELDS = [

@@ -63,6 +63,7 @@ textarea {
     background-image: image-url('branding1.jpg');
     width: 1000px;
     height: 150px;
+    cursor: pointer;
 }
 
 #branding > div.user {
@@ -74,6 +75,7 @@ textarea {
     background: linear-gradient(#718EA4, rgba(113,142,164,0)); /* Standard syntax (must be last) */
     padding: 10px 5px 104px;
     color: #805215;
+    cursor: default;
 }
 
 div#menu {
@@ -914,4 +916,8 @@ div.po_error_div > ul {
 .missing, a.missing, a.missing:visited {
   color: red;
   font-weight: bold;
+}
+
+.edge_code_select {
+    font-size: 1.5em;
 }
