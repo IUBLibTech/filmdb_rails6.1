@@ -80,6 +80,8 @@ Rails.application.routes.draw do
   get '/compilations', to: 'physical_objects#compilations', as: 'compilations'
   get '/compilations/:comp', to: 'physical_objects#compilation_physical_objects', as: 'compilation_physical_objects'
 
+  #get '/ec_test', to: 'physical_objects#ec_test', as: 'ec_test'
+
   # pod_pushes
   get '/pod_pushes', to: 'pod_pushes#index', as: 'pod_pushes'
   get '/pod_pushes/:id', to: 'pod_pushes#show', as: 'pod_push'

@@ -1,0 +1,7 @@
+<div>
+  <select name="edges" id="" class="edge_code_select">
+    <% EdgeCodeHelper::ALL.each do |c| %>
+      <option value="<%= c %>"><%= EdgeCodeHelper.codeToHTML(c) %></option>
+    <% end %>
+  </select>
+</div>

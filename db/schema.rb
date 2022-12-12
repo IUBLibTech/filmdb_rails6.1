@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_19_170712) do
+ActiveRecord::Schema.define(version: 2022_12_12_151715) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -134,6 +134,13 @@ ActiveRecord::Schema.define(version: 2022_09_19_170712) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.bigint "cage_shelf_id"
+  end
+
+  create_table "edge_codes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "code", limit: 3
+    t.integer "physical_object_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "equipment_technologies", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
@@ -871,6 +878,9 @@ ActiveRecord::Schema.define(version: 2022_09_19_170712) do
     t.string "sound"
     t.integer "tape_capacity"
     t.text "detailed_stock_information"
+    t.boolean "image_aspect_ratio_5_4"
+    t.boolean "image_aspect_ratio_16_10"
+    t.boolean "image_aspect_ratio_21_9"
   end
 
   create_table "workflow_statuses", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|

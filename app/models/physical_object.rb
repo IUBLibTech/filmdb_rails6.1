@@ -26,6 +26,7 @@ class PhysicalObject < ApplicationRecord
 	has_many :physical_object_pull_requests
 	has_many :pull_requests, through: :physical_object_pull_requests
 	has_many :digiprovs
+	has_many :edge_codes
 
 
   validates :physical_object_titles, physical_object_titles: true
@@ -45,13 +46,14 @@ class PhysicalObject < ApplicationRecord
   accepts_nested_attributes_for :languages, allow_destroy: true
   accepts_nested_attributes_for :physical_object_original_identifiers, allow_destroy: true
 	accepts_nested_attributes_for :physical_object_dates, allow_destroy: true
+	accepts_nested_attributes_for :edge_codes, allow_destroy: true
 
 	attr_accessor :workflow
 	attr_accessor :updated
-	after_update :record_barcode_changes
+	after_save :record_barcode_changes
 
 	def record_barcode_changes
-		if iu_barcode_changed? && !iu_barcode_was.blank?
+		if saved_change_to_iu_barcode? && !iu_barcode_was.blank?
 			PhysicalObjectOldBarcode.new(physical_object_id: id, iu_barcode: iu_barcode_was).save!
 		end
 	end

@@ -124,6 +124,12 @@
           $(this).children('ul').slideUp(200);
         }
     );
+		$("#branding").on("click", function(e) {
+			let id = e.target.id;
+			if (id == "branding" || id == "release" || id == "environment") {
+				window.location = "<%= root_path %>";
+			}
+		})
     // $("form").keypress(function(e) {
     //     e = e || event;
     //     var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
@@ -131,6 +137,7 @@
     // });
     $(':text').attr('autocomplete', 'off');
   });
+
 </script>
 </body>
 </html>

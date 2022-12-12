@@ -6,11 +6,12 @@ class Film < ApplicationRecord
   validates :gauge, presence: true
   validates :shrinkage, numericality: {allow_blank: true}
 
+
   # nested_form gem doesn't integrate with active_record-acts_as gem when objects are CREATED, it results in double
   # object creation from form submissions. Edits/deletes seem to work fine however. Use this in the initializer to omit
   # processing these nested attributes
   NESTED_ATTRIBUTES = [:value_conditions_attributes, :boolean_conditions_attributes, :languages_attributes,
-                       :physical_object_original_identifiers_attributes, :physical_object_dates_attributes]
+                       :physical_object_original_identifiers_attributes, :physical_object_dates_attributes, :edge_codes]
 
   VERSION_FIELDS = [:first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample,
                     :preview, :revised, :version_original, :captioned, :excerpt, :catholic, :domestic, :trailer, :english, :television, :x_rated]

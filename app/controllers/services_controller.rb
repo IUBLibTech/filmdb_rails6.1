@@ -69,7 +69,7 @@ class ServicesController < ActionController::Base
 	# this action responds to requests for mods records based on a PhysicalObject MDPI barcode
 	def mods_from_barcode
 		begin
-			@bc = params[:mdpi_barcode]
+			@bc = params[:iu_barcode]
 			po = PhysicalObject.where(mdpi_barcode: @bc).first
 			if po.nil?
 				@msg = "Could not find an record with MDPI Barcode: #{@bc}"

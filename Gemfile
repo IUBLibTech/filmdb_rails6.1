@@ -48,7 +48,7 @@ gem 'pagy'
 # gems for connecting over ssh
 # Ubuntu 20.04+ uses openssl 3.0 and the ruby builds of net-scp are STILL dependent on openssl 1.0...
 # this relies on openssl 1, replaced with net-sftp
-# gem 'net-scp'
+gem 'net-scp'
 gem 'net-sftp'
 gem 'net-ssh'
 gem 'net-smtp'

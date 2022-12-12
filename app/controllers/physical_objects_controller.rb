@@ -4,6 +4,7 @@ class PhysicalObjectsController < ApplicationController
   include PhysicalObjectsHelper
   include MailHelper
   include EquipmentTechnologyHelper
+  include EdgeCodeHelper
 
   # when the user is creating/editing a PO and changes the medium, this results in a POST to #edit so that a new form can
   # be built specific to the PO specific selected, as well as seeding the new form with any entered values that are shared
@@ -342,6 +343,10 @@ class PhysicalObjectsController < ApplicationController
       logger.debug $!
       @success = false
     end
+  end
+
+  def ec_test
+    render 'ec_test'
   end
 
   private
