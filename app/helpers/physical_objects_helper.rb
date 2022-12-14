@@ -253,7 +253,7 @@ module PhysicalObjectsHelper
           languages_attributes: [:id, :language, :language_type, :_destroy],
           physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
           physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy],
-          edge_codes: [:code]
+          edge_codes_attributes: [:id, :code, :_destroy]
       )
     elsif params[:video]
       params.require(:video).permit(

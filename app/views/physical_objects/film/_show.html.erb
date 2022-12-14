@@ -29,7 +29,8 @@
     <b>Orientation</b> <%= @physical_object.orientation_text %> <br>
     <b class="">Base</b> <%= @physical_object.humanize_boolean_fields(Film::BASE_FIELDS) %> <br>
     <b class="">Stock</b> <%= @physical_object.humanize_boolean_fields(Film::STOCK_FIELDS) %> <br>
-    <b>Dates</b> <%= @physical_object.dates_text %> <br>
+    <b>Dates</b> <%= @physical_object.dates_text.html_safe %> <br>
+    <b>Edge Codes</b> <span class="ec"><%= @physical_object.edge_codes_text %></span> <br>
     <b>Duration (hh:mm:ss)&nbsp;</b><%= @physical_object.duration %><br/>
     <b>Multiple Items in Can &nbsp;</b><%= @physical_object.multiple_items_in_can ? 'yes' : 'no' %>
   </div>

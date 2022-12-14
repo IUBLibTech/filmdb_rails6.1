@@ -345,10 +345,6 @@ class PhysicalObjectsController < ApplicationController
     end
   end
 
-  def ec_test
-    render 'ec_test'
-  end
-
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_physical_object

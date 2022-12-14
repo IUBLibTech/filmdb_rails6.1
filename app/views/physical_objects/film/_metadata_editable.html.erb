@@ -198,6 +198,7 @@
         <%= f.fields_for :edge_codes do |ec|%>
         <div class="left condition">
           Code: <%= ec.select :code, options_for_select(EdgeCodeHelper.options_for_select, ec.object.code), {}, { class: 'edge_code_select' } %>
+          <%= ec.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
         </div>
         <% end %>
         <%= f.link_to_add 'New Edge Code', :edge_codes %>
