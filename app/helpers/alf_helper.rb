@@ -166,7 +166,18 @@ module AlfHelper
 		key_name = cs_api_key_name
 		key = cs_api_key
 		payload = cs_json_payload(pos, user)
-		`curl -X POST -H '#{key_name}:#{key}' -H 'Content-Type: application/json' -d '#{payload}' #{url}`
+		payload_file = write_payload_to_file(payload, user)
+		#`curl -X POST -H '#{key_name}:#{key}' -H 'Content-Type: application/json' -d '#{payload}' #{url}`
+		#`curl -X POST -H "#{key_name}:#{key}" -d #{payload_file}`
+	end
+
+	def write_payload_to_file(payload, user)
+		filename = File.join(Rails.root, 'tmp', "#{user.username}_pull_request.json")
+		if File.exist? filename
+			File.delete filename
+		end
+		File.write(filename, payload)
+		filename
 	end
 
 	# generates the JSON payload for upload as for the resquest's body to the CaiaSoft inventory system, and creates the
