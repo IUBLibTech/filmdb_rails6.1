@@ -168,7 +168,7 @@ module AlfHelper
 		payload = cs_json_payload(pos, user)
 		payload_file = write_payload_to_file(payload, user)
 		#`curl -X POST -H '#{key_name}:#{key}' -H 'Content-Type: application/json' -d '#{payload}' #{url}`
-		#`curl -X POST -H "#{key_name}:#{key}" -d #{payload_file}`
+		`curl -X POST #{url} -H "#{key_name}:#{key}" -d #{payload_file}`
 	end
 
 	def write_payload_to_file(payload, user)
