@@ -215,7 +215,8 @@ class PhysicalObjectsController < ApplicationController
         # check to see if titles have changed in the update
         process_titles
         @physical_object.modifier = User.current_user_object
-        @success = @physical_object.update!(physical_object_params)
+        pars = physical_object_params
+        @success = @physical_object.update!(pars)
       end
     rescue Exception => error
       puts error.message
@@ -271,6 +272,7 @@ class PhysicalObjectsController < ApplicationController
       set_cv
       nitrate = @physical_object.specific.base_nitrate
       @physical_object.specific.update(ad_strip: adv)
+      @physical_object.specific.update(ad_strip_timestamp: Date.today)
       flash[:notice] = "Physical Object [#{bc}] was updated with AD Strip Value: #{adv}"
       # Filmdb no longer emails notification about nitrate
       # if @physical_object.specific.base_nitrate && !nitrate

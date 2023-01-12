@@ -114,9 +114,15 @@
     </div>
   </div>
   <div class="clear">
-    <b>AD Strip</b> <%= @physical_object.ad_strip %>&nbsp;&nbsp;&nbsp;
-    <b>Shrinkage</b> <%= @physical_object.shrinkage %>&nbsp;&nbsp;&nbsp;
-    <b>Mold</b> <%= @physical_object.mold %><br/>
+    <div class="_33 left">
+      <b>AD Strip</b> <%= @physical_object.ad_strip %> <br>
+      <b>Date</b> <%= @physical_object.ad_strip_timestamp&.strftime("%Y/%m/%d") %>
+    </div>
+    <div class="left _33">
+      <b>Shrinkage</b> <%= @physical_object.shrinkage %>&nbsp;&nbsp;&nbsp;
+    </div>
+    <div class="left _33">
+      <b>Mold</b> <%= @physical_object.mold %><br/>    </div>
   </div>
   <div>
     <h4>Rated Condition</h4>

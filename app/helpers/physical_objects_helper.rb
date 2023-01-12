@@ -202,7 +202,7 @@ module PhysicalObjectsHelper
           :catalog_key, :compilation, :format_notes, :digitized,
 
           # film specific attributes
-          :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :shrinkage, :mold,
+          :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :ad_strip_timestamp, :shrinkage, :mold,
           :missing_footage, :condition_rating, :condition_notes, :research_value, :research_value_notes, :multiple_items_in_can,
           # version attributes
           :first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample,

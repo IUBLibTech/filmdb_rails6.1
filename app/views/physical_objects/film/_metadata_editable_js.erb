@@ -25,4 +25,37 @@
             }
         });
     }
+    $(document).ready(function() {
+        $("#film_ad_strip").on("change", function () {
+            let cur = $(this).val();
+            if (cur != ad_strip) {
+                // could have been set by the checkbox
+                $("#film_ad_strip_timestamp").remove();
+                $('<input>').attr({
+                    'type': 'hidden',
+                    "value": ""+new Date().toJSON().slice(0,10).split('-').reverse().join('/'),
+                    "name": "film[ad_strip_timestamp]",
+                    "id": "film_ad_strip_timestamp"
+                }).insertAfter(this);
+                $("#retested").prop("disabled", true).prop("checked", false);
+            } else if (cur == ad_strip) {
+                $("#film_ad_strip_timestamp").remove();
+                $("#retested").prop("disabled", false).prop("checked", false);
+            }
+        })
+        $("#retested").change(function() {
+            if (!this.disabled) {
+                if (this.checked) {
+                    $('<input>').attr({
+                        'type': 'hidden',
+                        "value": "" + new Date().toJSON().slice(0, 10).split('-').reverse().join('/'),
+                        "name": "film[ad_strip_timestamp]",
+                        "id": "film_ad_strip_timestamp"
+                    }).insertAfter($("#film_ad_strip"))
+                } else {
+                    $("#film_ad_strip_timestamp").remove();
+                }
+            }
+        })
+    });
 </script>
