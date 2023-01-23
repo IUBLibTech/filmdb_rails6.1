@@ -198,6 +198,7 @@
         <%= f.fields_for :edge_codes do |ec|%>
         <div class="left condition">
           Code: <%= ec.select :code, options_for_select(EdgeCodeHelper.options_for_select, ec.object.code), {}, { class: 'edge_code_select' } %>
+          <%= ec.link_to_remove (action_name == 'edit' ? 'Delete' : 'Cancel') %>
         </div>
         <% end %>
         <%= f.link_to_add 'New Edge Code', :edge_codes %>
@@ -398,17 +399,21 @@
   </div>
   <div class="condition_types">
     <div id="condition_3">
-      <div class="select _33">
-        <div>AD Strip</div><%= f.select :ad_strip, options_for_select(@cv[:ad_strip], @physical_object.ad_strip), {include_blank: ''}  %>
+      <div class="_33 left">
+        <div><b>AD Strip</b></div><%= f.select :ad_strip, options_for_select(@cv[:ad_strip], @physical_object.ad_strip), {include_blank: ''}  %>
+          <% unless @physical_object.ad_strip.blank? %>
+        <%= check_box_tag("retested") %> <label for="retested">Retested with same result</label>
+          <% end %>
+          <div class="clear"><b>Date</b></div><%= @physical_object.ad_strip_timestamp&.strftime("%Y/%m/%d") %> <br>
       </div>
-      <div class="select _33">
+      <div class="_33 left">
         <div>
-          Shrinkage
+          <b>Shrinkage</b>
         </div>
         <%= f.text_field :shrinkage %>
       </div>
-      <div class="select _33">
-        <div>Mold</div>
+      <div class="_33 left">
+        <div><b>Mold</b></div>
         <%= f.select :mold, options_for_select(@cv[:mold], @physical_object.mold), {include_blank: ''}  %>
       </div>
     </div>
@@ -464,3 +469,6 @@
   </div>
   <div id="title_popup_content" class="clear"></div>
 </div>
+<script type="text/javascript" charset="utf-8">
+  let ad_strip = "<%= @physical_object.ad_strip %>"
+</script>

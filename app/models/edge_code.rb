@@ -1,3 +1,3 @@
 class EdgeCode < ApplicationRecord
-  belongs_to :physical_object, optional: true
+  belongs_to :film, optional: true
 end

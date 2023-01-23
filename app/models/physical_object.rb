@@ -22,14 +22,13 @@ class PhysicalObject < ApplicationRecord
   has_many :physical_object_titles, dependent: :delete_all
   has_many :titles, through: :physical_object_titles
 	has_many :series, through: :titles
-	has_many :physical_object_dates
 	has_many :physical_object_pull_requests
 	has_many :pull_requests, through: :physical_object_pull_requests
 	has_many :digiprovs
+	has_many :physical_object_dates
 	has_many :edge_codes
 
-
-  validates :physical_object_titles, physical_object_titles: true
+	validates :physical_object_titles, physical_object_titles: true
   validates :unit, presence: true
   #validates :media_type, presence: true
   validates :medium, presence: true
@@ -40,6 +39,7 @@ class PhysicalObject < ApplicationRecord
   has_many :languages, autosave: true
   has_many :physical_object_original_identifiers
 	has_many :workflow_statuses, validate: false
+
 
   accepts_nested_attributes_for :boolean_conditions, allow_destroy: true
   accepts_nested_attributes_for :value_conditions, allow_destroy: true
@@ -219,7 +219,8 @@ class PhysicalObject < ApplicationRecord
 	end
 
 	def dates_text
-		self.physical_object_dates.collect{ |d| "#{d.date} [#{d.type}]" }.join(', ') unless self.physical_object_dates.nil?	end
+		self.physical_object_dates.collect{ |d| "#{d.date} [#{d.type}]" }.join(', ') unless self.physical_object_dates.nil?
+	end
 
 	def series_id
 		self.title.series.id if self.title && self.title.series

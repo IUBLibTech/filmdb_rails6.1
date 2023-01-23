@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_12_151715) do
+ActiveRecord::Schema.define(version: 2023_01_18_171536) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -409,6 +409,7 @@ ActiveRecord::Schema.define(version: 2022_12_12_151715) do
     t.boolean "sound_format_optical_variable_density_multiple_density"
     t.boolean "orientation_a_wind"
     t.boolean "orientation_b_wind"
+    t.date "ad_strip_timestamp"
   end
 
   create_table "languages", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|

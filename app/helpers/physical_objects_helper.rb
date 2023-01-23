@@ -202,7 +202,7 @@ module PhysicalObjectsHelper
           :catalog_key, :compilation, :format_notes, :digitized,
 
           # film specific attributes
-          :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :shrinkage, :mold,
+          :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :ad_strip_timestamp, :shrinkage, :mold,
           :missing_footage, :condition_rating, :condition_notes, :research_value, :research_value_notes, :multiple_items_in_can,
           # version attributes
           :first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample,
@@ -253,7 +253,7 @@ module PhysicalObjectsHelper
           languages_attributes: [:id, :language, :language_type, :_destroy],
           physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
           physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy],
-          edge_codes: [:code]
+          edge_codes_attributes: [:id, :code, :_destroy]
       )
     elsif params[:video]
       params.require(:video).permit(
