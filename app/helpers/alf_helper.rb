@@ -4,6 +4,7 @@ module AlfHelper
 	require 'net/http'
 	require 'json'
 	require 'uri'
+	require 'open3'
 
 	# 4th field after AL/MI is patron id, not email address, try to figure out which field is email address and use the IULMIA account that Andy monitors
 	PULL_LINE_MDPI = "\"REQI\",\":IU_BARCODE\",\"IULMIA – MDPI\",\":TITLE\",\"AM\",\"AM\",\"\",\"\",\":EMAIL_ADDRESS\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"PHY\""
@@ -68,7 +69,9 @@ module AlfHelper
 		end
 	end
 
-	private
+
+
+	#private
 	# Because of infrastructure migration changes, scp is no longer necessary. The app user's home directory has a
 	# symlinked directory to the GFA endpoint as well as a non-symlinked "test" directory. This method now simply does a
 	# file system move of the file to the symlinked directory (or test dir if not in production)
@@ -167,8 +170,22 @@ module AlfHelper
 		key = cs_api_key
 		payload = cs_json_payload(pos, user)
 		payload_file = write_payload_to_file(payload, user)
-		#`curl -X POST -H '#{key_name}:#{key}' -H 'Content-Type: application/json' -d '#{payload}' #{url}`
-		`curl -X POST #{url} -H "#{key_name}:#{key}" -d #{payload_file}`
+		`curl -X POST #{url} -H #{key_name}:#{key} -d @#{payload_file}`
+	end
+
+	# this method generates a JSON payload based on generated physical objects with "fake" barcodes - they should fail the
+	# iu_barcode? validation test and result in a denied pull against the CaiaSoft system
+	#
+	def test_caiasoft_pull
+		user = User.find(2) # dev user (jaalbrec)
+		pos = []
+		apos = PhysicalObject.joins(:titles).where("title_text like ?", "%'%").first
+		apos.iu_barcode = 1
+		double = PhysicalObject.joins(:titles).where("title_text like ?", "%\"%").first
+		double.iu_barcode = 2
+		pos << apos
+		pos << double
+		cs_upload_curl(pos, user)
 	end
 
 	def write_payload_to_file(payload, user)
@@ -210,9 +227,10 @@ module AlfHelper
 	# Generates a single entry in the JSON payload for CaiaSoft, rquired fields are:
 	# (item) barcode, request_type, and stop
 	def cs_line(po, user)
+		title = po.titles_text.gsub('"', "").gsub("'", "")
 		stop = "MI" #po.active_component_group.deliver_to_alf? ? "AM" : "MI"
 		{"request_type" => "PYR", "barcode" => "#{po.iu_barcode}", "stop" =>  stop, "requestor" => "IULMIA", "patron_id" => "#{user.email_address}",
-		 "title" => "#{po.titles_text.truncate(20, omission: '')}"}
+		 "title" => "#{title}"}
 	end
 
 	def cs_endpoint
@@ -225,10 +243,5 @@ module AlfHelper
 		Rails.application.credentials[:caia_soft_api_key]
 	end
 
-	def test_cs
-		user = User.where(username: 'jaalbrec').first
-		pos = [PhysicalObject.find(237)]
-		output = cs_upload_curl(pos, user)
-	end
 
 end
