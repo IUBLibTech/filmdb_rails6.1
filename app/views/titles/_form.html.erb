@@ -18,7 +18,7 @@
         <div class="field"><%= f.text_field :title_text %></div>
         <div class="label"><b>Series Name</b></div>
         <div class="field">
-          <%= f.hidden_field :series_id %>
+          <%= f.hidden_field :series_id, {"value": (@title.series.nil? ? "" : "#{@title.series_id}")} %>
           <%= f.text_field :series_title_text %>
         </div>
         <div class="label"><b>Series Part</b></div>

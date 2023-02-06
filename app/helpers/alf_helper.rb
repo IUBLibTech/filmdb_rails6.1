@@ -177,7 +177,12 @@ module AlfHelper
 	# iu_barcode? validation test and result in a denied pull against the CaiaSoft system
 	#
 	def test_caiasoft_pull
-		user = User.find(2) # dev user (jaalbrec)
+		user = test_user
+		pos = test_pull_pos
+		cs_upload_curl(pos, user)
+	end
+
+	def test_pull_pos
 		pos = []
 		apos = PhysicalObject.joins(:titles).where("title_text like ?", "%'%").first
 		apos.iu_barcode = 1
@@ -185,7 +190,11 @@ module AlfHelper
 		double.iu_barcode = 2
 		pos << apos
 		pos << double
-		cs_upload_curl(pos, user)
+		pos
+	end
+
+	def test_user
+		user = User.find(2) # dev user (jaalbrec)
 	end
 
 	def write_payload_to_file(payload, user)
