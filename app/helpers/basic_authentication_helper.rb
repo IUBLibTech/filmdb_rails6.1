@@ -5,7 +5,7 @@ module BasicAuthenticationHelper
   protected
   def authenticate
     authenticate_or_request_with_http_basic do |username, password|
-      username == Settings.filmdb_service_username && password == Settings.filmdb_service_pass
+      username == Rails.application.credentials[:filmdb_service_username] && password == Rails.application.credentials[:filmdb_service_pass]
     end
   end
 end
