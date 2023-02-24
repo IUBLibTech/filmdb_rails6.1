@@ -69,8 +69,13 @@ class ServicesController < ActionController::Base
 	# this action responds to requests for mods records based on a PhysicalObject MDPI barcode
 	def mods_from_barcode
 		begin
-			@bc = params[:iu_barcode]
-			po = PhysicalObject.where(mdpi_barcode: @bc).first
+			@bc = params[:mdpi_barcode]
+			# originally the service was MDPI barcode only. Now users sometimes submit IU barcodes from MCO to pull a mods record
+			po = PhysicalObject.where(iu_barcode: @bc).first
+			if po.nil?
+				po = PhysicalObject.where(mdpi_barcode: @bc).first
+			end
+
 			if po.nil?
 				@msg = "Could not find an record with MDPI Barcode: #{@bc}"
 			elsif !po.digitized
