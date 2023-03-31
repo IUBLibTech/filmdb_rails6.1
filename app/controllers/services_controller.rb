@@ -78,14 +78,8 @@ class ServicesController < ActionController::Base
 
 			if po.nil?
 				@msg = "Could not find an record with MDPI Barcode: #{@bc}"
-			elsif !po.digitized
-				@mods_title_id = po.titles.first.id
 			else
-				# it's possible, although highly unlikely, that a physical object would have more than 1 title association AND
-				# have been pulled for digitization more than once through multiple titles. In this case, there is no way to know
-				# which title record we need to generate MODS for... Carmel understands this and is okay with this service
-				# returning the -first- title's MODS data, of all that were selected for digitization.
-				@mods_title_id = po.component_groups.where(group_type: ComponentGroup::REFORMATTING_MDPI).first.title_id
+				@mods_title_id = po.titles.first.id
 			end
 			if @msg
 				@builder = Nokogiri::XML::Builder.new do |xml|

@@ -32,23 +32,24 @@ class SpreadSheetSearch < ApplicationRecord
     begin
       # the query portion of the download begins first with logging and ActiveModel update of the saved record
       @start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      puts "Creating new SpreadSheetSearch for #{user.username} with id: #{id}"
+      logger.info "Creating new SpreadSheetSearch for #{user.username} with id: #{id}"
       q = run_query
       @end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       elapsed = @end_time - @start_time
-      puts "Query for spreadsheet id: #{id} took #{elapsed} seconds to complete"
+      logger.info "Query for spreadsheet id: #{id} took #{elapsed} seconds to complete"
       # arbitrarily choose "10%" completion after the query runs to indicate some work has been done
       update(query_runtime: elapsed, percent_complete: 10)
 
       # now the looooong part - generating the spreadsheet
       @start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      puts"Starting spreadsheet generation for id: #{id}"
+      logger.info "Starting spreadsheet generation for id: #{id}"
       ss = generate_spreadsheet(q)
       # save the file
       file_location = "tmp/#{username}_#{id.to_s.rjust(4, "0")}.xlsx"
       if save_spreadsheet_to_file(ss, file_location)
         @end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         update(completed: true, percent_complete: 100, file_location: file_location, spreadsheet_runtime: @end_time - @start_time)
+        logger.info "Complete spreadsheet for #{id}"
       else
         raise "Failed to save the spreadsheet file to #{file_location}"
       end
@@ -58,7 +59,7 @@ class SpreadSheetSearch < ApplicationRecord
       # spreadsheet generation failed
       error_msg = e.message
       error_msg << e.backtrace.join("\n")
-      puts error_msg
+      logger.info error_msg
       update(completed: false, error_message: error_msg)
     end
   end
@@ -130,11 +131,11 @@ class SpreadSheetSearch < ApplicationRecord
       title_percent = i / total
       total_percent = ARBITRARY_QUERY_PERCENT + ((100 - ARBITRARY_QUERY_PERCENT) * title_percent)
       if total_percent >= percent_complete + 5
-        puts "Completed another 5% of spreadsheet id: #{id}, now #{total_percent}% complete."
+        logger.info "Completed another 5% of spreadsheet id: #{id}, now #{total_percent}% complete."
         update(percent_complete: total_percent.to_i)
       end
       t.physical_objects.each_with_index do |po, i|
-        puts "\t\t#{i} of #{total.to_i}"
+        logger.info "\t\t#{i} of #{total.to_i}"
         if po.specific.medium == "Film"
           @worksheet = films
         elsif po.specific.medium == "Video"
