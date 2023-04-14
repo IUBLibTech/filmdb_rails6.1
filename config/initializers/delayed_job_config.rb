@@ -1,0 +1,2 @@
+# trying to determine what is happening to the delayed job process, setting the worker log to the same file as SpreadSheetSearch
+Delayed::Worker.logger = Logger.new("#{Rails.root}/log/spreadsheet_job_log.log")

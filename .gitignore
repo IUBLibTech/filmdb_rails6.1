@@ -36,22 +36,32 @@
 # ignore cert key for running locally in https
 /config/localhost.key
 
+# IU Libraries infrastructure stuffs
+.iul_service.yaml
+bin/iul_start
+bin/iul_stop
+
+# files for rubymine
+.idea/
+*.iml
+
+# files from Passenger
+passenger.*
+db/schema.rb
+
+# different versions of ruby installed on infrastructure
+.ruby-version
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-
 /config/credentials/development.key
-
 /config/credentials/development.key.bak
-
 /config/credentials/local_p.key
-
 /config/credentials/test.key
-
 /config/credentials/production.key
-
 /config/credentials/test_dev.key
-
 /config/credentials/production_dev.key
-
-
 /config/credentials/local.key
+
+public/
+.byebug_history

@@ -63,7 +63,7 @@ class SpreadSheetSearch < ApplicationRecord
       update(completed: false, error_message: error_msg)
     end
   end
-  #handle_asynchronously :create
+  handle_asynchronously :create
 
   def run_query
     titles = title_text.blank? ? Title.all : Title.where("title_text like '%#{title_text}%'")
@@ -131,11 +131,9 @@ class SpreadSheetSearch < ApplicationRecord
       title_percent = i / total
       total_percent = ARBITRARY_QUERY_PERCENT + ((100 - ARBITRARY_QUERY_PERCENT) * title_percent)
       if total_percent >= percent_complete + 5
-        logger.info "Completed another 5% of spreadsheet id: #{id}, now #{total_percent}% complete."
         update(percent_complete: total_percent.to_i)
       end
       t.physical_objects.each_with_index do |po, i|
-        logger.info "\t\t#{i} of #{total.to_i}"
         if po.specific.medium == "Film"
           @worksheet = films
         elsif po.specific.medium == "Video"
