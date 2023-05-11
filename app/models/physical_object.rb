@@ -50,13 +50,12 @@ class PhysicalObject < ApplicationRecord
 
 	attr_accessor :workflow
 	attr_accessor :updated
-	after_save :record_barcode_changes
 
-	def record_barcode_changes
-		if saved_change_to_iu_barcode? && !iu_barcode_was.blank?
-			PhysicalObjectOldBarcode.new(physical_object_id: id, iu_barcode: iu_barcode_was).save!
-		end
-	end
+	# handling this manually in physical_objects_controller#update
+	#before_save :record_barcode_changes
+	# def record_barcode_changes(po_id, old)
+	# 	PhysicalObjectOldBarcode.new(physical_object_id: po_id, iu_barcode: old).save!
+	# end
 
 	# returns all physical whose workflow status matches any specified in *status - use WorkflowStatus status constants as values
 	#

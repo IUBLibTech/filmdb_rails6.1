@@ -4,18 +4,15 @@ module ApplicationHelper
 	# wikipedia provides a clear explanation of it:
 	# http://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
 	def ApplicationHelper.valid_barcode?(barcode, mdpi=false)
-		if barcode.is_a? Integer
-			barcode = barcode.to_s
+		if barcode.is_a?(Integer) || barcode.is_a?(Float)
+			barcode = barcode.to_i.to_s
 		end
 
-		# The following is ONLY true of the Physical Object Database (POD) where this code comes from. It also
-		# varies in that MDPI barcodes begin with the number 4, whereas IU barcodes begin with the number 3
-		#
-		# since the database holds the barcode as an integer field, it will always have a default of 0
-		# which in effect means the record has not been assigned a barcode
-		# if barcode == "0"
-		# 	return true
-		# end
+		# IUCAT will auto-assign an ITEM ID when a record is catalogued when it's barcode is not known. Because of this, test
+		# for these identifiers. They follow the pattern of xxxxxxx-xxxx
+		return false if barcode.include? '-'
+
+		# differentiates between MDPI barcodes (begin with the number 4) and IU barcodes ()begin with the number 3)
 		mode = mdpi == true ? '4' : '3'
 
 		if barcode.nil? or barcode.length != 14 or barcode[0] != mode

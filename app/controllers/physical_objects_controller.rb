@@ -194,8 +194,17 @@ class PhysicalObjectsController < ApplicationController
     c = @physical_object.created_at
     begin
       PhysicalObject.transaction do
-        # need to cleanup the old specific class that was changed to something else
+
+        # record the change in the modifications table
         Modification.new(object_type: 'PhysicalObject', object_id: @physical_object.acting_as.id, user: @physical_object.modifier).save!
+
+        # something I cannot figure out is happening with the PO after/before_save to check on changed iu_barcode so
+        # create entries after the save is successful.
+        current_barcode = @physical_object.iu_barcode
+        # object comes in as a Film/Video/Equipment/Etc, not a PhysicalObject so get the correct id for the old_barcode
+        po_id = @physical_object.acting_as.id
+
+        # else case cleans up the old specific class that was changed to something else
         if o_medium == s_medium
           @physical_object.modifier = User.current_user_object
           #@success = @physical_object.update!(physical_object_params)
@@ -217,6 +226,9 @@ class PhysicalObjectsController < ApplicationController
         @physical_object.modifier = User.current_user_object
         pars = physical_object_params
         @success = @physical_object.update!(pars)
+        if @success && @physical_object.iu_barcode != current_barcode
+          PhysicalObjectOldBarcode.new(physical_object_id: po_id, iu_barcode: current_barcode).save!
+        end
       end
     rescue Exception => error
       puts error.message
