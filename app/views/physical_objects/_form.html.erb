@@ -63,6 +63,7 @@
         <div class="field"><%= f.text_field :compilation %></div>
         <div class="label"><b>* Medium</b></div>
         <div class="field"><%= f.select :medium, PhysicalObject::NEW_MEDIUMS, {}, {id: 'medium_types'} %></div>
+        <%= f.hidden_field :media_type, value: @physical_object.media_type %>
         <div class="label">
           <b>* Unit</b>
         </div>

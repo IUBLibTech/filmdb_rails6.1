@@ -134,7 +134,8 @@ module PhysicalObjectsHelper
 
   private
   def associate_titles
-    unless @physical_object.medium == "Equipment/Technology"
+    # don't copy titles over if the incoming object is Eq/Tech
+    unless params[:equipment_technology]
       titles = Title.where(id: params[:physical_object][:title_ids].split(',').collect { |n| n.to_i} )
       titles.each do |t|
         @physical_object.physical_object_titles << PhysicalObjectTitle.new(physical_object_id: @physical_object.id, title_id: t.id)
@@ -144,7 +145,8 @@ module PhysicalObjectsHelper
 
   def physical_object_specific
     if params[:film]
-      Film.new(physical_object_params)
+      pa = physical_object_params
+      Film.new(pa)
     elsif params[:video]
       Video.new(physical_object_params)
     elsif params[:recorded_sound]
