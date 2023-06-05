@@ -169,7 +169,8 @@ class PhysicalObjectsController < ApplicationController
           new_one = EquipmentTechnology.new(po_only_params)
         end
 
-        unless new_one.is_a? EquipmentTechnology
+        # don't copy titles over *to* Eq/Tech, and if coming *from* Eq/Tech it won't have titles to copy
+        unless new_one.is_a?(EquipmentTechnology) || o_medium == "Equipment/Technology"
           # copy any title associations based on the state of the form when the medium switch occurred
           params[:physical_object][:title_ids].split(',').each do |t_id|
             t = Title.find(t_id.to_i)
