@@ -76,6 +76,12 @@
       <b>Captions/Subtitles&nbsp;</b><%= @physical_object.captions_or_subtitles? ? 'Yes' : 'No'%>
     </div>
     <div>
+      <h5>Captions/Subtitles Notes</h5>
+      <div class="simple_text">
+        <%= format_newlines(@physical_object.captions_or_subtitles_notes) %>
+      </div>
+    </div>
+    <div>
       <b>Silent</b> <%= @physical_object.silent %>
     </div>
     <div>

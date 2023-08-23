@@ -279,7 +279,7 @@ module PhysicalObjectsHelper
           :picture_type_not_applicable,
           :image_color_bw, :image_color_color, :image_color_mixed, :image_color_other, :image_aspect_ratio_4_3, :image_aspect_ratio_16_9,
           :image_aspect_ratio_5_4, :image_aspect_ratio_16_10, :image_aspect_ratio_21_9,
-          :image_aspect_ratio_other, :captions_or_subtitles, :silent, :sound_format_type_magnetic, :sound_format_type_digital,
+          :image_aspect_ratio_other, :captions_or_subtitles, :captions_or_subtitles_notes, :silent, :sound_format_type_magnetic, :sound_format_type_digital,
           :sound_format_type_sound_on_separate_media, :sound_format_type_other, :sound_content_type_music_track, :sound_content_type_effects_track,
           :sound_content_type_dialog, :sound_content_type_composite_track, :sound_content_type_outtakes, :sound_configuration_mono,
           :sound_configuration_stereo, :sound_configuration_surround, :sound_configuration_other, :sound_noise_redux_dolby_a,
