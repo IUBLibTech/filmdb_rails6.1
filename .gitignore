@@ -65,3 +65,4 @@ db/schema.rb
 
 public/
 .byebug_history
+/config/credentials/local_dev.key
