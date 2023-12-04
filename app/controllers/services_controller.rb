@@ -178,6 +178,7 @@ class ServicesController < ActionController::Base
 
 						xml.relatedItem_("type": "original") {
 							xml.physicalDescription {
+								pos = @title.physical_objects
 								formats = @title.physical_objects.collect{|p| p.medium }.uniq
 								if formats.include?("Film")
 									xml.formAuthority_("authority": "gmd") { xml.text "motion picture"}
@@ -188,9 +189,9 @@ class ServicesController < ActionController::Base
 									xml.formAuthority_("authority": "marccategory") { xml.text "video recording"}
 									xml.formAuthority_("authority": "marcsmd") { xml.text "videoreel"}
 								elsif formats.include?("Recorded Sound")
-									xml.formAuthority_("authority": "gmd") { xml.text "#{p.medium} recording"}
-									xml.formAuthority_("authority": "marccategory") { xml.text "#{p.medium} recording"}
-									xml.formAuthority_("authority": "marcsmd") { xml.text "#{p.medium}"}
+									xml.formAuthority_("authority": "gmd") { xml.text "#{pos.first.specific.gauge.downcase} recording"}
+									xml.formAuthority_("authority": "marccategory") { xml.text "#{pos.first.specific.gauge.downcase} recording"}
+									xml.formAuthority_("authority": "marcsmd") { xml.text "#{pos.first.specific.gauge.downcase}"}
 								else
 									raise "Unsupported Format type for MODS record creation: #{formats.join(", ")}"
 								end
@@ -200,6 +201,13 @@ class ServicesController < ActionController::Base
 							}
 							xml.identier_("type":"local") { xml.text "filmdb:#{@title.id}"}
 						}
+						if @title.series
+							xml.relatedItem_("type":"series") {
+								xml.titleInfo {
+									xml.title @title.series.title
+								}
+							}
+						end
 
 						xml.recordInfo_ {
 							xml.descriptionStandard_ "aarc"
@@ -222,7 +230,7 @@ class ServicesController < ActionController::Base
 				xml.error do
 					xml.short msg
 					xml.msg error.message
-					xml.backtrace.join('\n')
+					xml.backtrace error.backtrace.join('\n')
 				end
 			end
 			render xml: @builder.to_xml, status: 500
