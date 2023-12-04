@@ -38,8 +38,8 @@
 
 # IU Libraries infrastructure stuffs
 .iul_service.yaml
-bin/iul_start
-bin/iul_stop
+bin/iul_start*
+bin/iul_stop*
 
 # files for rubymine
 .idea/
@@ -62,6 +62,7 @@ db/schema.rb
 /config/credentials/test_dev.key
 /config/credentials/production_dev.key
 /config/credentials/local.key
+/config/credentials/localhost.key
 
 public/
 .byebug_history
