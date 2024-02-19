@@ -10,6 +10,7 @@
 # Ignore the default SQLite database.
 /db/*.sqlite3
 /db/*.sqlite3-*
+/db/schema.rb
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -38,8 +39,9 @@
 
 # IU Libraries infrastructure stuffs
 .iul_service.yaml
-bin/iul_start
-bin/iul_stop
+.iul_contacts.y*
+bin/iul_start*
+bin/iul_stop*
 
 # files for rubymine
 .idea/
@@ -62,6 +64,7 @@ db/schema.rb
 /config/credentials/test_dev.key
 /config/credentials/production_dev.key
 /config/credentials/local.key
+/config/credentials/localhost.key
 
 public/
 .byebug_history
