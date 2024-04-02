@@ -6,8 +6,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.6'
 
-# Use Puma as the app server
-gem 'puma', '~> 5.0'
+
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
 
@@ -85,7 +84,7 @@ gem 'bcrypt_pbkdf'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # jquery UI asset pipeline
-gem 'jquery-ui-rails'
+gem "jquery-ui-rails", ">= 7.0.0"
 
 # this gem hasn't been updated since 2018... it bundles sweet alert 2, but an older version 9.x. I think... when checking
 # the sweet alert documentation make sure to look at older versions
@@ -130,3 +129,19 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+####################
+# security patches #
+####################
+gem "activerecord", ">= 6.1.7.1"
+gem "activestorage", ">= 6.1.7.7"
+# Use Puma as the app server
+gem "puma", ">= 5.6.8"
+gem "rack", ">= 2.2.8.1"
+gem "rails-html-sanitizer", ">= 1.4.4"
+gem "loofah", ">= 2.19.1"
+gem "nokogiri", ">= 1.15.6"
+gem "actionpack", ">= 6.1.7.4"
+gem "actionview", ">= 6.1.7.3"
+gem "activesupport", ">= 6.1.7.5"
+gem "globalid", ">= 1.0.1"

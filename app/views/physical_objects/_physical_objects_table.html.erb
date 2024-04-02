@@ -42,3 +42,6 @@
   <% end %>
   </tbody>
 </table>
+<% if @paginate %>
+	<%= render partial: 'paginator' %>
+<% end %>

@@ -18,6 +18,7 @@ class ApplicationController < ActionController::Base
   def page_link_path(page)
     physical_objects_path(page: page, status: params[:status], digitized: params[:digitized])
   end
+
   def physical_object_specific_path
     @physical_object.medium.downcase.parameterize.underscore
   end

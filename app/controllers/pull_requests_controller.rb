@@ -1,7 +1,9 @@
 class PullRequestsController < ApplicationController
 
 	def index
-		@pull_requests = PullRequest.all
+		@page = (params[:page].nil? ? 1 : params[:page].to_i)
+		@count = PullRequest.all.size
+		@pull_requests = PullRequest.order("id desc").offset((@page - 1) * PullRequest.per_page).limit(PullRequest.per_page)
 	end
 
 	def show
