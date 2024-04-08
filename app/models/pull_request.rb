@@ -35,5 +35,9 @@ class PullRequest < ApplicationRecord
 		map
 	end
 
+	def self.per_page
+		20
+	end
+
 
 end

@@ -49,7 +49,7 @@ class EquipmentTechnology < ApplicationRecord
     :recorded_sound_gauge_pcm_betamax, :recorded_sound_gauge_pcm_u_matic, :recorded_sound_gauge_pcm_vhs, :recorded_sound_gauge_piano_roll,
     :recorded_sound_gauge_plastic_cylinder, :recorded_sound_gauge_shellac_disc, :recorded_sound_gauge_super_audio_cd,
     :recorded_sound_gauge_vinyl_recording, :recorded_sound_gauge_wax_cylinder, :recorded_sound_gauge_wire_recording,
-    :recorded_sound_gauge_1_8_inch_audio_tape
+    :recorded_sound_gauge_1_8_inch_audio_tape, :recorded_sound_gauge_mini_disc
   ]
   RECORDED_SOUND_GAUGES_HUMANIZED = {
     :recorded_sound_gauge_open_reel_audiotape => "Open reel audio tape",  :recorded_sound_gauge_grooved_analog_disc => "Grooved analog disc",
@@ -67,7 +67,8 @@ class EquipmentTechnology < ApplicationRecord
     :recorded_sound_gauge_plastic_cylinder => "Plastic cylinder",  :recorded_sound_gauge_shellac_disc => "Shellac disc",
     :recorded_sound_gauge_super_audio_cd => "Super Audio Cd",
     :recorded_sound_gauge_vinyl_recording => "Vinyl recording", :recorded_sound_gauge_wax_cylinder => "Wax cylinder",
-    :recorded_sound_gauge_wire_recording => "Wire recording", :recorded_sound_gauge_1_8_inch_audio_tape => "1/8 inch audio tape"
+    :recorded_sound_gauge_wire_recording => "Wire recording", :recorded_sound_gauge_1_8_inch_audio_tape => "1/8 inch audio tape",
+    :recorded_sound_gauge_mini_disc => "MiniDisc"
   }
   TYPE_FIELDS = [
     :type_camera, :type_camera_accessory, :type_editor, :type_flatbed, :type_lens, :type_light, :type_reader,

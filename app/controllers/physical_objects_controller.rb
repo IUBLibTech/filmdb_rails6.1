@@ -26,14 +26,14 @@ class PhysicalObjectsController < ApplicationController
         @paginate = true
         @page = (params[:page].nil? ? 1 : params[:page].to_i)
         #@physical_objects = PhysicalObject.where_current_workflow_status_is((@page - 1) * PhysicalObject.per_page, PhysicalObject.per_page, params[:digitized], params[:status])
-        @physical_objects = PhysicalObject.joins(:current_workflow_status).includes([:current_workflow_status, :titles, :active_component_group]).where("workflow_statuses.status_name = '#{params[:status]}'")
+        @physical_objects = PhysicalObject.joins(:current_workflow_status).includes([:current_workflow_status, :titles, :active_component_group]).where("workflow_statuses.status_name = '#{params[:status]}'").order("titles.title_text asc")
         if params[:digitized]
           @physical_objects = @physical_object.where('physical_objects.digitized = true')
         end
         @physical_objects = @physical_objects.offset((@page - 1) * PhysicalObject.per_page).limit(PhysicalObject.per_page)
       else
         #@physical_objects = PhysicalObject.where_current_workflow_status_is(nil, nil, params[:digitized], params[:status])
-        @physical_objects = PhysicalObject.joins(:current_workflow_status).includes([:current_workflow_status, :titles, :active_component_group]).where("workflow_statuses.status_name = '#{params[:status]}'")
+        @physical_objects = PhysicalObject.joins(:current_workflow_status).includes([:current_workflow_status, :titles, :active_component_group]).where("workflow_statuses.status_name = '#{params[:status]}'").order("titles.title_text asc")
         @physical_objects = @physical_objects.where('physical_objects.digitized = true') if params[:digitized]
       end
     elsif params[:status] == ''

@@ -359,7 +359,7 @@ module PhysicalObjectsHelper
         :recorded_sound_gauge_pcm_betamax, :recorded_sound_gauge_pcm_u_matic, :recorded_sound_gauge_pcm_vhs, :recorded_sound_gauge_piano_roll,
         :recorded_sound_gauge_plastic_cylinder, :recorded_sound_gauge_shellac_disc, :recorded_sound_gauge_super_audio_cd,
         :recorded_sound_gauge_vinyl_recording, :recorded_sound_gauge_wax_cylinder, :recorded_sound_gauge_wire_recording,
-        :recorded_sound_gauge_1_8_inch_audio_tape,
+        :recorded_sound_gauge_1_8_inch_audio_tape, :recorded_sound_gauge_mini_disc,
 
         # additional physical object specific associations
         value_conditions_attributes: [:id, :condition_type, :value, :comment, :_destroy],

@@ -1,4 +1,34 @@
 <h4>Pull Requests</h4>
+
+<div id="paginator">
+	<%
+		page_count = (@count / PullRequest.per_page).ceil
+		x_low = [1, @page - 2].max
+		x_high = @page + 1
+	%>
+	<% if @page > 1 %>
+		<%= link_to "1", pull_requests_path(page: 1), class: 'pag_link_first' %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<%= link_to "Previous", pull_requests_path(page: @page - 1), class: 'pag_link' %>
+	<% else %>
+		<span class="dis_pag_link">Previous</span>
+	<% end %>
+	<% until x_low >= @page do %>
+		<%= link_to x_low, pull_requests_path(page: x_low), class: 'pag_link' %>
+		<% x_low += 1 %>
+	<% end %>
+	<span class="cur_page"><%= @page %></span>
+	<% until x_high > ([@page + 2, page_count].min) do %>
+		<%= link_to x_high, pull_requests_path(page: x_high), class: 'pag_link' %>
+		<% x_high += 1 %>
+	<% end %>
+	<% if @page == page_count %>
+		<span class="dis_pag_link">Next</span>
+	<% else %>
+		<%= link_to "Next", pull_requests_path(page: @page + 1), class: 'pag_link' %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<%= link_to "#{page_count}", pull_requests_path(page: page_count), class: 'pag_link_last' %>
+	<% end %>
+</div>
+
 <table>
 	<tr>
 		<th>Date Requested</th>

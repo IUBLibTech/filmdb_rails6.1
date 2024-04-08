@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_18_171536) do
+ActiveRecord::Schema.define(version: 2024_04_08_130943) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -136,7 +136,7 @@ ActiveRecord::Schema.define(version: 2023_01_18_171536) do
     t.bigint "cage_shelf_id"
   end
 
-  create_table "edge_codes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "edge_codes", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "code", limit: 3
     t.integer "physical_object_id"
     t.datetime "created_at", precision: 6, null: false
@@ -265,6 +265,7 @@ ActiveRecord::Schema.define(version: 2023_01_18_171536) do
     t.boolean "recorded_sound_gauge_wax_cylinder"
     t.boolean "recorded_sound_gauge_wire_recording"
     t.boolean "recorded_sound_gauge_1_8_inch_audio_tape"
+    t.boolean "recorded_sound_gauge_minidisc"
   end
 
   create_table "films", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
