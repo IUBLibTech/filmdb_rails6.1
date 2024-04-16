@@ -87,11 +87,11 @@ class Title < ApplicationRecord
     Title.find_by_sql(sql)
   }
 
-  scope :title_search, -> (title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status, current_user, offset, limit) {
+  scope :title_search, -> (title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status, current_user, offset, limit) {
 		connection.execute("DROP TABLE IF EXISTS #{current_user}_title_search")
 	  tempTblSql = "CREATE TEMPORARY TABLE #{current_user}_title_search as (SELECT distinct(titles.id) as title_id "+
-		  "#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id)} "+
-		  "#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status)})"
+		  "#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id)} "+
+		  "#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status)})"
 		connection.execute(tempTblSql)
 	  sql = "SELECT titles.* FROM titles INNER JOIN #{current_user}_title_search WHERE titles.id = #{current_user}_title_search.title_id ORDER BY titles.title_text LIMIT #{limit} OFFSET #{offset}"
 	  res = Title.find_by_sql(sql)
@@ -99,7 +99,7 @@ class Title < ApplicationRecord
 	  res
   }
 
-	scope :title_spreadsheet_search, -> (title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status) {
+	scope :title_spreadsheet_search, -> (title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status) {
 		t = title_text.blank? ? Title.all : Title.where("title_text like #{escape_wildcard(title_text)}")
 		t = t.where("summary_text like #{escape_wildcard(summary_text)}") unless summary_text.blank?
 		t = t.where("subject like #{escape_wildcard(subject_text)}") unless subject_text.blank?
@@ -112,6 +112,12 @@ class Title < ApplicationRecord
 		end
 		unless creator_text.blank?
 			t = t.joins(:title_creators).where("title_creators.name like #{escape_wildcard(creator_text)}")
+		end
+		unless genre.blank?
+			t = t.joins(:title_genre).where("title_genres.genre = ?", genre)
+		end
+		unless form.blank?
+			t = t.joins(:title_forms).where("title_forms.form = ?", form)
 		end
 		unless location_text.blank?
 			t = t.joins(:title_locations).where("title_locations.location like #{escape_wildcard(location_text)}")
@@ -141,11 +147,11 @@ class Title < ApplicationRecord
 		end
 		t
 	}
-	scope :title_search_count, -> (title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status, current_user, offset, limit) {
+	scope :title_search_count, -> (title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status, current_user, offset, limit) {
 		connection.execute("DROP TABLE IF EXISTS #{current_user}_title_search")
 		tempTblSql = "CREATE TEMPORARY TABLE #{current_user}_title_search as (SELECT distinct(titles.id) as title_id "+
-			"#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id)} "+
-			"#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status)})"
+			"#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id)} "+
+			"#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status)})"
 		connection.execute(tempTblSql)
 
 		sql = "SELECT count(*) FROM titles INNER JOIN #{current_user}_title_search WHERE titles.id = #{current_user}_title_search.title_id ORDER BY titles.title_text LIMIT #{limit} OFFSET #{offset}"
@@ -398,7 +404,7 @@ class Title < ApplicationRecord
 		end
 	end
 
-	def self.title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id)
+	def self.title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id)
 		sql = "FROM titles"
 		if !series_name_text.blank?
 			sql << " INNER JOIN series on titles.series_id = series.id"
@@ -412,6 +418,12 @@ class Title < ApplicationRecord
 		if !creator_text.blank?
 			sql << " INNER JOIN title_creators ON title_creators.title_id = titles.id"
 		end
+		unless genre.blank?
+			sql << " INNER JOIN title_genres ON title_genres.title_id = titles.id"
+		end
+		unless form.blank?
+			sql << " INNER JOIN title_forms ON title_forms.title_id = titles.id"
+		end
 		if !location_text.blank?
 			sql << " INNER JOIN title_locations ON title_locations.title_id = titles.id"
 		end
@@ -422,8 +434,8 @@ class Title < ApplicationRecord
 		end
 		sql
 	end
-	def self.title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status)
-		sql = (title_text.blank? && series_name_text.blank? && date.blank? && publisher_text.blank? && creator_text.blank? && summary_text.blank? && location_text.blank? && subject_text.blank? && collection_id.blank? && digitized_status == "all") ? "" : "WHERE"
+	def self.title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status)
+		sql = (title_text.blank? && series_name_text.blank? && date.blank? && publisher_text.blank? && creator_text.blank? && genre.blank? && form.blank? && summary_text.blank? && location_text.blank? && subject_text.blank? && collection_id.blank? && digitized_status == "all") ? "" : "WHERE"
 		if !title_text.blank?
 			sql << " titles.title_text like #{escape_wildcard(title_text)}"
 		end
@@ -452,6 +464,14 @@ class Title < ApplicationRecord
 		if !creator_text.blank?
 			add_and(sql)
 			sql << "title_creators.name like #{escape_wildcard(creator_text)}"
+		end
+		unless genre.blank?
+			add_and(sql)
+			sql << "title_genres.genre = '#{genre}'"
+		end
+		unless form.blank?
+			add_and(sql)
+			sql << "title_forms.form = '#{form}'"
 		end
 		if !summary_text.blank?
 			add_and(sql)

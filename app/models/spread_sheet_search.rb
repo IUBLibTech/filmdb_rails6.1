@@ -63,7 +63,7 @@ class SpreadSheetSearch < ApplicationRecord
       update(completed: false, error_message: error_msg)
     end
   end
-  handle_asynchronously :create
+  handle_asynchronously :create # this tells the delayed_job gem to run this in a background process
 
   def run_query
     titles = title_text.blank? ? Title.all : Title.where("title_text like '%#{title_text}%'")
@@ -99,6 +99,8 @@ class SpreadSheetSearch < ApplicationRecord
     end
     titles = titles.joins(:title_publishers).includes(:title_publishers).where("title_publishers.name like ?", "%#{publisher_text}%") unless publisher_text.blank?
     titles = titles.joins(:title_creators).includes(:title_creators).where("title_creators.name like ?", "%#{creator_text}%") unless creator_text.blank?
+    titles = titles.joins(:title_genres).includes(:title_genres).where("title_genres.genre = ?", genre) unless genre.blank?
+    titles = titles.joins(:title_forms).includes(:title_forms).where("title_forms.form = ?", form) unless form.blank?
     titles = titles.joins(:title_locations).includes(:title_locations).where("title_locations.location like ?", "%#{location_text}%") unless location_text.blank?
     if collection_id == 0
       titles = titles.joins(:physical_objects).includes(:physical_objects)

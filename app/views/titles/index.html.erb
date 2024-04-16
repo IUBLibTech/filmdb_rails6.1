@@ -1,4 +1,3 @@
-<%= link_to 'Create New Title', new_title_path %> | <%= link_to 'Merge Titles', title_merge_selection_path %> | <%= link_to "Merge In Storage Titles", merge_in_storage_path %>
 <h4>Title Search</h4>
 <%= form_tag titles_search_path, method: :post do %>
   <%= hidden_field_tag :ts, Process.clock_gettime(Process::CLOCK_MONOTONIC) %>
@@ -33,6 +32,14 @@
       <%= text_field_tag :creator_text, params[:creator_text] %>
 		</td>
 	</tr>
+	<tr>
+		<th>Genre</th>
+		<td><%= text_field_tag :genre, params[:genre] %></td>
+	</tr>
+	<tr>
+		<th>Form</th>
+		<td><%= text_field_tag :form, params[:form] %></td>
+	</tr>
   <tr>
     <th>Summary</th>
     <td><%= text_field_tag :summary_text, params[:summary_text] %></td>
@@ -66,34 +73,37 @@
       </div>
       <div>
         <% if @titles && @titles.size > 0 %>
-          <%= link_to "Download Search Results", title_xls_search_path(params.permit(:authenticity_token, :ts, :commit, :title_text, :series_name_text, :date, :publisher_text, :creator_text, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status).to_h.symbolize_keys.merge)  %>
+					<% path = title_xls_search_path(params.permit(
+						:authenticity_token, :ts, :commit, :title_text, :series_name_text, :date, :publisher_text, :creator_text,
+						:genre, :form, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status).to_h.symbolize_keys.merge) %>
+          <%= link_to "Download Search Results", path  %>
         <% end %>
       </div>
 		</td>
 	</tr>
 </table>
 <% end %>
-<% if params[:title_text] %>
-<h4>Search Results for:</h4>
-<table>
-	<tr>
-		<th>Title Text:</th>
-		<td><%= params[:title_text] %></td>
-    <th>Series Name:</th>
-    <td><%= params[:series_name_text] %></td>
-		<th>Date</th>
-		<td><%= params[:date] %></td>
-		<th>Publisher</th>
-		<td><%= params[:publisher_text] %></td>
-		<th>Creator</th>
-		<td><%= params[:creator_text] %></td>
-		<th>Collection:</th>
-		<td><%= params[:collection_id] == '0' ? 'All' : "#{Collection.find(params[:collection_id].to_i).name}" %></td>
-    <th>Digitized Status</th>
-    <td><%= params[:digitized_status].upcase %></td>
-	</tr>
-</table>
-<% end %>
+<%# if params[:title_text] %>
+<!--<h4>Search Results for:</h4>-->
+<!--<table>-->
+<!--	<tr>-->
+<!--		<th>Title Text:</th>-->
+<!--		<td><%#= params[:title_text] %></td>-->
+<!--    <th>Series Name:</th>-->
+<!--    <td><%#= params[:series_name_text] %></td>-->
+<!--		<th>Date</th>-->
+<!--		<td><%#= params[:date] %></td>-->
+<!--		<th>Publisher</th>-->
+<!--		<td><%#= params[:publisher_text] %></td>-->
+<!--		<th>Creator</th>-->
+<!--		<td><%#= params[:creator_text] %></td>-->
+<!--		<th>Collection:</th>-->
+<!--		<td><%#= params[:collection_id] == '0' ? 'All' : "#{Collection.find(params[:collection_id].to_i).name}" %></td>-->
+<!--    <th>Digitized Status</th>-->
+<!--    <td><%#= params[:digitized_status].upcase %></td>-->
+<!--	</tr>-->
+<!--</table>-->
+<%# end %>
 <% if @titles %>
 <br>
 <br>
@@ -173,10 +183,12 @@
 </table>
 <% end %>
 <script type="text/javascript">
+	let avail_genres = <%= ControlledVocabulary.where(model_type: "TitleGenre").pluck(:value).to_json.html_safe %>;
+	let avail_forms = <%= ControlledVocabulary.where(model_type: "TitleForm").pluck(:value).to_json.html_safe %>;
 	$(document).ready(function() {
 		$('#date').bind('input',function() {
-			var y = /^[0-9]{4}$/;
-			var yy = /^[0-9]{4}\s{0,1}-\s{0,1}[0-9]{4}$/
+			let y = /^[0-9]{4}$/;
+			let yy = /^[0-9]{4}\s{0,1}-\s{0,1}[0-9]{4}$/
 			if (y.test($(this).val()) || yy.test($(this).val()) || $(this).val().length == 0) {
 				$(this).removeClass('bad_barcode');
 			} else {
@@ -184,8 +196,8 @@
 			}
 		});
 		// hook in the checkboxes to be range selectable
-		checks = $('input:checkbox')
-		var lastChecked = null;
+		let checks = $('input:checkbox')
+		let lastChecked = null;
 		checks.click(function(e) {
 			if (!lastChecked) {
 				lastChecked = this;
@@ -203,6 +215,12 @@
 			});
 			$('#title_ids').val(ids.join(','));
 			return true;
+		});
+		$("#form").autocomplete({
+			source: avail_forms
+		});
+		$("#genre").autocomplete({
+			source: avail_genres
 		});
 	});
 </script>

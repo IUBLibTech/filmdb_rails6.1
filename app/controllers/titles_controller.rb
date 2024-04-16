@@ -12,19 +12,19 @@ class TitlesController < ApplicationController
 	  if params[:title_text]
 		  # find out whether or not to do pagination
 		  @count = Title.title_search_count(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
-                            params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
+                            params[:creator_text], params[:genre], params[:form], params[:summary_text], params[:location_text], params[:subject_text],
                             (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
                             current_user, 0, Title.all.size)
 		  if @count > Title.per_page
 			  @paginate = true
 			  @page = (params[:page] ? params[:page].to_i : 1)
 			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
-                             params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
+                             params[:creator_text], params[:genre], params[:form], params[:summary_text], params[:location_text], params[:subject_text],
                              (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
                              current_user, (@page - 1) * Title.per_page, Title.per_page)
 		  else
 			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
-                             params[:creator_text], params[:summary_text], params[:location_text], params[:subject_text],
+                             params[:creator_text], params[:genre], params[:form], params[:summary_text], params[:location_text], params[:subject_text],
                              (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
                              current_user, 0, @count)
 		  end
@@ -53,8 +53,8 @@ class TitlesController < ApplicationController
     else
       ss = SpreadSheetSearch.new(
         user_id: User.current_user_object.id, title_text: params[:title_text], series_name: params[:series_name_text],
-        date_text: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text],
-        summary_text: params[:summary_text], location_text: params[:location_text], subject_text: params[:subject_text],
+        date_text: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text], genre: params[:genre],
+        form: params[:form], summary_text: params[:summary_text], location_text: params[:location_text], subject_text: params[:subject_text],
         collection_id: params[:collection_id], digitized_status: params[:digitized_status], percent_complete: 0, request_ts: params[:request_ts]
       )
       ss.save!
