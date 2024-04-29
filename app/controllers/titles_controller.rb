@@ -13,19 +13,19 @@ class TitlesController < ApplicationController
 		  # find out whether or not to do pagination
 		  @count = Title.title_search_count(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
                             params[:creator_text], params[:genre], params[:form], params[:summary_text], params[:location_text], params[:subject_text],
-                            (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
+                            (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status], params[:medium_filter],
                             current_user, 0, Title.all.size)
 		  if @count > Title.per_page
 			  @paginate = true
 			  @page = (params[:page] ? params[:page].to_i : 1)
 			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
                              params[:creator_text], params[:genre], params[:form], params[:summary_text], params[:location_text], params[:subject_text],
-                             (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
+                             (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status], params[:medium_filter],
                              current_user, (@page - 1) * Title.per_page, Title.per_page)
 		  else
 			  @titles = Title.title_search(params[:title_text], params[:series_name_text], params[:date], params[:publisher_text],
                              params[:creator_text], params[:genre], params[:form], params[:summary_text], params[:location_text], params[:subject_text],
-                             (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status],
+                             (params[:collection_id] == '0' ? nil : params[:collection_id]), params[:digitized_status], params[:medium_filter],
                              current_user, 0, @count)
 		  end
     end
@@ -55,7 +55,8 @@ class TitlesController < ApplicationController
         user_id: User.current_user_object.id, title_text: params[:title_text], series_name: params[:series_name_text],
         date_text: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text], genre: params[:genre],
         form: params[:form], summary_text: params[:summary_text], location_text: params[:location_text], subject_text: params[:subject_text],
-        collection_id: params[:collection_id], digitized_status: params[:digitized_status], percent_complete: 0, request_ts: params[:request_ts]
+        collection_id: params[:collection_id], digitized_status: params[:digitized_status], medium_filter: params[:medium_filter].to_i,
+        percent_complete: 0, request_ts: params[:request_ts]
       )
       ss.save!
       # the SpreadSheetSearch#create method is set to be handled asynchronously so no need to call .delay.create

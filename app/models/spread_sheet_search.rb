@@ -1,5 +1,6 @@
 class SpreadSheetSearch < ApplicationRecord
   require "axlsx"
+  #include SpreadsheetSearcher
   belongs_to :user
   belongs_to :collection, optional: true
 
@@ -63,10 +64,27 @@ class SpreadSheetSearch < ApplicationRecord
       update(completed: false, error_message: error_msg)
     end
   end
-  handle_asynchronously :create # this tells the delayed_job gem to run this in a background process
+  #handle_asynchronously :create # this tells the delayed_job gem to run this in a background process
 
   def run_query
     titles = title_text.blank? ? Title.all : Title.where("title_text like '%#{title_text}%'")
+    titles = titles.joins(:physical_objects).includes(:physical_objects)
+    if collection_id != 0
+      titles = titles.where("physical_objects.collection_id = ?", collection_id) unless collection_id == 0
+    end
+    if medium_filter == Title::FILM_MEDIUMS
+      titles = titles.where("(physical_objects.medium = ?)", "Film")
+    elsif medium_filter == Title::VIDEO_MEDIUMS
+      titles = titles.where("(physical_objects.medium = ?)", "Video")
+    elsif medium_filter == Title::FILM_MEDIUMS + Title::VIDEO_MEDIUMS
+      titles = titles.where("(physical_objects.medium = ? OR physical_objects.medium = ?)", "Film", "Video")
+    elsif medium_filter == Title::RECORDED_SOUND_MEDIUMS
+      titles = titles.where("(physical_objects.medium = ?)", "Recorded Sound")
+    elsif medium_filter == Title::FILM_MEDIUMS + Title::RECORDED_SOUND_MEDIUMS
+      titles = titles.where("(physical_objects.medium = ? OR physical_objects.medium = ? )", "Film", "RecordedSound")
+    elsif medium_filter == Title::VIDEO_MEDIUMS + Title::RECORDED_SOUND_MEDIUMS
+      titles = titles.where("(physical_objects.medium = ? OR physical_objects.medium = ? )", "Video", "RecordedSound")
+    end
     unless digitized_status == 'all'
       if digitized_status == "not_digitized"
         titles = titles.where("titles.stream_url is null OR titles.stream_url = ''")
@@ -102,23 +120,40 @@ class SpreadSheetSearch < ApplicationRecord
     titles = titles.joins(:title_genres).includes(:title_genres).where("title_genres.genre = ?", genre) unless genre.blank?
     titles = titles.joins(:title_forms).includes(:title_forms).where("title_forms.form = ?", form) unless form.blank?
     titles = titles.joins(:title_locations).includes(:title_locations).where("title_locations.location like ?", "%#{location_text}%") unless location_text.blank?
-    if collection_id == 0
-      titles = titles.joins(:physical_objects).includes(:physical_objects)
-    else
-      titles = titles.joins(:physical_objects).includes(:physical_objects).where("physical_objects.collection_id = ?", collection_id) unless collection_id == 0
-    end
+
     titles
+  end
+
+  def filter_text
+    text = "All"
+    unless medium_filter.blank? || medium_filter == 0
+      text = ""
+      text += "Film" if medium_filter & Title::FILM_MEDIUMS == Title::FILM_MEDIUMS
+      if medium_filter & Title::VIDEO_MEDIUMS == Title::VIDEO_MEDIUMS
+        text += text.size > 0 ? ", Video" : "Video"
+      end
+      if medium_filter & Title::RECORDED_SOUND_MEDIUMS == Title::RECORDED_SOUND_MEDIUMS
+        text += text.size > 0 ? ", Recorded Sound" : "Recorded Sound"
+      end
+    end
+    text
   end
 
   def generate_spreadsheet(titles)
     x = Axlsx::Package.new
     wb = x.workbook
-    films = wb.add_worksheet(name: "Films")
-    videos = wb.add_worksheet(name: "Videos")
-    recorded_sounds = wb.add_worksheet(name: "Recorded Sounds")
-    Film.write_xlsx_header_row( films)
-    Video.write_xlsx_header_row( videos )
-    RecordedSound.write_xlsx_header_row( recorded_sounds )
+    if medium_filter & Title::FILM_MEDIUMS == Title::FILM_MEDIUMS
+      films = wb.add_worksheet(name: "Films")
+      Film.write_xlsx_header_row( films)
+    end
+    if medium_filter & Title::VIDEO_MEDIUMS == Title::VIDEO_MEDIUMS
+      videos = wb.add_worksheet(name: "Videos")
+      Video.write_xlsx_header_row( videos )
+    end
+    if medium_filter & Title::RECORDED_SOUND_MEDIUMS == Title::RECORDED_SOUND_MEDIUMS
+      recorded_sounds = wb.add_worksheet(name: "Recorded Sounds")
+      RecordedSound.write_xlsx_header_row( recorded_sounds )
+    end
     total = titles.size.to_f
     titles.each_with_index do |t, i|
       # we want to avoid excessive writes to the database while updating the completion status of the job
@@ -154,4 +189,9 @@ class SpreadSheetSearch < ApplicationRecord
   def save_spreadsheet_to_file(ss, filename)
     ss.serialize(filename)
   end
+
+
+
+
+
 end

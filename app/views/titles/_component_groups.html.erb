@@ -1,17 +1,17 @@
-<h4>Component Groups</h4>
+<h4>Pull Requests in Active Workflow</h4>
 <table id="component_group_table" class="sel-table _100">
   <thead>
     <tr>
       <th>Group Type</th>
-      <th colspan="2">Group Summary</th>
+      <th colspan="2">Pull Request Summary</th>
+      <th>Location</th>
       <th>Gauge/Format</th>
       <th>Generations</th>
-      <th>Workflow Status(es)</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
-  <% @title.component_groups.order('id DESC').each do |cg| %>
+  <% @title.active_component_groups.each do |cg| %>
     <tr id="<%= cg.id %>">
       <td id="cg_<%= cg.id %>_group_type" title="<%= cg.group_type %>"><%= cg.group_type %> (<%= "#{pluralize(cg.physical_objects.size, 'Object')}" %>)</td>
       <td class="no_border_right"><%= cg.group_summary %></td>

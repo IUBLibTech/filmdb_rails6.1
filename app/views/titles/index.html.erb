@@ -4,57 +4,57 @@
 <table>
 	<tr>
 		<th>Title Text</th>
-		<td>
+		<td colspan="3">
       <%= text_field_tag :title_text, params[:title_text] %>
 		</td>
 	</tr>
   <tr>
     <th>Series Name</th>
-    <td>
+    <td colspan="3">
       <%= text_field_tag :series_name_text, params[:series_name_text] %>
     </td>
   </tr>
 	<tr>
 		<th>Date</th>
-		<td>
+		<td colspan="3">
 			<%= text_field_tag :date, params[:date] %>
 		</td>
 	</tr>
 	<tr>
 		<th>Publisher</th>
-		<td>
+		<td colspan="3">
 			<%= text_field_tag :publisher_text, params[:publisher_text] %>
 		</td>
 	</tr>
 	<tr>
 		<th>Creator</th>
-		<td>
+		<td colspan="3">
       <%= text_field_tag :creator_text, params[:creator_text] %>
 		</td>
 	</tr>
 	<tr>
 		<th>Genre</th>
-		<td><%= text_field_tag :genre, params[:genre] %></td>
+		<td colspan="3"><%= text_field_tag :genre, params[:genre] %></td>
 	</tr>
 	<tr>
 		<th>Form</th>
-		<td><%= text_field_tag :form, params[:form] %></td>
+		<td colspan="3"><%= text_field_tag :form, params[:form] %></td>
 	</tr>
   <tr>
     <th>Summary</th>
-    <td><%= text_field_tag :summary_text, params[:summary_text] %></td>
+    <td colspan="3"><%= text_field_tag :summary_text, params[:summary_text] %></td>
   </tr>
   <tr>
     <th>Location</th>
-    <td><%= text_field_tag :location_text, params[:location_text] %></td>
+    <td colspan="3"><%= text_field_tag :location_text, params[:location_text] %></td>
   </tr>
   <tr>
     <th>Subject</th>
-    <td><%= text_field_tag :subject_text, params[:subject_text] %></td>
+    <td colspan="3"><%= text_field_tag :subject_text, params[:subject_text] %></td>
   </tr>
 	<tr>
 		<th>Search Within Collection</th>
-		<td>
+		<td colspan="3">
 			<%= select_tag :collection_id, options_for_select([['All', "0"]] + Collection.all.order(:name).collect{ |c| [c.name, c.id]}, params[:collection_id]) %>
 		</td>
 	</tr>
@@ -65,9 +65,17 @@
       <%= radio_button_tag :digitized_status, "digitized"  %>Digitized<br>
       <%= radio_button_tag :digitized_status, "not_digitized"  %>Not Digitized<br>
     </td>
+		<th>Filter By Medium</th>
+		<td>
+			<%= check_box_tag :all_medium, "all_medium", params[:medium_filter].blank? || params[:medium_filter] == "0" %>All<br>
+			<%= check_box_tag :film_medium, "film_medium", (params[:medium_filter].to_i & 1 == 1) , { class: "po_medium", "data_mask": 1 } %>Film<br>
+			<%= check_box_tag :video_medium, "video_medium", (params[:medium_filter].to_i & 2 == 2), class: "po_medium", "data_mask": 2 %>Video<br>
+			<%= check_box_tag :sound_medium, "sound_medium", (params[:medium_filter].to_i & 4 == 4), class: "po_medium", "data_mask": 4 %>Recorded Sound<br>
+			<%= hidden_field_tag :medium_filter, params[:medium_filter] ? params[:medium_filter] : 0 %>
+		</td>
   </tr>
 	<tr>
-		<td colspan="2">
+		<td colspan="4">
       <div class="left _50">
         <%= submit_tag 'Search' %>
       </div>
@@ -75,7 +83,7 @@
         <% if @titles && @titles.size > 0 %>
 					<% path = title_xls_search_path(params.permit(
 						:authenticity_token, :ts, :commit, :title_text, :series_name_text, :date, :publisher_text, :creator_text,
-						:genre, :form, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status).to_h.symbolize_keys.merge) %>
+						:genre, :form, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status, :medium_filter).to_h.symbolize_keys.merge) %>
           <%= link_to "Download Search Results", path  %>
         <% end %>
       </div>
@@ -222,5 +230,41 @@
 		$("#genre").autocomplete({
 			source: avail_genres
 		});
+
+		$("#all_medium").change(function(e) {
+			if (this.checked) {
+				$(".po_medium").prop( "checked", false );
+			} else {
+				//don't allow user unchecking the all cb
+				if ($(".po_medium:checked").size() == 0) {
+					this.checked = !this.checked;
+				}
+			}
+			set_medium_mask();
+		})
+
+		$(".po_medium").change(function(e) {
+			if (this.checked) {
+				if ($(".po_medium:checked").size() == 3) {
+					$(".po_medium").prop("checked", false);
+					$("#all_medium").prop("checked", true);
+				} else {
+					$("#all_medium").prop("checked", false);
+				}
+			}
+			//check to see if last of checked mediums is unchecked
+			if ($(".po_medium:checked").size() == 0) {
+				$("#all_medium").prop("checked", true);
+			}
+			set_medium_mask();
+		})
+
+		let set_medium_mask = function() {
+			let mask = 0;
+			$(".po_medium:checked[data_mask]").each(function() {
+				mask += Number($(this).attr("data_mask"));
+			})
+			$("#medium_filter").val(mask);
+		}
 	});
 </script>

@@ -18,6 +18,7 @@
       <th>Subject</th>
       <th>Collection</th>
       <th>Digitization Status</th>
+      <th>Selected Mediums</th>
       <th>Date Created</th>
       <th>Completion Status</th>
     </tr>
@@ -39,6 +40,7 @@
         <td><%= ss.subject_text %></td>
         <td><%= ss.collection_name %></td>
         <td><%= ss.digitized_status %></td>
+        <td><%= ss.filter_text %></td>
         <td><%= ss.created_at.strftime("%B %d, %Y") %></td>
         <td>
           <% if ss.completed %>
