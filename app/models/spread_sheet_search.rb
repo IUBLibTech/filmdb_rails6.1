@@ -142,15 +142,15 @@ class SpreadSheetSearch < ApplicationRecord
   def generate_spreadsheet(titles)
     x = Axlsx::Package.new
     wb = x.workbook
-    if medium_filter & Title::FILM_MEDIUMS == Title::FILM_MEDIUMS
+    if (medium_filter & Title::FILM_MEDIUMS == Title::FILM_MEDIUMS) || medium_filter == 0
       films = wb.add_worksheet(name: "Films")
       Film.write_xlsx_header_row( films)
     end
-    if medium_filter & Title::VIDEO_MEDIUMS == Title::VIDEO_MEDIUMS
+    if (medium_filter & Title::VIDEO_MEDIUMS == Title::VIDEO_MEDIUMS) || medium_filter == 0
       videos = wb.add_worksheet(name: "Videos")
       Video.write_xlsx_header_row( videos )
     end
-    if medium_filter & Title::RECORDED_SOUND_MEDIUMS == Title::RECORDED_SOUND_MEDIUMS
+    if (medium_filter & Title::RECORDED_SOUND_MEDIUMS == Title::RECORDED_SOUND_MEDIUMS) || medium_filter == 0
       recorded_sounds = wb.add_worksheet(name: "Recorded Sounds")
       RecordedSound.write_xlsx_header_row( recorded_sounds )
     end
