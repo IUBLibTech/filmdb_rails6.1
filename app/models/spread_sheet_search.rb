@@ -64,7 +64,7 @@ class SpreadSheetSearch < ApplicationRecord
       update(completed: false, error_message: error_msg)
     end
   end
-  #handle_asynchronously :create # this tells the delayed_job gem to run this in a background process
+  handle_asynchronously :create # this tells the delayed_job gem to run this in a background process
 
   def run_query
     titles = title_text.blank? ? Title.all : Title.where("title_text like '%#{title_text}%'")
