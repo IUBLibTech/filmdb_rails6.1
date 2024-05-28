@@ -32,12 +32,19 @@ class ComponentGroupsController < ApplicationController
         @component_group = ComponentGroup.new(component_group_params)
         @checked = params[:component_group][:component_group_physical_objects].keys.select{|k| !params[:component_group][:component_group_physical_objects][k][:selected].nil?}
         @component_group.save!
-        @checked.each do |po|
-          settings = params[:component_group][:component_group_physical_objects][po]
+        @checked.each do |p|
+          po = PhysicalObject.find(p)
+          # settings were specific to MDPI - no longer needed
+          # settings = params[:component_group][:component_group_physical_objects][po]
           ComponentGroupPhysicalObject.new(
-              component_group_id: @component_group.id, physical_object_id: po.to_i,
-              scan_resolution: settings[:scan_resolution], color_space: settings[:color_space], return_on_reel: settings[:return_on_reel], clean: settings[:clean]
+              component_group_id: @component_group.id, physical_object_id: po.id
           ).save!
+          # post MDPI, override rules - last arg is true
+          ws = WorkflowStatus.build_workflow_status(WorkflowStatus::QUEUED_FOR_PULL_REQUEST, po, true)
+          po.current_workflow_status = ws
+          po.workflow_statuses << ws
+          po.active_component_group = @component_group
+          po.save!
         end
       end
     rescue Exception => e
@@ -46,7 +53,7 @@ class ComponentGroupsController < ApplicationController
     end
 
     if @component_group.persisted?
-      flash[:notice] = "Component Group successfully created"
+      flash[:notice] = "A Pull Request was <i>Queued</i> for the following Physical Objects [#{@component_group.physical_objects.collect{|p| p.iu_barcode}.join(", ")}]"
     else
       flash[:warning] = "Component Group was not created..."
     end
@@ -339,7 +346,7 @@ class ComponentGroupsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def component_group_params
       params.require(:component_group).permit(
-        :group_type, :group_summary, :title_id,
+        :group_type, :group_summary, :title_id, :delivery_location,
         title_attributes: [:id],
         component_group_physical_objects_attributes: [:id, :physical_object_id, :component_group_id, :scan_resolution, :clean, :return_on_reel, :color_space, :_destroy]
       )

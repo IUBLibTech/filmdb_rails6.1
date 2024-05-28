@@ -12,28 +12,28 @@ class WorkflowStatus < ApplicationRecord
 	IULMIA = 'IULMIA'
 
 	# all status names
+	AWAITING_FREEZER = 'Awaiting Freezer'
+	BEST_COPY_ALF = 'Evaluation (ALF)'
+	BEST_COPY_WELLS = 'Evaluation (Wells)'
+	BEST_COPY_MDPI_WELLS = 'Evaluation (Wells)'
+	DEACCESSIONED = 'Deaccessioned'
+	IN_CAGE = 'In Cage (ALF)'
 	IN_STORAGE_INGESTED = 'In Storage (Ingested)'
 	IN_STORAGE_AWAITING_INGEST = 'In Storage (Awaiting Ingest)'
 	IN_FREEZER = 'In Freezer'
-	AWAITING_FREEZER = 'Awaiting Freezer'
-	MOLD_ABATEMENT = 'Mold Abatement'
-	MISSING = 'Missing'
-	IN_CAGE = 'In Cage (ALF)'
-	QUEUED_FOR_PULL_REQUEST = 'Queued for Pull Request'
-	PULL_REQUESTED = 'Pull Requested'
-	RECEIVED_FROM_STORAGE_STAGING = 'Returned to Pull Requested'
-	TWO_K_FOUR_K_SHELVES = "Digitization Shelf"
-	ISSUES_SHELF = 'Issues Shelf (ALF)'
-	BEST_COPY_ALF = 'Evaluation (ALF)'
+	IN_WORKFLOW_ALF = 'In Workflow (ALF)'
 	IN_WORKFLOW_WELLS = 'In Workflow (Wells)'
-	SHIPPED_EXTERNALLY = 'Shipped Externally'
-	DEACCESSIONED = 'Deaccessioned'
+	ISSUES_SHELF = 'Issues Shelf (ALF)'
 	JUST_INVENTORIED_WELLS = 'Just Inventoried (Wells)'
 	JUST_INVENTORIED_ALF = 'Just Inventoried (ALF)'
-	BEST_COPY_WELLS = 'Evaluation (Wells)'
-	BEST_COPY_MDPI_WELLS = 'Evaluation (Wells)'
+	MOLD_ABATEMENT = 'Mold Abatement'
+	MISSING = 'Missing'
+	PULL_REQUESTED = 'Pull Requested'
+	QUEUED_FOR_PULL_REQUEST = 'Queued for Pull Request'
+	RECEIVED_FROM_STORAGE_STAGING = 'Returned to Pull Requested'
+	SHIPPED_EXTERNALLY = 'Shipped Externally'
+	TWO_K_FOUR_K_SHELVES = "Digitization Shelf"
 	WELLS_TO_ALF_CONTAINER = 'Wells to ALF Container'
-	IN_WORKFLOW_ALF = 'ALF (non MDPI)'
 
 	ALL_STATUSES = [IN_STORAGE_INGESTED, IN_STORAGE_AWAITING_INGEST, IN_FREEZER, AWAITING_FREEZER, MOLD_ABATEMENT, MISSING,	IN_CAGE, QUEUED_FOR_PULL_REQUEST,	PULL_REQUESTED,
 	                RECEIVED_FROM_STORAGE_STAGING, TWO_K_FOUR_K_SHELVES, ISSUES_SHELF, BEST_COPY_ALF, IN_WORKFLOW_WELLS, SHIPPED_EXTERNALLY, DEACCESSIONED, JUST_INVENTORIED_WELLS,
@@ -88,8 +88,8 @@ class WorkflowStatus < ApplicationRecord
 		JUST_INVENTORIED_ALF => [IN_STORAGE_AWAITING_INGEST, IN_STORAGE_INGESTED, IN_FREEZER, AWAITING_FREEZER, MOLD_ABATEMENT, RECEIVED_FROM_STORAGE_STAGING, BEST_COPY_ALF, MISSING, ISSUES_SHELF, TWO_K_FOUR_K_SHELVES]
 	}
 
-	# Constructs the next status that a physical object will be moving to based on status_name. Will (eventually) validate whether the previous_workflow_status
-	# permits movement into status_name
+	# Constructs the next status that a physical object will be moving to based on status_name. Validates whether the location
+	# change is allows based on STATUSES_TO_NEXT_WORKFLOW definitations unless override is true
 	def self.build_workflow_status(status_name, physical_object, override=false)
 		current = physical_object.current_workflow_status
 		if ((current.nil? && !SPREADSHEET_START_LOCATIONS.include?(status_name)) ||	(!current.nil? && !current.valid_next_workflow?(status_name, override)))

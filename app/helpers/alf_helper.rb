@@ -233,7 +233,7 @@ module AlfHelper
 		response = JSON.parse(result)
 	end
 
-	# Generates a single entry in the JSON payload for CaiaSoft, rquired fields are:
+	# Generates a single entry in the JSON payload for CaiaSoft, required fields are:
 	# (item) barcode, request_type, and stop
 	def cs_line(po, user)
 		title = po.titles_text.gsub('"', "").gsub("'", "")

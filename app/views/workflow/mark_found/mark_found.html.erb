@@ -8,23 +8,15 @@
 	</tr>
 	</tbody>
 </table>
-<% if @po_returns && @po_returns.size > 0 %>
+<% if (@po_returns && @po_returns.size > 0) || (@po_injects && @po_injects.size > 0) %>
   <div class="notice">
-    This following Physical Objects were returned to storage:
+    This following Physical Objects have been updated:
     <ul>
       <% @po_returns.each do |p| %>
-      <li><%= p.iu_barcode %> was returned to: <%= p.storage_location %></li>
+      <li><%= p.iu_barcode %> moved to: <%= p.current_workflow_status.status_name %></li>
       <% end %>
-    </ul>
-  </div>
-<% end %>
-<% if @po_injects && @po_injects.size > 0 %>
-  <div class="notice">
-    A new Component Group has been created for <i><%= @cg.title.title_text %></i>. The following Physical Objects were
-    added to this Component Group and their locations have been updated to:
-    <ul>
       <% @po_injects.each do |p| %>
-        <li><%= p.iu_barcode %> has been moved to : <%= p.current_location %></li>
+        <li><%= p.iu_barcode %>: <%= p.current_workflow_status.status_name %> for <i><%= p.active_component_group.title.title_text %></i> - Deliver to <%= p.active_component_group.humanize_delivery_location %></li>
       <% end %>
     </ul>
   </div>
@@ -52,8 +44,7 @@
 <!--  <li>CG digitization settings can be set, as well as where in Workflow each PO should be located. These Workflow locations-->
 <!--    will be limited based on the Component Group type selected in the CG portion</li>-->
 <!--  <li>If "Return to Storage" is selected above (after having previously selected "Inject..."), that PO will be removed from-->
-<!--    this list-->
-<!--  </li>-->
+<!--    this list--><!--  </li>-->
 <!--  <li>-->
 <!--    Finally, when the User is done (form is submitted), the page will display a detailed message of:-->
 <!--    <ul style="list-style: decimal; margin-left: 2rem">-->
@@ -68,13 +59,13 @@
 
 <script type="text/javascript" charset="utf-8">
 
-  let ref_locs = ["<%= WorkflowStatus::TWO_K_FOUR_K_SHELVES %>", "<%= WorkflowStatus::ISSUES_SHELF %>", "<%= WorkflowStatus::MOLD_ABATEMENT %>", "<%= WorkflowStatus::WELLS_TO_ALF_CONTAINER %>"];
-  let bc_locs = ["<%= WorkflowStatus::BEST_COPY_ALF %>", "<%= WorkflowStatus::BEST_COPY_MDPI_WELLS %>"];
-  let other_locs = ["<%= WorkflowStatus::IN_WORKFLOW_WELLS %>", "<%= WorkflowStatus::IN_WORKFLOW_ALF %>"];
-  let location_map = {
-    "Best Copy (MDPI)":bc_locs, "Best Copy (MDPI - WELLS)":bc_locs, "Best Copy (Wells)":other_locs, "Reformatting (MDPI)":ref_locs,
-    "Cataloging":other_locs, "Digitization":other_locs, "Evaluation":other_locs, "Exhibition":other_locs, "Researcher":other_locs,
-    "Teaching":other_locs
+  const fdb_ref_locs = ["<%= WorkflowStatus::TWO_K_FOUR_K_SHELVES %>", "<%= WorkflowStatus::ISSUES_SHELF %>", "<%= WorkflowStatus::MOLD_ABATEMENT %>", "<%= WorkflowStatus::WELLS_TO_ALF_CONTAINER %>"];
+  const fdb_bc_locs = ["<%= WorkflowStatus::BEST_COPY_ALF %>", "<%= WorkflowStatus::BEST_COPY_MDPI_WELLS %>"];
+  const fbd_other_locs = ["<%= WorkflowStatus::IN_WORKFLOW_WELLS %>", "<%= WorkflowStatus::IN_WORKFLOW_ALF %>"];
+  const fdb_location_map = {
+    "Best Copy (MDPI)":fdb_bc_locs, "Best Copy (MDPI - WELLS)":fdb_bc_locs, "Best Copy (Wells)":fbd_other_locs, "Reformatting (MDPI)":fdb_ref_locs,
+    "Cataloging":fbd_other_locs, "Digitization":fbd_other_locs, "Evaluation":fbd_other_locs, "Exhibition":fbd_other_locs, "Researcher":fbd_other_locs,
+    "Teaching":fbd_other_locs
   }
 
   let scan_barcodes = [];
@@ -138,7 +129,7 @@
             $('#finder_table').replaceWith(result);
             // remove the CG table because contents have changed
             $('#cg_div').html("");
-            hookInjectables();
+            //hookInjectables();
             hookFormSubmit();
           }
       })
@@ -156,7 +147,7 @@
       let remove_bc = $("tr#po_"+po_id+" > td:first-child").text();
       removeBadBcs([remove_bc])
       tr.remove();
-      loadCgTable();
+      //loadCgTable();
   }
 
   function hookInjectables() {
@@ -200,7 +191,7 @@
   }
 
   function setLocationOptions(option) {
-    let vals = location_map[option];
+    let vals = fdb_location_map[option];
     $('.location_select').each(function () {
     	let sel = $(this);
     	sel.html('');

@@ -5,9 +5,9 @@
   <table>
     <tbody>
     <tr>
-      <th>Group Type</th>
+      <th>Delivery Location</th>
       <td colspan="9">
-        <%= f.select :group_type, options_for_select(@component_group_cv[:group_type],(@component_group.nil? ? '' : @component_group.group_type)) %>
+        <%= f.select :group_type, options_for_select([["Wells", ComponentGroup::WORKFLOW_WELLS], ["ALF", ComponentGroup::WORKFLOW_ALF]]) %>
       </td>
     </tr>
     <tr>
@@ -34,10 +34,15 @@
           <td class="warning"><%= p.iu_barcode %></td>
         <% else %>
           <td class="<%= @active && @component_group.physical_objects.include?(p) ? 'dont_uncheck' : ''%>">
-            <%= check_box_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][selected]", '',
-                              @component_group.physical_objects.include?(p), data: {"medium": p.medium}, class: 'po_select',
-                              disabled: p.medium != 'Film', title: (p.medium == 'Film' ? '' : 'Only Films can be added to MDPI Component Groups')
-            %> [<%= p.iu_barcode %>]
+            <% if p.in_active_workflow? %>
+              <p class="red"><b>In Active Workflow</b></p>
+            <% else %>
+              <%= check_box_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][selected]", '',
+                                @component_group.physical_objects.include?(p), data: {"medium": p.medium}, class: 'po_select',
+                                disabled: p.medium != 'Film', title: (p.medium == 'Film' ? '' : 'Only Films can be added to MDPI Component Groups')
+              %>
+            <% end %>
+            [<%= p.iu_barcode %>]
           </td>
         <% end %>
         <td><%= p.medium_name %></td>
@@ -64,7 +69,7 @@
     <% end %>
     <tr>
       <td>
-        <%= f.submit (action_name == 'new' ? "Create Component Group" : "Update Component Group") %>
+        <%= f.submit "Queue for Pull Request" %>
       </td>
     </tr>
     </tbody>

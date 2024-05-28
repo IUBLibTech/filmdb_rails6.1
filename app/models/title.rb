@@ -293,7 +293,7 @@ class Title < ApplicationRecord
 	end
 
 	def active_component_groups
-		cgs = physical_objects.where("component_group_id is not null").collect { |p| p.active_component_group }.select { |cg| cg.group_type }
+		cgs = physical_objects.where("component_group_id is not null").collect { |p| p.active_component_group }.uniq.select { |cg| cg.group_type }
 	end
 
 	def associated_titles

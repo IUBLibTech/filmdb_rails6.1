@@ -170,19 +170,21 @@ class WorkflowController < ApplicationController
 			flash.now[:warning] = "Could not find Physical Object with barcode #{params[:physical_object][:iu_barcode]}"
 		elsif @physical_object.active_component_group.deliver_to_alf?
 			flash.now[:warning] = "Error: #{@physical_object.iu_barcode} should have been delivered to ALF. It was pulled for #{@physical_object.active_component_group.group_type}. Please contact Amber/Andrew immediately."
-		elsif !@physical_object.current_workflow_status.valid_next_workflow?(WorkflowStatus::BEST_COPY_MDPI_WELLS)
-			flash.now[:warning] = "#{@physical_object.iu_barcode} cannot be received. Its current workflow status is #{@physical_object.current_workflow_status.type_and_location}"
+		# elsif !@physical_object.current_workflow_status.valid_next_workflow?(WorkflowStatus::BEST_COPY_MDPI_WELLS)
+		# 	flash.now[:warning] = "#{@physical_object.iu_barcode} cannot be received. Its current workflow status is #{@physical_object.current_workflow_status.type_and_location}"
 		else
-			ws = WorkflowStatus.build_workflow_status(WorkflowStatus::BEST_COPY_MDPI_WELLS, @physical_object) if @physical_object.active_component_group.is_mdpi_workflow?
-			ws = WorkflowStatus.build_workflow_status(WorkflowStatus::IN_WORKFLOW_WELLS, @physical_object) if @physical_object.active_component_group.is_iulmia_workflow?
+			# ws = WorkflowStatus.build_workflow_status(WorkflowStatus::BEST_COPY_MDPI_WELLS, @physical_object) if @physical_object.active_component_group.is_mdpi_workflow?
+			# ws = WorkflowStatus.build_workflow_status(WorkflowStatus::IN_WORKFLOW_WELLS, @physical_object) if @physical_object.active_component_group.is_iulmia_workflow?
+			ws = WorkflowStatus.build_workflow_status(WorkflowStatus::IN_WORKFLOW_WELLS, @physical_object, true)
 			@physical_object.workflow_statuses << ws
+			@physical_object.current_workflow_status == ws
 			@physical_object.save
 			others = @physical_object.waiting_active_component_group_members?
 			if others
 				others = others.collect{ |p| p.iu_barcode }.join(', ')
 			end
-			flash.now[:notice] = "#{@physical_object.iu_barcode} workflow status was updated to <b>#{WorkflowStatus::IN_WORKFLOW_WELLS}</b> "+
-				"#{others ? " #{others} are also part of this objects pull request and have not yet been received at Wells" : ''}".html_safe
+			flash[:notice] = "#{@physical_object.iu_barcode} workflow status was updated to <b>#{WorkflowStatus::IN_WORKFLOW_WELLS}</b> "+
+				"#{others ? " #{others} #{others.size > 1 ? "are" : "is"} also part of the same pull request and have not yet been received at Wells" : ''}".html_safe
 		end
 		@physical_objects = []#PhysicalObject.where_current_workflow_status_is(nil, nil, false, WorkflowStatus::PULL_REQUESTED)
 		redirect_to :receive_from_storage
@@ -654,12 +656,9 @@ class WorkflowController < ApplicationController
 		@physical_object = PhysicalObject.where(iu_barcode: params[:iu_barcode].to_i).first
 		if @physical_object.nil?
 			@error_msg = "Cannot find a PhysicalObject with IU Barcode: #{params[:iu_barcode]}"
-			puts "\n\n\nCould find the PO...\n\n\n"
 		elsif @physical_object.current_workflow_status.status_name != WorkflowStatus::MISSING
 			@error_msg = "PhysicalObject #{params[:iu_barcode]} is not currently <i>Missing</i>. Its current workflow status is #{@physical_object.current_workflow_status.status_name}".html_safe
-			puts "\n\n\nThe PO IS NOT missing...\n\n\n"
 		else
-			puts "\n\n\nUpdating a missing PO...\n\n\n"
 			@statuses = WorkflowStatus::ALL_STATUSES.sort.collect{ |t| [t, t]}
 			@component_group_cv = ControlledVocabulary.component_group_cv
 		end
@@ -667,50 +666,54 @@ class WorkflowController < ApplicationController
 	end
 
 	def update_mark_found
-		po_ids = params[:pos].keys #.map(&:to_i)
+
 		@po_returns = []
 		@po_injects = []
-		po_ids.each do |k|
-			if params[:pos][k].keys.first == "inject"
-				@po_injects << k
-			elsif params[:pos][k].keys.first == "return"
-				@po_returns << k
-			else
-				raise "A PhysicalObject was 'found' without specifying whether to return to storage or inject into workflow..."
-			end
-		end
-		@po_returns = PhysicalObject.where(id: @po_returns.map(&:to_i))
-		@po_injects = PhysicalObject.where(id: @po_injects.map(&:to_i))
+		# params[:workflow].keys holds PhysicalObject ids which need to be "found"
+		# params[:workflow][key] holds either the CG workflow type (ComponentGroup::Workflow_WELLS/ALF) OR the
+		# WorkflowStatus::IN_STORAGE_INGESTED and is used to determine delivery destination
 
-		PhysicalObject.transaction do
-			# handle returns
-			@po_returns.each do |p|
-				ws = WorkflowStatus.build_workflow_status(p.storage_location, p, true)
-				p.workflow_statuses << ws
-				p.current_workflow_status = ws
-				p.save
-			end
+		pos = params[:workflow].keys
 
-			# handle any CG creation
-			if @po_injects.size > 0
-				@cg = ComponentGroup.new(title_id: params[:title_id].to_i, group_type: params[:cg_type], group_summary: "This component group was created from 'finding' missing Physical Objects")
-				@cg.save
-				@po_injects.each do |p|
-					settings = params[:component_group][:component_group_physical_objects][p.id.to_s]
-					cgpo = ComponentGroupPhysicalObject.new(
-							physical_object_id: p.id, component_group_id: @cg.id, scan_resolution: settings[:scan_resolution],
-							clean: settings[:clean], return_on_reel: settings[:return_on_reel], color_space: settings[:color_space]
-					)
-					cgpo.save
-					p.active_component_group = @cg
-					ws = WorkflowStatus.build_workflow_status(settings[:location], p, true)
-					p.workflow_statuses << ws
-					p.current_workflow_status = ws
-					p.save!
+		# Because each PO can have more than one title and the ComponentGroup is associated with a single title,
+		# make sure that any POs that have the same, non-storage destination FOR THE SAME TITLE, end up in the same CG.
+		# This hash maps a composite of Title id and destination to the component group created for that destination
+		cgs = {}
+		ComponentGroup.transaction do
+			pos.each do |p|
+				po = PhysicalObject.find(p)
+				loc = params[:workflow][p] # where this PO is going: either WorkflowStatus::IN_STORAGE_INGESTED or ComponentGroup::WORKFLOW_WELLS/ALF
+				if loc == WorkflowStatus::IN_STORAGE_INGESTED
+					ws = WorkflowStatus.build_workflow_status(WorkflowStatus::IN_STORAGE_INGESTED, po, true)
+					po.active_component_group = nil
+					po.current_workflow_status = ws
+					po.workflow_statuses << ws
+					po.save
+					@po_returns << po
+				else
+					# this ridiculousness is necessary to maintain radio button mutual exclusivity at the PO level
+					t_id = params["po_title_#{p}"]
+					cg = nil
+					# see if this PO is in a set for a title, going to the same destination
+					if cgs["#{t_id}_#{loc}"]
+						cg = cgs["#{t_id}_#{loc}"]
+					else
+						# create a new CG
+						cg = ComponentGroup.new(title_id: t_id.to_i, group_type: loc, group_summary: "CG created by moving a missing PO into 'Workflow'", delivery_location: loc)
+						cg.save
+						# create the composite key of title_id and delivery location
+						cgs["#{t_id}_#{loc}"]
+					end
+					cg.physical_objects << po
+					po.active_component_group = cg
+					ws = WorkflowStatus.build_workflow_status(cg.delivery_location == ComponentGroup::WORKFLOW_ALF ? WorkflowStatus::IN_WORKFLOW_ALF : WorkflowStatus::IN_WORKFLOW_WELLS, po, true)
+					po.workflow_statuses << ws
+					po.current_workflow_status = ws
+					po.save
+					@po_injects << po
 				end
 			end
 		end
-
 		render 'workflow/mark_found/mark_found'
 	end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_24_160238) do
+ActiveRecord::Schema.define(version: 2024_05_20_145238) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -91,6 +91,7 @@ ActiveRecord::Schema.define(version: 2024_04_24_160238) do
     t.boolean "hd"
     t.boolean "return_on_reel", default: false
     t.string "color_space"
+    t.string "delivery_location"
   end
 
   create_table "controlled_vocabularies", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|

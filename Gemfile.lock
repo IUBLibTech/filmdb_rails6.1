@@ -145,6 +145,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (7.0.0)
       railties (>= 3.2.16)
+    json (2.3.1)
     ldap_groups_lookup (0.7.0)
       net-ldap
     listen (3.9.0)
@@ -341,6 +342,7 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   jquery-rails
   jquery-ui-rails (>= 7.0.0)
+  json (~> 2.3.0)
   ldap_groups_lookup
   listen (~> 3.3)
   loofah (>= 2.19.1)
