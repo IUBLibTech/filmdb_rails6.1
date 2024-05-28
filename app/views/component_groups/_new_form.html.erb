@@ -1,4 +1,4 @@
-<h4>Create New Pull Request</h4>
+<!--<h4>Create New Pull Request</h4>-->
 <% url = (action_name == 'new') ? create_title_component_group_path(@title) : update_component_group_path(@title, @component_group) %>
 <%= form_for @component_group, url: url do |f| %>
   <%= f.hidden_field :title_id %>
