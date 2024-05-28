@@ -35,11 +35,11 @@
         <% else %>
           <td class="<%= @active && @component_group.physical_objects.include?(p) ? 'dont_uncheck' : ''%>">
             <% if p.in_active_workflow? %>
-              <p class="red"><b>In Active Workflow</b></p>
+              <span class="red_red"><b>In Active Workflow</b></span>
             <% else %>
               <%= check_box_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][selected]", '',
                                 @component_group.physical_objects.include?(p), data: {"medium": p.medium}, class: 'po_select',
-                                disabled: p.medium != 'Film', title: (p.medium == 'Film' ? '' : 'Only Films can be added to MDPI Component Groups')
+                                disabled: false, title: p.medium
               %>
             <% end %>
             [<%= p.iu_barcode %>]
