@@ -12,6 +12,9 @@ module AlfHelper
 	ALF = "ALF"
 	WELLS_052 = "Wells"
 
+	ALF_STOP = "AM"
+	WELLS_STOP = "MI"
+
 	CURL_COMMAND = "curl -X POST -H '$API_KEY_NAME:$API_KEY' -H 'Content-Type: application/json' -d '$REQUEST' $CS_ENDPOINT"
 
 	# this method is responsible for generating and upload the ALF system pull request file
@@ -237,7 +240,7 @@ module AlfHelper
 	# (item) barcode, request_type, and stop
 	def cs_line(po, user)
 		title = po.titles_text.gsub('"', "").gsub("'", "")
-		stop = "MI" #po.active_component_group.deliver_to_alf? ? "AM" : "MI"
+		stop = po.active_component_group.deliver_to_alf? ? "AM" : "MI"
 		{"request_type" => "PYR", "barcode" => "#{po.iu_barcode}", "stop" =>  stop, "requestor" => "IULMIA", "patron_id" => "#{user.email_address}",
 		 "title" => "#{title}"}
 	end
