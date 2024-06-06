@@ -33,6 +33,12 @@ class Title < ApplicationRecord
   accepts_nested_attributes_for :title_forms, allow_destroy: true
   accepts_nested_attributes_for :title_locations, allow_destroy: true
 
+	# bit values used to filter Title Searches based on physical object medium
+	ALL_MEDIUMS = 0
+	FILM_MEDIUMS = 1
+	VIDEO_MEDIUMS = 2
+	RECORDED_SOUND_MEDIUMS = 4
+
   # returns an array of distinct titles that appear in the specified spreadsheet
   scope :title_text_in_spreadsheet, -> (ss_id) {
     Title.select(:title_text).where(spreadsheet_id: ss_id).distinct.pluck(:title_text)
@@ -87,11 +93,12 @@ class Title < ApplicationRecord
     Title.find_by_sql(sql)
   }
 
-  scope :title_search, -> (title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status, current_user, offset, limit) {
+  scope :title_search, -> (title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text,
+													 location_text, subject_text, collection_id, digitized_status, medium_filter, current_user, offset, limit) {
 		connection.execute("DROP TABLE IF EXISTS #{current_user}_title_search")
 	  tempTblSql = "CREATE TEMPORARY TABLE #{current_user}_title_search as (SELECT distinct(titles.id) as title_id "+
-		  "#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id)} "+
-		  "#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status)})"
+		  "#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, medium_filter.to_i)} "+
+		  "#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status, medium_filter.to_i)})"
 		connection.execute(tempTblSql)
 	  sql = "SELECT titles.* FROM titles INNER JOIN #{current_user}_title_search WHERE titles.id = #{current_user}_title_search.title_id ORDER BY titles.title_text LIMIT #{limit} OFFSET #{offset}"
 	  res = Title.find_by_sql(sql)
@@ -99,7 +106,8 @@ class Title < ApplicationRecord
 	  res
   }
 
-	scope :title_spreadsheet_search, -> (title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status) {
+	scope :title_spreadsheet_search, -> (title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text,
+																			 subject_text, collection_id, digitized_status, medium_filter) {
 		t = title_text.blank? ? Title.all : Title.where("title_text like #{escape_wildcard(title_text)}")
 		t = t.where("summary_text like #{escape_wildcard(summary_text)}") unless summary_text.blank?
 		t = t.where("subject like #{escape_wildcard(subject_text)}") unless subject_text.blank?
@@ -112,6 +120,12 @@ class Title < ApplicationRecord
 		end
 		unless creator_text.blank?
 			t = t.joins(:title_creators).where("title_creators.name like #{escape_wildcard(creator_text)}")
+		end
+		unless genre.blank?
+			t = t.joins(:title_genre).where("title_genres.genre = ?", genre)
+		end
+		unless form.blank?
+			t = t.joins(:title_forms).where("title_forms.form = ?", form)
 		end
 		unless location_text.blank?
 			t = t.joins(:title_locations).where("title_locations.location like #{escape_wildcard(location_text)}")
@@ -139,13 +153,32 @@ class Title < ApplicationRecord
 				t = t.where("(titles.stream_url is not null AND titles.stream_url != '')")
 			end
 		end
+		unless medium_filter.to_i == 0
+			filter = medium_filter.to_i
+			t = t.joins(:physical_objects)
+			case filter
+			when filter == Title::FILM_MEDIUMS
+				t.where("(physical_objects.medium = ?)", "Film")
+			when filter == Title::VIDEO_MEDIUMS
+				t.where("(physical_objects.medium = ?)", "Video")
+			when filter == Title::FILM_MEDIUMS + Title::VIDEO_MEDIUMS
+				t.where("(physical_objects.medium = ? OR physical_objects.medium = ?)", "Film", "Video")
+			when filter == Title::RECORDED_SOUND_MEDIUMS
+				t.where("(physical_objects.medium = ?)", "RecordedSound")
+			when filter == Title::FILM_MEDIUMS + Title::RECORDED_SOUND_MEDIUMS
+				t.where("(physical_objects.medium = ? OR physical_objects.medium = ? )", "Film", "RecordedSound")
+			when filter == Title::VIDEO_MEDIUMS + Title::RECORDED_SOUND_MEDIUMS
+				t.where("(physical_objects.medium = ? OR physical_objects.medium = ? )", "Video", "RecordedSound")
+			end
+		end
 		t
 	}
-	scope :title_search_count, -> (title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status, current_user, offset, limit) {
+	scope :title_search_count, -> (title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text,
+																 location_text, subject_text, collection_id, digitized_status, medium_filter, current_user, offset, limit) {
 		connection.execute("DROP TABLE IF EXISTS #{current_user}_title_search")
 		tempTblSql = "CREATE TEMPORARY TABLE #{current_user}_title_search as (SELECT distinct(titles.id) as title_id "+
-			"#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id)} "+
-			"#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status)})"
+			"#{title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, medium_filter.to_i)} "+
+			"#{title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status, medium_filter.to_i)})"
 		connection.execute(tempTblSql)
 
 		sql = "SELECT count(*) FROM titles INNER JOIN #{current_user}_title_search WHERE titles.id = #{current_user}_title_search.title_id ORDER BY titles.title_text LIMIT #{limit} OFFSET #{offset}"
@@ -257,6 +290,10 @@ class Title < ApplicationRecord
 			cs = p.current_workflow_status
 			(!cs.nil? && !WorkflowStatus.is_storage_status?(cs.status_name)) &&	cs.status_name != WorkflowStatus::JUST_INVENTORIED_ALF && cs.status_name != WorkflowStatus::JUST_INVENTORIED_WELLS
 		}
+	end
+
+	def active_component_groups
+		cgs = physical_objects.where("component_group_id is not null").collect { |p| p.active_component_group }.uniq.select { |cg| cg.group_type }
 	end
 
 	def associated_titles
@@ -398,7 +435,7 @@ class Title < ApplicationRecord
 		end
 	end
 
-	def self.title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id)
+	def self.title_search_from_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, medium_filter)
 		sql = "FROM titles"
 		if !series_name_text.blank?
 			sql << " INNER JOIN series on titles.series_id = series.id"
@@ -412,18 +449,25 @@ class Title < ApplicationRecord
 		if !creator_text.blank?
 			sql << " INNER JOIN title_creators ON title_creators.title_id = titles.id"
 		end
+		unless genre.blank?
+			sql << " INNER JOIN title_genres ON title_genres.title_id = titles.id"
+		end
+		unless form.blank?
+			sql << " INNER JOIN title_forms ON title_forms.title_id = titles.id"
+		end
 		if !location_text.blank?
 			sql << " INNER JOIN title_locations ON title_locations.title_id = titles.id"
 		end
-		if !collection_id.blank?
+		if !collection_id.blank? || medium_filter > 0
 			sql << " INNER JOIN physical_object_titles ON physical_object_titles.title_id = titles.id "+
 				"INNER JOIN physical_objects ON physical_objects.id = physical_object_titles.physical_object_id "+
 				"INNER JOIN collections ON physical_objects.collection_id = collections.id"
 		end
 		sql
 	end
-	def self.title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, summary_text, location_text, subject_text, collection_id, digitized_status)
-		sql = (title_text.blank? && series_name_text.blank? && date.blank? && publisher_text.blank? && creator_text.blank? && summary_text.blank? && location_text.blank? && subject_text.blank? && collection_id.blank? && digitized_status == "all") ? "" : "WHERE"
+	def self.title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status, medium_filter)
+		filter = medium_filter.to_i
+		sql = (title_text.blank? && series_name_text.blank? && date.blank? && publisher_text.blank? && creator_text.blank? && genre.blank? && form.blank? && summary_text.blank? && location_text.blank? && subject_text.blank? && collection_id.blank? && digitized_status == "all" && filter == 0) ? "" : "WHERE"
 		if !title_text.blank?
 			sql << " titles.title_text like #{escape_wildcard(title_text)}"
 		end
@@ -453,6 +497,14 @@ class Title < ApplicationRecord
 			add_and(sql)
 			sql << "title_creators.name like #{escape_wildcard(creator_text)}"
 		end
+		unless genre.blank?
+			add_and(sql)
+			sql << "title_genres.genre = '#{genre}'"
+		end
+		unless form.blank?
+			add_and(sql)
+			sql << "title_forms.form = '#{form}'"
+		end
 		if !summary_text.blank?
 			add_and(sql)
 			sql << "titles.summary like #{escape_wildcard(summary_text)}"
@@ -477,11 +529,32 @@ class Title < ApplicationRecord
 				sql << "(titles.stream_url is null OR titles.stream_url = '')"
 			end
 		end
+		unless filter == 0
+			add_and(sql)
+			# potential for OR-ing mediums so wrap in parens
+			sql << "("
+			if filter & Title::FILM_MEDIUMS == Title::FILM_MEDIUMS
+				sql << "(physical_objects.medium = 'Film')"
+				filter > Title::FILM_MEDIUMS ? sql << " OR " : sql << ""
+			end
+			if filter & Title::VIDEO_MEDIUMS == Title::VIDEO_MEDIUMS
+				sql << "(physical_objects.medium = 'Video')"
+				filter > Title::FILM_MEDIUMS + Title::VIDEO_MEDIUMS ? sql << " OR " : sql << ""
+			end
+			if filter & Title::RECORDED_SOUND_MEDIUMS == Title::RECORDED_SOUND_MEDIUMS
+				sql << "(physical_objects.medium = 'Recorded Sound')"
+			end
+			sql << ")"
+		end
 		sql
 	end
 	def self.add_and(sql)
 		sql << ((sql.length > "WHERE ".length) ? ' AND ' : ' ')
 	end
+	def self.add_or(sql)
+		sql << ((sql.lenght) > "WHERE")
+	end
+
 	def self.escape_wildcard(value)
 		ActiveRecord::Base.connection.quote("%#{value}%")
 	end

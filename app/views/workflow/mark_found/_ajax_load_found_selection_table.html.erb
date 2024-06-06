@@ -5,30 +5,36 @@
       <tbody>
         <tr>
           <th>Barcode</th>
-          <th>Title(s)</th>
+          <th>Title To Move Into Workflow</th>
           <th>Action</th>
         </tr>
         <% @pos.each do |p| %>
           <% if p.current_location == WorkflowStatus::MISSING %>
             <tr id="po_<%= p.id %>">
               <td class="bc"><%= p.iu_barcode %></td>
-              <td><%= p.titles_text %></td>
-              <td class="choice">
-                <%= label_tag "Inject into Workflow" %>
-                <%= radio_button_tag "pos[#{p.id}][inject]", "inject", false, {class: "injectable", 'data-po-id': p.id } %>&nbsp;&nbsp;&nbsp;
-                <%= label_tag "Return to Storage" %>
-                <%= radio_button_tag "pos[#{p.id}][return]", "return", false, {class: 'returnable', 'data-po-id': p.id}  %>
+              <td class="radio_choice">
+                <% p.titles.each_with_index do |t, index| %>
+                    <%= label_tag "po_title[#{t.id}]", "#{t.title_text}" %>
+                    <%= radio_button_tag "po_title_#{p.id}", "#{t.id}", (index == 0) %>
+                  <br/>
+                <% end %>
               </td>
-              <td><button type="button" onclick="removePO(<%= p.id %>)">Remove</button></td>
+              <td class="radio_choice choice">
+                <%= label_tag "wells", "Move into Workflow (Wells)" %>
+                <%= radio_button_tag "workflow[#{p.id}]", "#{ComponentGroup::WORKFLOW_WELLS}", false, {class: "injectable", 'data-po-id': p.id } %>
+                <%= label_tag "alf", "Move into Workflow (ALF)" %>
+                <%= radio_button_tag "workflow[#{p.id}]", "#{ComponentGroup::WORKFLOW_ALF}", false, {class: "injectable", 'data-po-id': p.id } %>
+                <%= label_tag "storage", "Return to Storage" %>
+                <%= radio_button_tag "workflow[#{p.id}]", "#{WorkflowStatus::IN_STORAGE_INGESTED}", true, {class: "injectable", 'data-po-id': p.id } %>
+              </td>
+              <td><button type="button" onclick="removePO(<%= p.id %>)">Remove From List</button></td>
             </tr>
-          <% else %>
           <% end %>
         <% end %>
       </tbody>
     </table>
     <div id="cg_div">
-
     </div>
-    <%= submit_tag "Update" %>
+    <%= submit_tag "Update Locations" %>
   <% end %>
 </div>

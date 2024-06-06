@@ -7,32 +7,32 @@
     <th>Generation</th>
     <th>Reel Number</th>
 		<th>Location</th>
-    <th>Scan Settings</th>
-    <th>Actions</th>
+<!--    <th>Scan Settings</th>-->
+<!--    <th>Actions</th>-->
     </thead>
     <tbody>
     <% @component_group.physical_objects.each do |p| %>
     <% p = p.specific %>
         <tr>
-          <td><%= p.iu_barcode %></td>
+          <td><%= link_to p.iu_barcode, physical_object_path(p.actable.id) %></td>
           <td><%= p.medium %></td>
           <td><%= p.medium_name %></td>
           <td><%= p.humanize_boolean_generation_fields %></td>
           <td><%= p.has_attribute?(:reel_number) ? p.reel_number : ''%></td>
 					<td><%= p.current_location %></td>
-          <td>
-            <ul class="dig_params">
-              <li>Scan Resolution: <%= p.scan_settings(@component_group)[:scan_resolution] %></li>
-              <li>Color space: <%= p.scan_settings(@component_group)[:color_space] %></li>
-              <li>Clean: <%= p.scan_settings(@component_group)[:clean] %></li>
-              <li>Return on Reel: <%= p.scan_settings(@component_group)[:return_on_reel] ? 'Yes' : 'No'  %></li>
-            </ul>
-          </td>
-          <td>
-            <%= link_to "Show", physical_object_path(p), target: "_blank" %>
-	          <% unless @component_group == p.active_component_group %> | <%= link_to "Remove", remove_physical_object_from_component_group_path(id: @component_group.id, pid: p.acting_as.id), data: { confirm: 'Are you sure you want to remove this Physical Object from the Component Group?' }, method: :post %>
-	          <% end %>
-          </td>
+<!--          <td>-->
+<!--            <ul class="dig_params">-->
+<!--              <li>Scan Resolution: <%#= p.scan_settings(@component_group)[:scan_resolution] %></li>-->
+<!--              <li>Color space: <%#= p.scan_settings(@component_group)[:color_space] %></li>-->
+<!--              <li>Clean: <%#= p.scan_settings(@component_group)[:clean] %></li>-->
+<!--              <li>Return on Reel: <%#= p.scan_settings(@component_group)[:return_on_reel] ? 'Yes' : 'No'  %></li>-->
+<!--            </ul>-->
+<!--          </td>-->
+<!--          <td>-->
+            <%#= link_to "Show", physical_object_path(p.acting_as), target: "_blank" %>
+<!--	          <%# unless @component_group == p.active_component_group %> | <%#= link_to "Remove", remove_physical_object_from_component_group_path(id: @component_group.id, pid: p.acting_as.id), data: { confirm: 'Are you sure you want to remove this Physical Object from the Component Group?' }, method: :post %>-->
+	          <%# end %>
+<!--          </td>-->
         </tr>
     <% end %>
 

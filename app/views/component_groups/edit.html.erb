@@ -1,8 +1,8 @@
 <%= link_to 'Back', title_path(@component_group.title) %>
-<h2 class="title" id="<%= @title.id %>">Editing Component Group for <b><i><%= @component_group.title.title_text %></i></b></h2>
+<h2 class="title" id="<%= @title.id %>">Editing Pull Request for <b><i><%= @component_group.title.title_text %></i></b></h2>
 <% if @active %>
   <div class="warning m_bottom_10px">
-    This component group is in active workflow. Physical Objects can only be added to it, not removed from it.
+    This pull request is in active workflow. Physical Objects can only be added to it, not removed from it.
   </div>
 <% end %>
 <h4>Physical Objects</h4>

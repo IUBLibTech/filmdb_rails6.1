@@ -1,19 +1,18 @@
-<h4>Component Groups</h4>
+<h4>Active Pull Requests</h4>
 <table id="component_group_table" class="sel-table _100">
   <thead>
     <tr>
-      <th>Group Type</th>
-      <th colspan="2">Group Summary</th>
+      <th>Delivery Location</th>
+      <th colspan="2">Pull Request Summary</th>
       <th>Gauge/Format</th>
       <th>Generations</th>
-      <th>Workflow Status(es)</th>
-      <th>Actions</th>
+      <th>Workflow Status</th>
     </tr>
   </thead>
   <tbody>
-  <% @title.component_groups.order('id DESC').each do |cg| %>
+  <% @title.active_component_groups.each do |cg| %>
     <tr id="<%= cg.id %>">
-      <td id="cg_<%= cg.id %>_group_type" title="<%= cg.group_type %>"><%= cg.group_type %> (<%= "#{pluralize(cg.physical_objects.size, 'Object')}" %>)</td>
+      <td id="cg_<%= cg.id %>_group_type" title="<%= cg.group_type %>"><%= cg.humanize_delivery_location %> (<%= "#{pluralize(cg.physical_objects.size, 'Object')}" %>)</td>
       <td class="no_border_right"><%= cg.group_summary %></td>
 			<td class="edit_icon">
 				<%= link_to image_tag('edit2.png'), '#', class: 'edit_summary_link', id: "edit_summary_#{cg.id}", title: 'Click to edit the Component Group Summary' %>
@@ -21,23 +20,16 @@
       <td><%= cg.physical_objects.collect {|p| p.medium_name }.uniq.sort.join(', ') %></td>
       <td><%= cg.generations %></td>
 			<td><%= cg.physical_objects.collect { |p| p.current_location }.uniq.join(', ') %></td>
-      <td>
-	      <% if cg.can_move_or_be_pulled? %>
-		      <%= link_to 'Queue Pull Request', '#', id: "cg_#{cg.id}", class: 'cg_pull_link' %> <br>
-        <% elsif cg.can_move_into_workflow? %>
-          <%= link_to "Move Into Workflow", '#', id: "cg_#{cg.id}", class: 'cg_move_link' %> <br>
-	      <% end %>
-	      <% if policy(cg).destroy? && !cg.in_active_workflow? %>
-		      <%= link_to "Delete", delete_component_group_path(@title, cg), method: :delete, data: { confirm: 'Are you sure?' }  %>
-          <br>
-	      <% elsif cg.in_active_workflow? %>
-	      <b>Active</b>
-          <% if cg.is_iulmia_workflow? %>
-            <br><%= link_to "Move to MDPI Workflow", move_to_mdpi_workflow_path(t_id:@title.id, id: cg.id) %><br>
-          <% end %>
-	      <% end %>
-        <%= link_to "Edit", edit_component_group_path(@title, cg) %>
-			</td>
+<!--      <td>-->
+	      <%# if cg.can_move_or_be_pulled? %>
+<!--		      <%#= link_to 'Queue Pull Request', '#', id: "cg_#{cg.id}", class: 'cg_pull_link' %> <br>-->
+        <%# elsif cg.can_move_into_workflow? %>
+<!--          <%#= link_to "Move Into Workflow", '#', id: "cg_#{cg.id}", class: 'cg_move_link' %> <br>-->
+	      <%# end %>
+	      <%# if policy(cg).destroy? && !cg.in_active_workflow? %>
+		      <%#= link_to "Delete", delete_component_group_path(@title, cg), method: :delete, data: { confirm: 'Are you sure?' }  %>
+	      <%# end %>
+<!--			</td>-->
     </tr>
   <% end %>
   </tbody>

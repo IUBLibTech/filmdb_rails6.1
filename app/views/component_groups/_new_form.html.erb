@@ -1,17 +1,17 @@
-<h4>Create New Component Group</h4>
+<!--<h4>Create New Pull Request</h4>-->
 <% url = (action_name == 'new') ? create_title_component_group_path(@title) : update_component_group_path(@title, @component_group) %>
 <%= form_for @component_group, url: url do |f| %>
   <%= f.hidden_field :title_id %>
   <table>
     <tbody>
     <tr>
-      <th>Group Type</th>
+      <th>Delivery Location</th>
       <td colspan="9">
-        <%= f.select :group_type, options_for_select(@component_group_cv[:group_type],(@component_group.nil? ? '' : @component_group.group_type)) %>
+        <%= f.select :group_type, options_for_select([["Wells", ComponentGroup::WORKFLOW_WELLS], ["ALF", ComponentGroup::WORKFLOW_ALF]]) %>
       </td>
     </tr>
     <tr>
-      <th>Group Summary</th>
+      <th>Pull Request Summary</th>
       <td colspan="9">
         <%= f.text_area :group_summary %>
       </td>
@@ -22,10 +22,10 @@
       <th>Generation</th>
       <th>Location</th>
       <th>Digitized?</th>
-      <th>Scan Resolution</th>
-      <th>Color Space</th>
-      <th>Clean</th>
-      <th>Return on Reel</th>
+<!--      <th>Scan Resolution</th>-->
+<!--      <th>Color Space</th>-->
+<!--      <th>Clean</th>-->
+<!--      <th>Return on Reel</th>-->
     </tr>
     <% @title.physical_objects.each do |p| %>
     <% p = p.specific %>
@@ -34,10 +34,15 @@
           <td class="warning"><%= p.iu_barcode %></td>
         <% else %>
           <td class="<%= @active && @component_group.physical_objects.include?(p) ? 'dont_uncheck' : ''%>">
-            <%= check_box_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][selected]", '',
-                              @component_group.physical_objects.include?(p), data: {"medium": p.medium}, class: 'po_select',
-                              disabled: p.medium != 'Film', title: (p.medium == 'Film' ? '' : 'Only Films can be added to MDPI Component Groups')
-            %> [<%= p.iu_barcode %>]
+            <% if p.in_active_workflow? %>
+              <span class="red_red"><b>In Active Workflow</b></span>
+            <% else %>
+              <%= check_box_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][selected]", '',
+                                @component_group.physical_objects.include?(p), data: {"medium": p.medium}, class: 'po_select',
+                                disabled: false, title: p.medium
+              %>
+            <% end %>
+            [<%= p.iu_barcode %>]
           </td>
         <% end %>
         <td><%= p.medium_name %></td>
@@ -48,23 +53,23 @@
         <% else %>
           <td><%= p.digitized.nil? ? "N/A" : p.digitized %></td>
         <% end %>
-        <td>
-          <%= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, p.active_scan_settings&.scan_resolution)  %>
-        </td>
-        <td>
-          <%= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, p.active_scan_settings&.color_space) %>
-        </td>
-        <td>
-          <%= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, p.active_scan_settings&.clean) %>
-        </td>
-        <td>
-          <%= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], p.active_scan_settings&.return_on_reel) %>
-        </td>
+<!--        <td>-->
+          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, p.active_scan_settings&.scan_resolution)  %>
+<!--        </td>-->
+<!--        <td>-->
+          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, p.active_scan_settings&.color_space) %>
+<!--        </td>-->
+<!--        <td>-->
+          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, p.active_scan_settings&.clean) %>
+<!--        </td>-->
+<!--        <td>-->
+          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], p.active_scan_settings&.return_on_reel) %>
+<!--        </td>-->
       </tr>
     <% end %>
     <tr>
       <td>
-        <%= f.submit (action_name == 'new' ? "Create Component Group" : "Update Component Group") %>
+        <%= f.submit "Queue for Pull Request" %>
       </td>
     </tr>
     </tbody>
@@ -94,6 +99,23 @@
                 disableNonFilm();
             } else {
                 enableNonFilm();
+            }
+        });
+        $(".new_component_group").submit(function(e) {
+            if ($("#component_group_group_summary").val().trim().length == 0) {
+                e.preventDefault();
+                swal({
+                    title: 'Summary Required',
+                    text: 'A Pull Request Summary is required.'
+                });
+                return false;
+            } else if ($("input:checkbox:checked").length == 0) {
+                e.preventDefault();
+                swal({
+                    title: "No Physical Objects Selected",
+                    text: "You must select at least 1 Physical Object for a Pull Request"
+                })
+                return false;
             }
         });
     })

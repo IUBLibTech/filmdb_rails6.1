@@ -4,7 +4,6 @@ module CleanUpHelper
     titles = Title.where("summary like '% | %'")
     titles.each do |t|
       sums = t.summary.split(" | ")
-      debugger
       if all_sums_equal?(sums)
         t.update(summary: sums[0]) unless sums.length == 0
       end

@@ -1,11 +1,11 @@
 <div>
   <%= link_to 'Edit', edit_title_path(@title) %>  |
-  <%= link_to 'Back', url_for(:back) %>  |
-	<%= link_to 'Split', show_split_title_path(@title) %>
+  <%= link_to 'Back', url_for(:back) %>
+	<%#= link_to 'Split', show_split_title_path(@title) %>
 	<% if policy(Title).destroy? %>
 		| <%= link_to 'Destroy', @title, method: :delete, data: { confirm: 'Are you sure?' } %> |
 	<% end %>
-  <%= link_to "Create Component Group", new_title_component_group_path(@title.id) %>
+  <%= link_to "Create Pull Request", new_title_component_group_path(@title.id) %>
 </div>
 <%= render partial: "titles/show" %>
 

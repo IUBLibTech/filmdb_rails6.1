@@ -1,6 +1,6 @@
 <div id="paginator">
 	<%
-		page_count = (@count / PhysicalObject.per_page).ceil
+		page_count = (@count / PhysicalObject.per_page.to_f).ceil
 		x_low = [1, @page - 2].max
 		x_high = @page + 1
 	%>

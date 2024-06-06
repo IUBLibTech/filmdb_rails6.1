@@ -86,4 +86,11 @@ module ApplicationHelper
 		end
 	end
 
+	def self.hide_sql
+		ActiveRecord::Base.logger.level = 1
+	end
+	def self.show_sql
+		ActiveRecord::Base.logger.level = 0
+	end
+
 end

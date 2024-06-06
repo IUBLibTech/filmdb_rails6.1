@@ -1,53 +1,60 @@
-<%= link_to 'Create New Title', new_title_path %> | <%= link_to 'Merge Titles', title_merge_selection_path %> | <%= link_to "Merge In Storage Titles", merge_in_storage_path %>
 <h4>Title Search</h4>
 <%= form_tag titles_search_path, method: :post do %>
   <%= hidden_field_tag :ts, Process.clock_gettime(Process::CLOCK_MONOTONIC) %>
 <table>
 	<tr>
 		<th>Title Text</th>
-		<td>
+		<td colspan="3">
       <%= text_field_tag :title_text, params[:title_text] %>
 		</td>
 	</tr>
   <tr>
     <th>Series Name</th>
-    <td>
+    <td colspan="3">
       <%= text_field_tag :series_name_text, params[:series_name_text] %>
     </td>
   </tr>
 	<tr>
 		<th>Date</th>
-		<td>
+		<td colspan="3">
 			<%= text_field_tag :date, params[:date] %>
 		</td>
 	</tr>
 	<tr>
 		<th>Publisher</th>
-		<td>
+		<td colspan="3">
 			<%= text_field_tag :publisher_text, params[:publisher_text] %>
 		</td>
 	</tr>
 	<tr>
 		<th>Creator</th>
-		<td>
+		<td colspan="3">
       <%= text_field_tag :creator_text, params[:creator_text] %>
 		</td>
 	</tr>
+	<tr>
+		<th>Genre</th>
+		<td colspan="3"><%= text_field_tag :genre, params[:genre] %></td>
+	</tr>
+	<tr>
+		<th>Form</th>
+		<td colspan="3"><%= text_field_tag :form, params[:form] %></td>
+	</tr>
   <tr>
     <th>Summary</th>
-    <td><%= text_field_tag :summary_text, params[:summary_text] %></td>
+    <td colspan="3"><%= text_field_tag :summary_text, params[:summary_text] %></td>
   </tr>
   <tr>
     <th>Location</th>
-    <td><%= text_field_tag :location_text, params[:location_text] %></td>
+    <td colspan="3"><%= text_field_tag :location_text, params[:location_text] %></td>
   </tr>
   <tr>
     <th>Subject</th>
-    <td><%= text_field_tag :subject_text, params[:subject_text] %></td>
+    <td colspan="3"><%= text_field_tag :subject_text, params[:subject_text] %></td>
   </tr>
 	<tr>
 		<th>Search Within Collection</th>
-		<td>
+		<td colspan="3">
 			<%= select_tag :collection_id, options_for_select([['All', "0"]] + Collection.all.order(:name).collect{ |c| [c.name, c.id]}, params[:collection_id]) %>
 		</td>
 	</tr>
@@ -58,42 +65,53 @@
       <%= radio_button_tag :digitized_status, "digitized"  %>Digitized<br>
       <%= radio_button_tag :digitized_status, "not_digitized"  %>Not Digitized<br>
     </td>
+		<th>Filter By Medium</th>
+		<td>
+			<%= check_box_tag :all_medium, "all_medium", params[:medium_filter].blank? || params[:medium_filter] == "0" %>All<br>
+			<%= check_box_tag :film_medium, "film_medium", (params[:medium_filter].to_i & 1 == 1) , { class: "po_medium", "data_mask": 1 } %>Film<br>
+			<%= check_box_tag :video_medium, "video_medium", (params[:medium_filter].to_i & 2 == 2), class: "po_medium", "data_mask": 2 %>Video<br>
+			<%= check_box_tag :sound_medium, "sound_medium", (params[:medium_filter].to_i & 4 == 4), class: "po_medium", "data_mask": 4 %>Recorded Sound<br>
+			<%= hidden_field_tag :medium_filter, params[:medium_filter] ? params[:medium_filter] : 0 %>
+		</td>
   </tr>
 	<tr>
-		<td colspan="2">
+		<td colspan="4">
       <div class="left _50">
         <%= submit_tag 'Search' %>
       </div>
       <div>
         <% if @titles && @titles.size > 0 %>
-          <%= link_to "Download Search Results", title_xls_search_path(params.permit(:authenticity_token, :ts, :commit, :title_text, :series_name_text, :date, :publisher_text, :creator_text, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status).to_h.symbolize_keys.merge)  %>
+					<% path = title_xls_search_path(params.permit(
+						:authenticity_token, :ts, :commit, :title_text, :series_name_text, :date, :publisher_text, :creator_text,
+						:genre, :form, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status, :medium_filter).to_h.symbolize_keys.merge) %>
+          <%= link_to "Download Search Results", path  %>
         <% end %>
       </div>
 		</td>
 	</tr>
 </table>
 <% end %>
-<% if params[:title_text] %>
-<h4>Search Results for:</h4>
-<table>
-	<tr>
-		<th>Title Text:</th>
-		<td><%= params[:title_text] %></td>
-    <th>Series Name:</th>
-    <td><%= params[:series_name_text] %></td>
-		<th>Date</th>
-		<td><%= params[:date] %></td>
-		<th>Publisher</th>
-		<td><%= params[:publisher_text] %></td>
-		<th>Creator</th>
-		<td><%= params[:creator_text] %></td>
-		<th>Collection:</th>
-		<td><%= params[:collection_id] == '0' ? 'All' : "#{Collection.find(params[:collection_id].to_i).name}" %></td>
-    <th>Digitized Status</th>
-    <td><%= params[:digitized_status].upcase %></td>
-	</tr>
-</table>
-<% end %>
+<%# if params[:title_text] %>
+<!--<h4>Search Results for:</h4>-->
+<!--<table>-->
+<!--	<tr>-->
+<!--		<th>Title Text:</th>-->
+<!--		<td><%#= params[:title_text] %></td>-->
+<!--    <th>Series Name:</th>-->
+<!--    <td><%#= params[:series_name_text] %></td>-->
+<!--		<th>Date</th>-->
+<!--		<td><%#= params[:date] %></td>-->
+<!--		<th>Publisher</th>-->
+<!--		<td><%#= params[:publisher_text] %></td>-->
+<!--		<th>Creator</th>-->
+<!--		<td><%#= params[:creator_text] %></td>-->
+<!--		<th>Collection:</th>-->
+<!--		<td><%#= params[:collection_id] == '0' ? 'All' : "#{Collection.find(params[:collection_id].to_i).name}" %></td>-->
+<!--    <th>Digitized Status</th>-->
+<!--    <td><%#= params[:digitized_status].upcase %></td>-->
+<!--	</tr>-->
+<!--</table>-->
+<%# end %>
 <% if @titles %>
 <br>
 <br>
@@ -173,10 +191,12 @@
 </table>
 <% end %>
 <script type="text/javascript">
+	let avail_genres = <%= ControlledVocabulary.where(model_type: "TitleGenre").pluck(:value).to_json.html_safe %>;
+	let avail_forms = <%= ControlledVocabulary.where(model_type: "TitleForm").pluck(:value).to_json.html_safe %>;
 	$(document).ready(function() {
 		$('#date').bind('input',function() {
-			var y = /^[0-9]{4}$/;
-			var yy = /^[0-9]{4}\s{0,1}-\s{0,1}[0-9]{4}$/
+			let y = /^[0-9]{4}$/;
+			let yy = /^[0-9]{4}\s{0,1}-\s{0,1}[0-9]{4}$/
 			if (y.test($(this).val()) || yy.test($(this).val()) || $(this).val().length == 0) {
 				$(this).removeClass('bad_barcode');
 			} else {
@@ -184,8 +204,8 @@
 			}
 		});
 		// hook in the checkboxes to be range selectable
-		checks = $('input:checkbox')
-		var lastChecked = null;
+		let checks = $('input:checkbox')
+		let lastChecked = null;
 		checks.click(function(e) {
 			if (!lastChecked) {
 				lastChecked = this;
@@ -204,5 +224,47 @@
 			$('#title_ids').val(ids.join(','));
 			return true;
 		});
+		$("#form").autocomplete({
+			source: avail_forms
+		});
+		$("#genre").autocomplete({
+			source: avail_genres
+		});
+
+		$("#all_medium").change(function(e) {
+			if (this.checked) {
+				$(".po_medium").prop( "checked", false );
+			} else {
+				//don't allow user unchecking the all cb
+				if ($(".po_medium:checked").size() == 0) {
+					this.checked = !this.checked;
+				}
+			}
+			set_medium_mask();
+		})
+
+		$(".po_medium").change(function(e) {
+			if (this.checked) {
+				if ($(".po_medium:checked").size() == 3) {
+					$(".po_medium").prop("checked", false);
+					$("#all_medium").prop("checked", true);
+				} else {
+					$("#all_medium").prop("checked", false);
+				}
+			}
+			//check to see if last of checked mediums is unchecked
+			if ($(".po_medium:checked").size() == 0) {
+				$("#all_medium").prop("checked", true);
+			}
+			set_medium_mask();
+		})
+
+		let set_medium_mask = function() {
+			let mask = 0;
+			$(".po_medium:checked[data_mask]").each(function() {
+				mask += Number($(this).attr("data_mask"));
+			})
+			$("#medium_filter").val(mask);
+		}
 	});
 </script>

@@ -100,7 +100,6 @@ gem "roo"
 gem 'caxlsx'
 gem 'caxlsx_rails'
 
-
 group :development, :local, :test, :local_p do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
@@ -133,6 +132,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 ####################
 # security patches #
 ####################
+gem 'json', '~> 2.3.0'
+
 gem "activerecord", ">= 6.1.7.1"
 gem "activestorage", ">= 6.1.7.7"
 # Use Puma as the app server
