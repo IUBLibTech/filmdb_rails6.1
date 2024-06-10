@@ -2,7 +2,7 @@ module LocationHelper
   require 'axlsx'
 
   def self.do_it
-    path = "#{Rails.root}/tmp/IULMIA_BarcodeCheck_reviewed_plus4.csv" if path.blank?
+    path = "#{Rails.root}/tmp/IULMIA_BarcodeCheck_reviewed_03.csv" if path.blank?
     read_spreadsheet(path)
     bad = iterate
     file = "#{Rails.root}/tmp/previous_barcodes.csv"
@@ -31,6 +31,7 @@ module LocationHelper
     @csv.each_with_index do |row, index|
       next if index == 0
       po = PhysicalObject.where(iu_barcode: row[0].to_i).first
+      po = PhysicalObjectOldBarcode.where(iu_barcode: row[0].to_i ).first.physical_object if po.nil?
       raise "No PO with barcode: #{row[0]}" if po.nil?
       new_loc = row[1]
       current = po.current_workflow_status.status_name
