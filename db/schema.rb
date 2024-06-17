@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_05_20_145238) do
+ActiveRecord::Schema.define(version: 2024_06_14_133621) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -412,6 +412,9 @@ ActiveRecord::Schema.define(version: 2024_05_20_145238) do
     t.boolean "orientation_a_wind"
     t.boolean "orientation_b_wind"
     t.date "ad_strip_timestamp"
+    t.boolean "color_bw_color_gaspar"
+    t.boolean "stock_ilford"
+    t.boolean "aspect_ratio_1_75_1"
   end
 
   create_table "languages", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -506,6 +509,7 @@ ActiveRecord::Schema.define(version: 2024_05_20_145238) do
     t.string "compilation"
     t.integer "actable_id"
     t.string "actable_type"
+    t.text "photo_link"
     t.index ["actable_id", "actable_type"], name: "index_physical_objects_on_actable_id_and_actable_type", unique: true
     t.index ["current_workflow_status_id"], name: "index_physical_objects_on_current_workflow_status_id"
     t.index ["iu_barcode", "mdpi_barcode"], name: "index_physical_objects_on_iu_barcode_and_mdpi_barcode", unique: true

@@ -68,7 +68,7 @@
 <div>
   <h4>Associated Titles</h4>
   <% if tos.size == 0 %>
-    None
+
   <% else %>
     <% tos.each_with_index do |t, i| %>
       <%= link_to t.title_text, title_path(t), class: 'title_link' %><% if tos.size > i+1 %>|<% end %>

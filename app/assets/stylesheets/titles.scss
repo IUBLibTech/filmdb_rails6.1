@@ -22,10 +22,11 @@
   width: 124px;
 }
 h4 {
-    clear: both;
+  clear: both;
 }
+
 .text_field_field > textarea {
-    width: 100%;
+    width: 99.4%;
     height: 95px;
 }
 
@@ -56,7 +57,7 @@ input.title_publisher {
 }
 
 #notes_div > textarea {
-    width: 100%;
+    width: 99.4%;
     height: 50px;
 }
 
@@ -87,6 +88,9 @@ input.title_publisher {
 }
 .mt_25 {
   margin-top: 25px;
+}
+.mt_1rem {
+  margin-top: 1rem;
 }
 .dig_params {
 	display: inline;
@@ -175,4 +179,10 @@ div#title_sum {
 .cp_info > div {
   min-height: 20px;
   margin-bottom: 5px;
+}
+textarea {
+  width: 99.4%
+}
+#accompanying_documentation_metadata > div {
+  overflow: auto;
 }

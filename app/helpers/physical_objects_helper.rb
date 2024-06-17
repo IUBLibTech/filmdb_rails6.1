@@ -166,28 +166,28 @@ module PhysicalObjectsHelper
           :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
           :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
           :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized)
+          :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
     elsif params[:video]
       params.require(:video).permit(
           # physical object specific attributes
           :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
           :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
           :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized)
+          :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
     elsif params[:recorded_sound]
       params.require(:recorded_sound).permit(
           # physical object specific attributes
           :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
           :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
           :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized
+          :catalog_key, :compilation, :format_notes, :digitized, :photo_link
       )
     elsif params[:equipment_technology]
       params.require(:equipment_technology).permit(
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
         :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-        :catalog_key, :compilation, :format_notes, :digitized
+        :catalog_key, :compilation, :format_notes, :digitized, :photo_link
       )
     else
       raise "Unsupported Medium: #{params.keys}"
@@ -201,7 +201,7 @@ module PhysicalObjectsHelper
           :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
           :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
           :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized,
+          :catalog_key, :compilation, :format_notes, :digitized, :photo_link,
 
           # film specific attributes
           :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :ad_strip_timestamp, :shrinkage, :mold,
@@ -222,7 +222,7 @@ module PhysicalObjectsHelper
           :orientation_a_wind, :orientation_b_wind,
           # base, stock
           :base_acetate, :base_polyester, :base_nitrate, :base_mixed, :stock_agfa, :stock_ansco,
-          :stock_dupont, :stock_orwo, :stock_fuji, :stock_gevaert, :stock_kodak, :stock_ferrania,
+          :stock_dupont, :stock_orwo, :stock_fuji, :stock_gevaert, :stock_kodak, :stock_ferrania, :stock_ilford,
           # picture attributes
           :picture_not_applicable, :picture_silent_picture, :picture_mos_picture, :picture_composite_picture, :picture_intertitles_only,
           :picture_credits_only, :picture_picture_effects, :picture_picture_outtakes, :picture_kinescope, :picture_titles, :picture_text,
@@ -231,10 +231,10 @@ module PhysicalObjectsHelper
           :color_bw_bw_black_and_white, :color_bw_color_color, :color_bw_bw_toned, :color_bw_bw_tinted,
           :color_bw_color_ektachrome, :color_bw_color_kodachrome, :color_bw_color_technicolor,
           :color_bw_color_anscochrome, :color_bw_color_eco, :color_bw_color_eastman,
-          :color_bw_bw_hand_coloring, :color_bw_bw_stencil_coloring, :color_bw_color, :color_bw_bw,
+          :color_bw_bw_hand_coloring, :color_bw_bw_stencil_coloring, :color_bw_color, :color_bw_bw, :color_bw_color_gaspar,
           #aspect ratios
           :aspect_ratio_2_66_1, :aspect_ratio_1_33_1, :aspect_ratio_1_37_1, :aspect_ratio_1_66_1, :aspect_ratio_1_85_1, :aspect_ratio_2_35_1,
-          :aspect_ratio_2_39_1, :aspect_ratio_2_59_1, :aspect_ratio_1_36, :aspect_ratio_1_18, :aspect_ratio_2_55_1,
+          :aspect_ratio_2_39_1, :aspect_ratio_2_59_1, :aspect_ratio_1_36, :aspect_ratio_1_18, :aspect_ratio_2_55_1, :aspect_ratio_1_75_1,
           :anamorphic,
           # sound format attributes
           :sound_format_digital_dolby_digital_sr, :sound_format_digital_dolby_digital_a, :stock_3_m, :stock_agfa_gevaert, :stock_pathe,

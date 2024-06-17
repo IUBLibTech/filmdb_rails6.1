@@ -234,6 +234,7 @@
         <div class="check_box _25"><%= f.check_box :stock_ferrania %><div>Ferrania</div></div>
         <div class="check_box _25"><%= f.check_box :stock_fuji %><div>Fuji</div></div>
         <div class="check_box _25"><%= f.check_box :stock_gevaert %><div>Gevaert</div></div>
+        <div class="check_box _25"><%= f.check_box :stock_ilford %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_ilford] %></div></div>
         <div class="check_box _25"><%= f.check_box :stock_kodak %><div>Kodak</div></div>
         <div class="check_box _25"><%= f.check_box :stock_orwo %><div>Orwo</div></div>
         <div class="check_box _25"><%= f.check_box :stock_pathe %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_pathe] %></div></div>
@@ -283,6 +284,7 @@
         <div><%= f.check_box :color_bw_color_eastman %>Eastman</div>
         <div><%= f.check_box :color_bw_color_eco %>Eco</div>
         <div><%= f.check_box :color_bw_color_ektachrome %>Ektachrome</div>
+        <div><%= f.check_box :color_bw_color_gaspar %>Gaspar Color</div>
         <div><%= f.check_box :color_bw_bw_hand_coloring %>Hand Coloring</div>
         <div><%= f.check_box :color_bw_color_kodachrome %>Kodachrome</div>
         <div><%= f.check_box :color_bw_bw_stencil_coloring %>Stencil Coloring</div>
@@ -294,17 +296,18 @@
     <div class="clear">
       <b class="block">Aspect Ratio</b>
       <div class="flex_wrap flex_col_wrap h_60px">
+        <div><%= f.check_box :aspect_ratio_1_18 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_1_18] %></div>
         <div><%= f.check_box :aspect_ratio_1_33_1 %>1.33:1</div>
+        <div><%= f.check_box :aspect_ratio_1_36 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_1_36] %></div>
         <div><%= f.check_box :aspect_ratio_1_37_1 %>1.37:1</div>
         <div><%= f.check_box :aspect_ratio_1_66_1 %>1.66:1</div>
+        <div><%= f.check_box :aspect_ratio_1_75_1 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_1_75_1] %></div>
         <div><%= f.check_box :aspect_ratio_1_85_1 %>1.85:1</div>
         <div><%= f.check_box :aspect_ratio_2_35_1 %>2.35:1</div>
         <div><%= f.check_box :aspect_ratio_2_39_1 %>2.39:1</div>
+        <div><%= f.check_box :aspect_ratio_2_55_1 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_2_55_1] %></div>
         <div><%= f.check_box :aspect_ratio_2_59_1 %>2.59:1</div>
         <div><%= f.check_box :aspect_ratio_2_66_1%><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_2_66_1] %></div>
-        <div><%= f.check_box :aspect_ratio_1_36 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_1_36] %></div>
-        <div><%= f.check_box :aspect_ratio_1_18 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_1_18] %></div>
-        <div><%= f.check_box :aspect_ratio_2_55_1 %><%= Film::ASPECT_RATIO_FIELDS_HUMANIZED[:aspect_ratio_2_55_1] %></div>
       </div>
     </div>
     <div>

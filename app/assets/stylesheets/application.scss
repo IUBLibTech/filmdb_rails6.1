@@ -342,9 +342,11 @@ td#color {
     clear: both;
     height: 0px;
     display: none;
-}.clear {
-     clear: both;
- }
+}
+.clear {
+    clear: both;
+    overflow: auto;
+}
 
 .block {
     display: block;
