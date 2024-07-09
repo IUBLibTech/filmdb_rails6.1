@@ -52,4 +52,8 @@ class User < ApplicationRecord
 		!worksite.nil?
 	end
 
+	def current_worksite
+		
+	end
+
 end

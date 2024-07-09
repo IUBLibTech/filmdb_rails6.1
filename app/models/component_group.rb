@@ -84,12 +84,17 @@ class ComponentGroup < ApplicationRecord
   end
 
   def deliver_to_alf?
-    ALF_DELIVERY_GROUPS.include?(group_type)
+    group_type == WORKFLOW_ALF
   end
 
   def deliver_to_wells?
-   WELLS_DELIVERY_GROUPS.include?(group_type)
+    group_type != WORKFLOW_ALF
   end
+
+  def delivery_location
+    deliver_to_wells? ? WORKFLOW_WELLS : WORKFLOW_ALF
+  end
+  
 
   def is_reformating?
 	  group_type.include?('Reformatting') || group_type.include?('Best Copy')

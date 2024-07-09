@@ -224,7 +224,7 @@
     </div>
     <div id="stock_div" class="left">
       <b class="block">Stock</b>
-      <div class="flex_wrap flex_col_wrap">
+      <div class="flex_wrap flex_col_wrap" style="margin-bottom: 1em">
         <div class="check_box _25"><%= f.check_box :stock_3_m %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_3_m] %></div></div>
         <div class="check_box _25"><%= f.check_box :stock_agfa %><div>Agfa</div></div>
         <div class="check_box _25"><%= f.check_box :stock_agfa_gevaert %><div><%= Film::STOCK_FIELDS_HUMANIZED[:stock_agfa_gevaert] %></div></div>

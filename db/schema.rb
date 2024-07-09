@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_14_133621) do
+ActiveRecord::Schema.define(version: 2024_06_28_171144) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -91,7 +91,6 @@ ActiveRecord::Schema.define(version: 2024_06_14_133621) do
     t.boolean "hd"
     t.boolean "return_on_reel", default: false
     t.string "color_space"
-    t.string "delivery_location"
   end
 
   create_table "controlled_vocabularies", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -605,6 +604,14 @@ ActiveRecord::Schema.define(version: 2024_06_14_133621) do
     t.string "date"
     t.integer "total_episodes"
     t.bigint "spreadsheet_id"
+  end
+
+  create_table "shipping_metadata", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "workflow_status_id"
+    t.text "notes"
+    t.bigint "shipped_by"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "spread_sheet_searches", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
