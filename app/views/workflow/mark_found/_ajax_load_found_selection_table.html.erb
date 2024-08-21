@@ -7,6 +7,7 @@
           <th>Barcode</th>
           <th>Title To Move Into Workflow</th>
           <th>Action</th>
+          <th></th>
         </tr>
         <% @pos.each do |p| %>
           <% if p.current_location == WorkflowStatus::MISSING %>

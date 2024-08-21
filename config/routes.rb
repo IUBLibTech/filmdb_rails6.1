@@ -153,17 +153,24 @@ Rails.application.routes.draw do
   get '/search/titles', to: 'titles#search', as: 'titles_search_index'
   post '/search/titles', to: 'titles#search', as: 'titles_search'
   get '/titles/ajax/edit_cg_params/:id', to: 'titles#ajax_edit_cg_params', as: 'ajax_edit_cg_params'
-  post '/titles/merge', to: 'titles#titles_merge', as: 'titles_merge'
-  post '/titles/do_merge', to: 'titles#merge_titles', as: 'merge_titles'
+
+  # simplified title merging
+  get '/title_merge/', to: 'titles#merge_in_storage', as: 'merge_in_storage'
+  post '/title_merge_select/merge_titles', to: 'titles#merge_autocomplete_titles', as: 'title_autocomplete_selection_merge'
   get '/title_merge_selection/', to: 'titles#title_merge_selection', as: 'title_merge_selection'
   get '/title_merge_selection_table_row/:id', to: 'titles#title_merge_selection_table_row', as: 'title_merge_selection_table_row'
   get '/title_merge_selection/merge_physical_object_candidates', to: 'titles#merge_physical_object_candidates', as: 'title_merge_physical_object_candidates'
-  post '/title_merge_select/merge_titles', to: 'titles#merge_autocomplete_titles', as: 'title_autocomplete_selection_merge'
-  post '/titles/ajax_split_title_cg_table', to: 'titles#split_title_cg_table', as: 'split_title_cg_table'
-  post '/titles/:id/update_split_title', to: 'titles#update_split_title', as: 'update_split_title'
   get '/titles/ajax_reel_count/:id', to: 'titles#ajax_reel_count', as: 'ajax_reel_count'
-  get '/titles/merge/in_storage', to: 'titles#merge_in_storage', as: 'merge_in_storage'
-  post '/titles/merge/in_storage_update', to: 'titles#merge_in_storage_update', as: 'merge_in_storage_update'
+
+
+  #post '/titles/merge', to: 'titles#titles_merge', as: 'titles_merge'
+  #post '/titles/do_merge', to: 'titles#merge_titles', as: 'merge_titles'
+  #post '/titles/ajax_split_title_cg_table', to: 'titles#split_title_cg_table', as: 'split_title_cg_table'
+  #post '/titles/:id/update_split_title', to: 'titles#update_split_title', as: 'update_split_title'
+
+
+  #post '/titles/merge/in_storage_update', to: 'titles#merge_in_storage_update', as: 'merge_in_storage_update'
+
   get '/titles/search/csv_search', to: 'titles#csv_search', as: 'title_csv_search'
 
   # the link that generates a SpreadSheetSearch object so we need to prevent browser back/forward buttons re-creating
@@ -182,8 +189,16 @@ Rails.application.routes.draw do
   get '/workflow/receive_from_storage', to: 'workflow#receive_from_storage', as: 'receive_from_storage'
   get '/workflow/ajax_alf_barcode/:iu_barcode', to: 'workflow#new_ajax_receive_iu_barcode', as: 'ajax_alf_receive_iu_barcode'
   get '/workflow/ajax_wells_barcode/:iu_barcode', to: 'workflow#new_ajax_receive_iu_barcode', as: 'ajax_wells_receive_iu_barcode'
-  patch '/workflow/receive_from_storage/', to: 'workflow#new_process_receive_from_storage', as: 'process_received_from_storage'
+  post '/workflow/receive_from_storage/', to: 'workflow#new_process_receive_from_storage', as: 'process_received_from_storage'
   #post '/workflow/receive_from_storage_wells/', to: 'workflow#new_process_receive_from_storage', as: 'process_received_from_storage_wells'
+
+  get '/workflow/ship', to: 'workflow#show_ship_to_vendor', as: "show_ship_to_vendor"
+  patch '/workflow/ship', to: "workflow#patch_ship_to_vendor", as: "ship_to_vendor"
+  get '/workflow/ajax_ship_lookup/:barcode', to: "workflow#ajax_ship_lookup", as: "ajax_ship_lookup"
+  get '/workflow/return', to: "workflow#show_return_from_vendor", as: "show_return_from_vendor"
+  patch '/workflow/return', to: "workflow#patch_return_from_vendor", as: "return_from_vendor"
+  get '/workflow/ajax_return_lookup/:barcode', to: "workflow#ajax_return_lookup", as: "ajax_return_lookup"
+
   get '/workflow/ship_external', to: 'workflow#ship_external', as: 'ship_external'
   get '/workflow/receive_external', to: 'workflow#receive_from_external', as: 'receive_external'
   get '/workflow/return_to_storage', to: 'workflow#return_to_storage', as: 'return_to_storage'

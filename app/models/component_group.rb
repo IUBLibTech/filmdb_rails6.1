@@ -87,6 +87,8 @@ class ComponentGroup < ApplicationRecord
     group_type == WORKFLOW_ALF
   end
 
+  # To handle legacy conditions with old component group types that are no longer in use, everything not explicitly labelled
+  # as WORKFLOW_ALF should be delivered to Wells
   def deliver_to_wells?
     group_type != WORKFLOW_ALF
   end

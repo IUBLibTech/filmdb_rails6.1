@@ -1,0 +1,123 @@
+<div id="wells">
+  <h4><%= @action_header %> Physical Objects</h4>
+  <%= form_tag "", url: ship_to_vendor_url, method: :patch do %>
+    <%= hidden_field_tag :ids %>
+    <div class="min_h_100px">
+      <div id="wells_scan_div" class="m_top_10px">
+        <table class="_400px">
+          <tr id="bc_row">
+            <th>IU Barcode</th>
+            <td class="fill">
+              <%= text_field_tag :iu_barcode %>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div id="info" class="right _45 m_top_10px">
+
+      </div>
+    </div>
+    <div>
+      <h4 class="m_top_10px clear">Physical Objects to <%= action_name == "show_ship_to_vendor" ? "Ship" : "Return" %></h4>
+      <table style="width: 400px; float: left">
+        <tbody id="shipping">
+        <tr id="ship_header">
+          <th style="width: 33%">Barcode</th><th style="width: 33%">Title</th><th style="width: 34%"></th>
+        </tr>
+        </tbody>
+      </table>
+      <table class="right ml_10 _45">
+        <tbody>
+        <tr><th>Comment</th></tr>
+        <tr><td>
+          <%= text_area_tag :comment %>
+        </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="m_top_10px clear">
+        <%= submit_tag action_name == "show_ship_to_vendor" ? "Ship Phtysical Objects" : "Return Physical Objects" %>
+    </div>
+  <% end %>
+</div>
+<script type="text/javascript" charset="utf-8">
+  $(document).ready(function() {
+      $("#iu_barcode").bind("click", function() {
+         $(this).val('');
+         $(this).removeClass("bad_barcode");
+         $("#info").html("")
+      });
+      $("#iu_barcode").bind("input", function() {
+          let valid = validateIUBarcode($(this));
+          let el = $(this);
+          let bc = el.val();
+          if (valid) {
+              let url = '<%= action_name == "show_ship_to_vendor" ? "../workflow/ajax_ship_lookup" : "../workflow/ajax_return_lookup" %>/' + el.val();
+              $.ajax({
+                  url: url,
+                  error: function(jqXHR, textStatus, errorThrown) {
+                      swal({
+                          title: 'Ajax Error',
+                          text: 'An error occurred while making an AJAX call. When this dialog closes, '+
+                              'Filmdb will redirect to the underlying error page. Please screen shot the error page and'+
+                              ' forward it to Carmel.'
+                      }, function() {
+                          window.location.replace(url)
+                      });
+                  },
+                  success: function (json) {
+                      if (json['<%= action_name == "show_ship_to_vendor" ? "can_ship" : "can_return" %>']) {
+                          let already_loaded = $("#ids").val().includes(json["id"])
+                          if (already_loaded) {
+                              $("#info").html("<p class='warning'>"+bc+" is already selected to ship</p>")
+                          } else {
+                              add_po(json);
+                          }
+                      } else {
+                          let div = $('#info');
+                          div.html("<p class='warning'>"+json["error"]+"</p>")
+                      }
+                  }
+              });
+          }
+      });
+  });
+  function add_po(json) {
+      let tr = $("#ship_header")
+      tr.siblings().each(function() {
+          if ($(this).attr("data-id") == json["id"]) {
+              return;
+          }
+      });
+      addPO(json)
+  }
+  function addPO(json) {
+      $("#shipping").append("<tr data-id='"+json["id"]+"'><td>"+json["barcode"]+"</td><td>"+json["title"]+"</td><td><button type='button' onclick='removePO(this)'>Remove</button></td></tr>")
+      addIdToForm(json["id"])
+  }
+  function removePO(el) {
+      let parent = $(el).parent().parent();
+      removeIdFromForm(parent.attr("data-id"))
+      parent.remove();
+  }
+  function addIdToForm(id) {
+      let idsEl = $("#ids")
+      let ids = idsEl.val();
+      if (ids === "") {
+          ids = [];
+      } else {
+          ids = idsEl.val().split(",")
+      }
+      ids.push(id);
+      idsEl.val(ids.toString());
+  }
+  function removeIdFromForm(id) {
+      let idsEl = $("#ids")
+      let ids = idsEl.val().split(",")
+      let index = ids.indexOf(id)
+      ids.splice(index, 1);
+      idsEl.val(ids.toString());
+      $("#iu_barcode").val("");
+  }
+</script>

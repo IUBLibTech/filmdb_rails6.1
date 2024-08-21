@@ -278,30 +278,96 @@ class TitlesController < ApplicationController
   # ajax page returns a table row for the specified title
   def title_merge_selection_table_row
     @title = Title.find(params[:id])
-    if (params[:merge_all] == 'true' || (params[:merge_all] == 'false' && !@title.in_active_workflow?))
-      render partial: 'title_merge_selection_table_row'
-    else
-      render plain: "Active"
-    end
-  end
-  # ajax call that renders a table containing all the physical objects for the specified title ids
-  def merge_physical_object_candidates
-	  @physical_objects = Title.where(id: params[:ids]).collect{ |t| t.physical_objects }.flatten
-	  @component_group_cv = ControlledVocabulary.component_group_cv
-	  render partial: 'merge_physical_object_candidates'
+    render partial: 'title_merge_selection_table_row'
+    # if (params[:merge_all] == 'true' || (params[:merge_all] == 'false' && !@title.in_active_workflow?))
+    # else
+    #   render plain: "Active"
+    # end
   end
 
-  # ajax call for a set of titles associated with physical objects (pre-split) for creating component groups
-  def split_title_cg_table
-    @title = Title.find(params[:id])
-    @map = JSON.parse(params[:title_map]).collect{|v| [v[0], v[1]]}
-    @retitled_ids = @map.select{|v| v[0] != @title.id }.collect{|v| v[1]}.flatten
-    @map = @map.to_h
-    render partial: 'split_title_cg_table'
-  end
 
   # does the actual title merge for ajax search based merging
   def merge_autocomplete_titles
+    master = Title.joins(:physical_objects).includes(:physical_objects).find(params[:master_title_id])
+    PhysicalObject.transaction do
+      mergees = Title.where("titles.id in (?)", params[:mergees].split(",").collect { |s| s.to_i }).joins(:physical_objects).includes(:physical_objects)
+      # DO NOT use TitleHelper title_merge. This code was created to implement Title merging based on
+      # significantly different UI inputs that no longer exist in Filmdb's Title Merge functionality. The code is retained
+      # for historical and reference purposes.
+
+      # merge the titles metadata fields first
+      mergees.each do |m|
+        master.series_id = m.series_id if (master.series_id.nil? && !m.series_id.nil?)
+        master.summary = (master.summary.blank? ? m.summary : master.summary + (m.summary.blank? ? '' : " | #{m.summary}"))
+        master.series_part = (master.series_part.blank?  ? m.series_part : master.series_part + (m.series_part.blank? ? '' : " | #{m.series_part}"))
+        master.notes = (master.notes.blank? ? m.notes : master.notes + (m.notes.blank? ? '' : " | #{m.notes}"))
+        master.subject = (master.subject.blank? ? m.subject : master.subject + (m.subject.blank? ? '' : master.subject + " | #{m.subject}"))
+        m.title_original_identifiers.each do |toi|
+          unless master.title_original_identifiers.include? toi
+            master.title_original_identifiers << toi
+          end
+        end
+        m.title_creators.each do |tc|
+          unless master.title_creators.collect.include? tc
+            master.title_creators << tc
+          end
+        end
+        m.title_publishers.each do |tp|
+          unless master.title_publishers.collect.include? tp
+            master.title_publishers << tp
+          end
+        end
+        m.title_forms.each do |tf|
+          unless master.title_forms.collect.include? tf
+            master.title_forms << tf
+          end
+        end
+        m.title_genres.each do |tg|
+          unless master.title_genres.collect.include? tg
+            master.title_genres << tg
+          end
+        end
+        m.title_dates.each do |td|
+          unless master.title_dates.collect.include? td
+            master.title_dates << td
+          end
+        end
+        m.title_locations.each do |tl|
+          unless master.title_locations.collect.include? tl
+            master.title_locations << tl
+          end
+        end
+        PhysicalObjectTitle.where(title_id: m.id).update_all(title_id: master.id)
+      end
+
+
+      # now update any active POs
+      active_pos = []
+      master.physical_objects.each do |p|
+        active_pos << p if p.active?
+      end
+      mergees.each do |t|
+        t.physical_objects.each do |p|
+          active_pos << p if p.active?
+        end
+      end
+      cg = ComponentGroup.new(title_id: master.id, group_summary: "Created from a Title Merge", group_type: ComponentGroup::WORKFLOW_WELLS)
+      cg.save!
+      active_pos.each do |physical_object|
+        # reassign the workflow status to the new CG
+        physical_object.current_workflow_status.update!(component_group_id: cg.id)
+        # reassign the CG for which the PO is active
+        physical_object.update!(component_group_id: cg.id)
+        cg.physical_objects << physical_object
+        cg.save!
+      end
+      flash[:notice] = "#{mergees.size} selected Title#{mergees.size > 1 ? "s" : ""} #{mergees.size > 1 ? "were" : "was"} merged into: <b><i>#{master.title_text}</i></b>".html_safe
+    end
+    master.reload
+    @title = master
+    render 'titles/show'
+  end
+  def old_merge_autocomplete_titles
     begin
       PhysicalObject.transaction do
         @component_group_cv = ControlledVocabulary.component_group_cv
@@ -358,6 +424,24 @@ class TitlesController < ApplicationController
     @title.reload
     render 'titles/show'
   end
+
+  # ajax call that renders a table containing all the physical objects for the specified title ids
+  def merge_physical_object_candidates
+	  @physical_objects = Title.where(id: params[:ids]).collect{ |t| t.physical_objects }.flatten
+	  @component_group_cv = ControlledVocabulary.component_group_cv
+	  render partial: 'merge_physical_object_candidates'
+  end
+
+  # ajax call for a set of titles associated with physical objects (pre-split) for creating component groups
+  def split_title_cg_table
+    @title = Title.find(params[:id])
+    @map = JSON.parse(params[:title_map]).collect{|v| [v[0], v[1]]}
+    @retitled_ids = @map.select{|v| v[0] != @title.id }.collect{|v| v[1]}.flatten
+    @map = @map.to_h
+    render partial: 'split_title_cg_table'
+  end
+
+
 
   def update_split_title
     @component_group_cv = ControlledVocabulary.component_group_cv

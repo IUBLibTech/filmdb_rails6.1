@@ -1,5 +1,5 @@
 <h4>Scan an IU Barcode to Return Item to Storage</h4>
-<%= form_for 'physical_object', url: process_return_to_storage_path do |f| %>
+<%= form_for 'physical_object', { url: process_return_to_storage_path, html: { "id": "return_form" } } do |f| %>
     <table>
       <tr>
         <th>Scan IU Barcode</th>
@@ -8,7 +8,7 @@
       <tr>
 	      <th>Return to:</th>
 	      <td>
-		      <%= f.select :location, options_for_select( (WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage']-[WorkflowStatus::IN_STORAGE_AWAITING_INGEST]).collect{|s| [s,s]}) %>
+		      <%= f.select :location, [[nil, nil]] %>
 	      </td>
       </tr>
 	    <tr>
@@ -18,38 +18,74 @@
     </table>
 <% end %>
 <script type="text/javascript" charset="utf-8">
-
+	let valid_locations = [];
 
 	$(document).ready(function() {
-		$('.ajax_barcode_lookup').bind('input', function () {
-			$('#ajax_show_storage_message').html('');
-			$('p.warning').remove();
-      $('p.notice').remove();
-			valid = validateIUBarcode($(this));
-			if (valid) {
-          var url = '../workflow/ajax_show_storage_location/' + $(this).val();
-				$.ajax({
-          url: url,
-					error: function(jqXHR, textStatus, errorThrown) {
-              swal({
-                  title: 'Ajax Error',
-                  text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
-              }, function() {
-                  window.location.replace(url)
-              });
-          },
-					success: function (result) {
-            if (result.startsWith("Error:")) {
-                $('#ajax_show_storage_message').addClass('warning')
-            } else {
-                $('#ajax_show_storage_message').removeClass('warning')
-            }
-						$('#ajax_show_storage_message').html(result)
-					}
+		$("#return_form").submit(function(e) {
+			if (!validateIUBarcode($('.ajax_barcode_lookup'))) {
+				swal({
+					title: "Invalid Barcode",
+					text: $('.ajax_barcode_lookup').val()+" is not a valid barcode. Please rescan."
 				});
+				return false;
+			} else if (!valid_locations.includes($('#physical_object_location').find(":selected").text())) {
+				swal({
+					title: "Invalid Storage Location",
+					text: "The selected storage location is not valid for the current state of the Physical Object"
+				});
+				return false;
+			}
+		});
+		$('.ajax_barcode_lookup').bind('input', function () {
+			$('p.warning').remove();
+			$('p.notice').remove();
+			$('#ajax_show_storage_message').html('');
+			let valid = validateIUBarcode($(this));
+			if (valid) {
+				let url = '../workflow/ajax_show_storage_location/' + $(this).val();
+				$.ajax({
+					url: url,
+					error: function(jqXHR, textStatus, errorThrown) {
+						swal({
+							title: 'Ajax Error',
+							text: 'An error occurred while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+						}, function() {
+							window.location.replace(url)
+						});
+					},
+					success: function (json) {
+						let select = $("#physical_object_location");
+						// reset options for the select
+						select.empty();
+						valid_locations = json["locations"]
+						valid_locations.forEach(function(val) {
+							select.append('<option value="' + val + '">' + val + '</option>')
+						})
+
+						// highlight warning if necessary
+						let msg_el = $("#ajax_show_storage_message");
+						if (json["warn"]) {
+							msg_el.addClass("warn");
+							msg_el.text(json["warn"])
+						} else {
+							msg_el.removeClass("warn");
+							msg_el.text(json["msg"]);
+						}
+					}
+
+				});
+			} else {
+				clear_locations();
 			}
 		});
 	})
+
+	function clear_locations() {
+		valid_locations = [];
+		$("#physical_object_location > option").remove();
+	}
+
 </script>
+
 <h4 class="m_bottom_10px">Physical Objects <i>On Site</i></h4>
 <%= render partial: 'physical_objects_table' %>

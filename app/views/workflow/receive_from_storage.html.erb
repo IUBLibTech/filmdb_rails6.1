@@ -17,7 +17,7 @@
 	<div id="wells">
 		<h4>Receiving Physical Objects at <b>Wells</b></h4>
 		<div id="wells_scan_div">
-			<%= form_for 'physical_object', url: process_received_from_storage_wells_url do |f| %>
+			<%= form_for 'physical_object', url: process_received_from_storage_url do |f| %>
 				<table>
 					<tr>
 						<th>IU Barcode</th>
@@ -104,8 +104,10 @@
 			}
 		});
 		$('#physical_object_iu_barcode').bind("input", function(event) {
-			valid = validateIUBarcode($(this));
-			div = $('#wells_info_div')
+			$('p.warning').remove();
+			$('p.notice').remove();
+			let valid = validateIUBarcode($(this));
+			let div = $('#wells_info_div');
 			div.html('');
 			if (valid) {
 			    var url = './ajax_wells_barcode/'+$(this).val();

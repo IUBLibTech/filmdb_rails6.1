@@ -169,6 +169,10 @@ class Film < ApplicationRecord
     "#{gauge} #{medium}"
   end
 
+  def place_in_freezer?
+    ad_strip.to_f >= 2.5
+  end
+
   def self.write_xlsx_header_row(worksheet)
     worksheet.add_row ["IU Barcode","MDPI Barcode", "All Title(s) on Media", "Matching Title (If more than one title on media)", "Series Title", "Series Part", "Title Country of Origin",
      "Title Summary", "Title Original Identifiers", "Title Publishers", "Title Creators",

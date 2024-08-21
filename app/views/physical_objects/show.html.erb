@@ -45,7 +45,10 @@
     <div class="left _50">
       <b>Workflow Status</b>
       <% unless @physical_object.current_workflow_status.nil? %>
-        <%= link_to @physical_object.current_workflow_status.type_and_location, physical_object_workflow_history_path(@physical_object.acting_as), class: "#{@physical_object.missing? ? 'missing' : ''}" %>
+        <%= link_to @physical_object.current_workflow_status.type_and_location,
+                    physical_object_workflow_history_path(@physical_object.acting_as),
+                    class: "#{@physical_object.missing? ? 'missing' : ''}",
+                    title: @physical_object.current_workflow_status.comment %>
       <% end %>
       <br/>
       <b>Storage Location</b> <%= @physical_object.storage_location %><br>
@@ -80,4 +83,10 @@
   <% end %>
   <%= render partial: "physical_objects/#{physical_object_specific_medium}/show" %>
   <%= render partial: 'physical_objects/physical_object_old_barcodes' %>
+
+  <script type="text/javascript" charset="utf-8">
+    $(document).tooltip({
+        position: { my: "left-5 center", at: "right center" }
+    });
+  </script>
 <% end %>

@@ -94,9 +94,9 @@
               });
           },
           success: function(result) {
-              if (!merge_all && result === "Active") {
-                  swal("Cannot Merge", "The title you selected is in active workflow and cannot be merged here. Please use the 'Merge Titles' link instead.")
-              } else {
+              // if (!merge_all && result === "Active") {
+              //     swal("Cannot Merge", "The title you selected is in active workflow and cannot be merged here. Please use the 'Merge Titles' link instead.")
+              // } else {
                 $('.title_merge_remove').unbind('click.title_merge_remove_title');
                 $('#title_table').append(result);
                 $('.title_merge_remove').bind('click.title_merge_remove_title', function(event) {
@@ -110,7 +110,7 @@
                 });
                 initTitleSelect();
                 showPhysicalObjects();
-              }
+              // }
           }
       });
   }

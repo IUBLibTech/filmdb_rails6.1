@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_06_28_171144) do
+ActiveRecord::Schema.define(version: 2024_08_05_152642) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -911,6 +911,7 @@ ActiveRecord::Schema.define(version: 2024_06_28_171144) do
     t.integer "component_group_id"
     t.integer "external_entity_id"
     t.bigint "created_by"
+    t.text "comment"
     t.index ["physical_object_id"], name: "index_workflow_statuses_on_physical_object_id"
     t.index ["status_name"], name: "index_workflow_statuses_on_status_name"
   end

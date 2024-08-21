@@ -3,6 +3,9 @@ class User < ApplicationRecord
 	validates :username, presence: true, uniqueness: true
 	belongs_to :created_in_sheet, class_name: "Spreadsheet", foreign_key: "created_in_spreadsheet", optional: true
 
+	WORK_LOCATION_ALF = "ALF"
+	WORK_LOCATION_WELLS = 'Wells 052'
+
 	scope :active_user_emails, -> {
 		User.where("active == true AND username != 'jaalbrec'").pluck(:email_address)
 	}
@@ -53,7 +56,18 @@ class User < ApplicationRecord
 	end
 
 	def current_worksite
-		
+		worksite_location
+	end
+
+	# This method converts a User::WORK_LOCATION_X into it's corresponding ComponentGroup::WORKFLOW_WELLS/ALF location
+	def worksite_to_delivery_location
+		if worksite_location == WORK_LOCATION_WELLS
+			ComponentGroup::WORKFLOW_WELLS
+		elsif worksite_location == WORK_LOCATION_ALF
+			ComponentGroup::WORKFLOW_ALF
+		else
+			raise "Work location not set for User: #{self.username}"
+		end
 	end
 
 end
