@@ -24,10 +24,10 @@ class WorkflowController < ApplicationController
 
 	# action responsible for updating the specified POs to be marked as WorkflowStatus::SHIPPED_EXTERNALLY
 	def patch_ship_to_vendor
-		ids = params[:ids].split
+		ids = params[:ids].split(",")
 		PhysicalObject.transaction do
+			@shipped = []
 			ids.each do |id|
-				@shipped = []
 				po = PhysicalObject.find(id)
 				if po.in_workflow?
 					ws = WorkflowStatus.build_workflow_status(WorkflowStatus::SHIPPED_EXTERNALLY, po, false)
@@ -92,10 +92,10 @@ class WorkflowController < ApplicationController
 	end
 
 	def patch_return_from_vendor
-		ids = params[:ids].split
+		@returned = []
+		ids = params[:ids].split(",")
 		PhysicalObject.transaction do
 			ids.each do |id|
-				@returned = []
 				po = PhysicalObject.find(id)
 				if po.current_workflow_status.status_name == WorkflowStatus::SHIPPED_EXTERNALLY
 					ws = WorkflowStatus.build_workflow_status(WorkflowStatus::IN_WORKFLOW_WELLS, po, false)
@@ -107,7 +107,6 @@ class WorkflowController < ApplicationController
 				end
 			end
 		end
-
 		flash[:notice] = "#{@returned.join(" ")} #{@returned.size > 1 ? "have" : "has"} been Returned"
 		redirect_to show_return_from_vendor_url, status: 303
 	end
@@ -274,7 +273,6 @@ class WorkflowController < ApplicationController
 
 	# this action handles the beginning of ALF workflow
 	# def process_receive_from_storage
-	# 	debugger
 	# 	medium = medium_symbol_from_params(params)
 	# 	if @physical_object.nil?
 	# 		flash[:warning] = "Could not find Physical Object with IU Barcode: #{params[medium][:iu_barcode]}"
@@ -348,7 +346,6 @@ class WorkflowController < ApplicationController
 
 	# this action processes received from storage at Wells
 	# def process_receive_from_storage_wells
-	# 	debugger
 	# 	@physical_object = PhysicalObject.where(iu_barcode: params[:physical_object][:iu_barcode]).first
 	# 	if @physical_object.nil?
 	# 		flash.now[:warning] = "Could not find Physical Object with barcode #{params[:physical_object][:iu_barcode]}"
@@ -375,7 +372,6 @@ class WorkflowController < ApplicationController
 	# end
 
 	# def process_receive_from_storage_alf
-	# 	debugger
 	# 	@physical_object = PhysicalObject.where(iu_barcode: params[:physical_object][:iu_barcode]).first
 	# 	if @physical_object.nil?
 	# 		flash.now[:warning] = "Could not find Physical Object with barcode #{params[:physical_object][:iu_barcode]}"

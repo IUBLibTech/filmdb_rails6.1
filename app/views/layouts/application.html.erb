@@ -31,68 +31,42 @@
 	<div class="menuItem">
 		<a href="#">Workflow</a>
 		<ul class="nav">
-			<li><%= link_to 'Request Pull of Queued Objects', pull_request_path %></li>
-      <li><%= link_to 'Receive From Storage', receive_from_storage_path %></li>
-
-<!--				<li><%#= link_to 'Best Copy Selection', workflow_best_copy_selection_path %></li> -->
-<!--				<li><%#= link_to 'Issues', issues_shelf_path %></li> -->
-<!--				<li><%#= link_to 'Return from Mold Abatement', return_from_mold_abatement_path %></li> -->
-<!--      <li><%#= link_to 'Pack Items for Digitization', cages_path %></li>-->
-<!--      <li><%#= link_to 'Ship Items for Digitization', cages_path %></li>-->
-      <li><%= link_to 'Return to Storage', return_to_storage_path %></li>
 			<li><%= link_to 'Cancel Pull Request', cancel_after_pull_request_path %></li>
+			<% if policy(User).can_delete_objects? %>
+				<li><%= link_to 'Deaccession', deaccession_path %></li>
+			<% end %>
+			<% if policy(User).can_delete_objects? %>
+				<li><%= link_to'Mark Item Missing', mark_missing_path %></li>
+				<li><%= link_to 'Mark Item Found', show_mark_found_url %></li>
+			<% end %>
 			<li><%= link_to "Merge Titles", merge_in_storage_path %></li>
-			<li><%= link_to "Ship", show_ship_to_vendor_path %></li>
+      <li><%= link_to 'Receive From Storage', receive_from_storage_path %></li>
+			<li><%= link_to 'Request Pull of Queued Objects', pull_request_path %></li>
 			<li><%= link_to "Return Shipped", show_return_from_vendor_path %></li>
+      <li><%= link_to 'Return to Storage', return_to_storage_path %></li>
+			<li><%= link_to "Ship", show_ship_to_vendor_path %></li>
     </ul>
 	</div>
   <div class="menuItem">
-    <a href="#">Update</a>
-    <ul class="nav">
-			<!-- <li><%#= link_to 'AD Strip', edit_ad_strip_path %></li> -->
-			<!-- <li><%#= link_to 'Issues', issues_shelf_path %></li> -->
-			<!-- <li><%#= link_to 'Send for Mold Abatement', send_for_mold_abatement_path %></li> -->
-			<!-- <li><%#= link_to 'Send to Freezer', send_to_freezer_path %></li> -->
-	    <% if policy(User).can_delete_objects? %>
-	      <li><%= link_to'Mark Item Missing', mark_missing_path %></li>
-	      <li><%= link_to 'Mark Item Found', show_mark_found_url %></li>
-	    <% end %>
-			<!-- <li><%#= link_to 'Correct Freezer Location', correct_freezer_loc_get_path %></li> -->
-      <% if policy(User).can_delete_objects? %>
-        <li><%= link_to 'Deaccession', deaccession_path %></li>
-      <% end %>
-    </ul>
-  </div>
-  <div class="menuItem">
-    <a href="#">Import/Export</a>
-    <ul class="nav">
-      <li><%= link_to 'Import Spreadsheet', spreadsheets_path %></li>
-			<!-- <li><%#= link_to "ALF 3 Move", alf_barcode_upload_path %></a></li> -->
-			<li><%= link_to "Download Equipment Spreadsheet", equipment_technology_download_path, download: "#{eq_file_location.split(File::SEPARATOR).last}" %></li>
-    </ul>
-  </div>
-  <div class="menuItem">
     <a href="#">Other</a>
     <ul class="nav">
-			<!-- <li><%#= link_to "Cage Shelves", cage_shelves_path %></li> -->
       <li><%= link_to "Collections", collections_path %></li>
       <li><%= link_to "Compilations", compilations_path %></li>
       <% if policy(User).can_add_cv? %>
         <li><%= link_to "Controlled Vocabulary", controlled_vocabularies_path %></li>
       <% end %>
-      <li><%= link_to "Equipment/Technology", equipment_technology_path %></li>
+			<li><%= link_to "Download Equipment Spreadsheet", equipment_technology_download_path, download: "#{eq_file_location.split(File::SEPARATOR).last}" %></li>
+			<li><%= link_to "Equipment/Technology", equipment_technology_path %></li>
+			<li><%= link_to 'Import Spreadsheet', spreadsheets_path %></li>
       <li><%= link_to "Physical Objects", physical_objects_path %></li>
       <li><%= link_to "Series", series_index_path %></li>
-			<!-- <li><%#= link_to "Spreadsheets", spreadsheets_path %></li> -->
       <li><%= link_to "Spreadsheet Downloads", spread_sheet_searches_path %></li>
 	    <li><%= link_to "Stats", stats_index_path %></li>
       <li><%= link_to "Titles", titles_index_path %></li>
-			<!-- <li><%#= link_to "Units", units_path %></li> -->
       <% if policy(User).can_edit_users? %>
         <li><%= link_to "Users", users_path %></li>
       <% end %>
 	    <li><%= link_to 'View Pull Requests', pull_requests_path %></li>
-			<!-- <li><%#= link_to "Workflow Statuses", workflow_statuses_path %></li> -->
     </ul>
   </div>
 	<div class="right">
