@@ -16,13 +16,23 @@
 <% else %>
 	<div id="wells">
 		<h4>Receiving Physical Objects at <b>Wells</b></h4>
+		<%= form_for 'physical_object', url: process_received_from_storage_url do |f| %>
 		<div id="wells_scan_div">
-			<%= form_for 'physical_object', url: process_received_from_storage_url do |f| %>
 				<table>
 					<tr>
 						<th>IU Barcode</th>
 						<td>
 							<%= f.text_field :iu_barcode %>
+						</td>
+					</tr>
+					<tr>
+						<th colspan="2">
+							Comment
+						</th>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<%= text_area_tag :comment %>
 						</td>
 					</tr>
 					<tr>

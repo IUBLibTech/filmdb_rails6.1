@@ -247,6 +247,7 @@ class WorkflowController < ApplicationController
 					PhysicalObject.transaction do
 						wsn = dl.include?("Wells") ? WorkflowStatus::IN_WORKFLOW_WELLS : WorkflowStatus::IN_WORKFLOW_ALF
 						ws = WorkflowStatus.build_workflow_status(wsn, po, false)
+						ws.comment = params[:comment]
 						po.workflow_statuses << ws
 						po.current_workflow_status = ws
 						po.save
@@ -494,6 +495,7 @@ class WorkflowController < ApplicationController
 		if @physical_object
 			PhysicalObject.transaction do
 				ws = WorkflowStatus.build_workflow_status(WorkflowStatus::DEACCESSIONED, @physical_object, true)
+				ws.comment = params[:comment]
 				@physical_object.workflow_statuses << ws
 				@physical_object.current_workflow_status = ws
 				@physical_object.component_group_physical_objects.delete_all
@@ -579,6 +581,7 @@ class WorkflowController < ApplicationController
 			flash[:warning] = "Could not find Physical Object with barcode #{params[:physical_object][:iu_barcode]}"
 		else
 			ws = WorkflowStatus.build_workflow_status(WorkflowStatus::MISSING, @po, true)
+			ws.comment = params[:comment]
 			@po.workflow_statuses << ws
 			@po.active_component_group = nil
 			@po.save
@@ -811,6 +814,7 @@ class WorkflowController < ApplicationController
 
 	# renders the page that accespts a barcode to mark a missing item found
 	def show_mark_found
+		@physical_object = nil
 		@physical_objects = []
 		render 'workflow/mark_found/mark_found'
 	end
@@ -889,7 +893,6 @@ class WorkflowController < ApplicationController
 	end
 
 	def update_mark_found
-
 		@po_returns = []
 		@po_injects = []
 		# params[:workflow].keys holds PhysicalObject ids which need to be "found"
@@ -908,6 +911,7 @@ class WorkflowController < ApplicationController
 				loc = params[:workflow][p] # where this PO is going: either WorkflowStatus::IN_STORAGE_INGESTED or ComponentGroup::WORKFLOW_WELLS/ALF
 				if loc == WorkflowStatus::IN_STORAGE_INGESTED
 					ws = WorkflowStatus.build_workflow_status(WorkflowStatus::IN_STORAGE_INGESTED, po, true)
+					ws.comment = params[:comment]
 					po.active_component_group = nil
 					po.current_workflow_status = ws
 					po.workflow_statuses << ws
@@ -922,7 +926,7 @@ class WorkflowController < ApplicationController
 						cg = cgs["#{t_id}_#{loc}"]
 					else
 						# create a new CG
-						cg = ComponentGroup.new(title_id: t_id.to_i, group_type: loc, group_summary: "CG created by moving a missing PO into 'Workflow'", delivery_location: loc)
+						cg = ComponentGroup.new(title_id: t_id.to_i, group_type: loc, group_summary: "CG created by moving a missing PO into 'Workflow'")
 						cg.save
 						# create the composite key of title_id and delivery location
 						cgs["#{t_id}_#{loc}"]
@@ -930,6 +934,7 @@ class WorkflowController < ApplicationController
 					cg.physical_objects << po
 					po.active_component_group = cg
 					ws = WorkflowStatus.build_workflow_status(cg.delivery_location == ComponentGroup::WORKFLOW_ALF ? WorkflowStatus::IN_WORKFLOW_ALF : WorkflowStatus::IN_WORKFLOW_WELLS, po, true)
+					ws.comment = params[:comment]
 					po.workflow_statuses << ws
 					po.current_workflow_status = ws
 					po.save

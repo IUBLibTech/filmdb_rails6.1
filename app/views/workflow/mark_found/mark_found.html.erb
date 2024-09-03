@@ -1,13 +1,16 @@
+<h4>Mark Physical Object Found</h4>
+<%= form_tag @physical_object, url: update_mark_found_url do |f| %>
 <table>
 	<tbody>
 	<tr>
 		<th>Scan IU Barcode</th>
 		<td>
-      <input type="text" id="iu_barcode">
+      <%= text_field_tag :iu_barcode, "", class: "iu_barcode" %>
 		</td>
 	</tr>
 	</tbody>
 </table>
+<% end %>
 <% if (@po_returns && @po_returns.size > 0) || (@po_injects && @po_injects.size > 0) %>
   <div class="notice">
     This following Physical Objects have been updated:
@@ -28,14 +31,6 @@
 
 <script type="text/javascript" charset="utf-8">
 
-<!--  const fdb_ref_locs = ["<%= WorkflowStatus::TWO_K_FOUR_K_SHELVES %>", "<%= WorkflowStatus::ISSUES_SHELF %>", "<%= WorkflowStatus::MOLD_ABATEMENT %>", "<%= WorkflowStatus::WELLS_TO_ALF_CONTAINER %>"];-->
-<!--  const fdb_bc_locs = ["<%= WorkflowStatus::BEST_COPY_ALF %>", "<%= WorkflowStatus::BEST_COPY_MDPI_WELLS %>"];-->
-<!--  const fbd_other_locs = ["<%= WorkflowStatus::IN_WORKFLOW_WELLS %>", "<%= WorkflowStatus::IN_WORKFLOW_ALF %>"];-->
-<!--  const fdb_location_map = {-->
-<!--    "Best Copy (MDPI)":fdb_bc_locs, "Best Copy (MDPI - WELLS)":fdb_bc_locs, "Best Copy (Wells)":fbd_other_locs, "Reformatting (MDPI)":fdb_ref_locs,-->
-<!--    "Cataloging":fbd_other_locs, "Digitization":fbd_other_locs, "Evaluation":fbd_other_locs, "Exhibition":fbd_other_locs, "Researcher":fbd_other_locs,-->
-<!--    "Teaching":fbd_other_locs -->
-<!--  }-->
 
   let scan_barcodes = [];
 	$(document).ready(function() {

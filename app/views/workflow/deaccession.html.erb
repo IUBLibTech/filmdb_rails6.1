@@ -4,12 +4,18 @@
   Deaccessioned Physical Objects
 </p>
 <%= form_for @physical_object, url: {controller: 'workflow', action: 'deaccession_ajax_post'}, method: :post do |f| %>
-  <table>
+  <table class="_50">
     <tr>
-      <th colspan="2">Scan an IU barcode to Deaccession a Physical Object</th>
-    </tr>
-    <tr colspan="2">
+      <th>IU Barcode</th>
       <td><%= f.text_field :iu_barcode, {class: 'iu_barcode'} %></td>
+    </tr>
+    <tr>
+      <th colspan="2">Comment</th>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <%= text_area_tag :comment %>
+      </td>
     </tr>
     <tr>
       <td colspan="2"><%= f.submit "Deaccession" %></td>
