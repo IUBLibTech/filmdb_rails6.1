@@ -1,13 +1,9 @@
-<div>
-  <h4>Film Metadata Fields</h4>
-</div>
+<h4 class="m_bottom_5px">Version</h4>
 <div id="" class="metadata_section">
-  <h4>Version</h4>
   <% if @physical_object.is_a?(Film) %>
-    <b class="block">Version</b>
     <%= @physical_object.humanize_boolean_fields(Film::VERSION_FIELDS) %>
   <% end %>
-  <h4>Format</h4>
+<h4>Format</h4>
   <div class="left _50">
     <b>Gauge</b> <%= @physical_object.gauge %><br/>
     <b>Original Identifiers:&nbsp;</b>
@@ -151,7 +147,7 @@
     <div class="simple_text">
       <%= format_newlines(@physical_object.missing_footage) %><br/>
     </div>
-    <h4> Miscellaneous</h4>
+    <h4>Processing Notes</h4>
     <div class="simple_text">
       <%= format_newlines(@physical_object.miscellaneous) %>
     </div>

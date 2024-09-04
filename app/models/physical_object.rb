@@ -142,9 +142,19 @@ class PhysicalObject < ApplicationRecord
 		}
 	end
 
-	# tests if the physical object is currently on IULMIA staff workflow space
-	def onsite?
-		current_workflow_status.workflow_type
+	# tests if the physical object is anywhere in IULMIA staff workflow space (as of 2024: IN_WORKFLOQ_WELLS or IN_WORKFLOW_ALF)
+	# NOT TO BE CONFUSED WITH active?
+	def in_workflow?
+		name = current_workflow_status.status_name
+		name == WorkflowStatus::IN_WORKFLOW_WELLS || name == WorkflowStatus::IN_WORKFLOW_ALF
+	end
+
+	# true if the PhysicalObject is anywhere in "active" workflow. As of 2024, defined by WorkflowStatus::ACTIVE_WORKFLOW
+	# This differs from in_workflow? because it includes items that queued for pulls, pull requested, in_workflow?, shipped
+	# externally, and either of the just inventoried space.
+	def active?
+		status = self.current_workflow_status.status_name
+		WorkflowStatus::ACTIVE_WORKFLOW.include? status
 	end
 
 	def in_transit_from_storage?
@@ -153,6 +163,10 @@ class PhysicalObject < ApplicationRecord
 
 	def in_storage?
 		WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage'].include?(current_location)
+	end
+
+	def external?
+		current_workflow_status.external?
 	end
 
 	def packed?

@@ -2,6 +2,10 @@ body {
     font-size: .8em;
 }
 
+h4 {
+  margin-top: 1rem;
+}
+
 .label {
     min-height: 25px;
 }
@@ -189,4 +193,10 @@ div.select > div {
 }
 ._79 {
   width: 79%;
+}
+
+.reason {
+  height: 30px;
+  padding-top: 10px;
+  width: 400px;
 }

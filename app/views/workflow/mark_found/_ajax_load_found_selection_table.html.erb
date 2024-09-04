@@ -7,6 +7,7 @@
           <th>Barcode</th>
           <th>Title To Move Into Workflow</th>
           <th>Action</th>
+          <th></th>
         </tr>
         <% @pos.each do |p| %>
           <% if p.current_location == WorkflowStatus::MISSING %>
@@ -31,6 +32,14 @@
             </tr>
           <% end %>
         <% end %>
+        <% if @pos.size > 0 %>
+          <tr>
+            <th colspan="5">Comment</th>
+          </tr>
+          <tr>
+            <td colspan="5"><%= text_area_tag :comment %></td>
+          </tr>
+      <% end %>
       </tbody>
     </table>
     <div id="cg_div">

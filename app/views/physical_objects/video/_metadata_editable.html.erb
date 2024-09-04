@@ -1,7 +1,6 @@
-<h4>Video Metadata Fields</h4>
+<h4 class="m_bottom_5px">Video Metadata Fields</h4>
 <div class="metadata_section">
   <div id="version_div" class="clear">
-    <b class="block">Version</b>
     <div class="check_box"><%= f.check_box :first_edition %><div>1st Edition</div></div>
     <div class="check_box"><%= f.check_box :second_edition %><div>2nd Edition</div></div>
     <div class="check_box"><%= f.check_box :third_edition %><div>3rd Edition</div></div>
@@ -474,7 +473,7 @@
   <%= f.link_to_add 'New Boolean Condition', :boolean_conditions %>
 </div>
 <div class="clear">
-  <b class="block"> Miscellaneous</b>
+  <b class="block">Processing Notes</b>
   <%= f.text_area :miscellaneous, class: '_100' %>
 </div>
 <div id="conservation_actions_metadata" class="metadata_section">

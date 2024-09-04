@@ -137,9 +137,13 @@
       <h4>Accompanying Documentation</h4>
       <div>
         <%= f.text_area :accompanying_documentation %> <br>
-        <b>Accompanying Documentation Location</b><%= f.text_field :accompanying_documentation_location, size: 75 %>
+        <b class="mt_1rem">Accompanying Documentation Location</b><%= f.text_field :accompanying_documentation_location, size: 75 %>
+      </div>
+      <div class="mt_1rem">
+        <b>Photo Link</b> <%= f.text_field :photo_link, size: 75 %>
       </div>
     </div>
+
     <%= render partial: "physical_objects/#{physical_object_specific_medium}/metadata_editable", locals: {f: f} %>
     <%= render partial: "physical_objects/#{physical_object_specific_medium}/metadata_editable_js" %>
   <% end %>

@@ -38,10 +38,14 @@ class Film < ApplicationRecord
       base_acetate: "Acetate", base_polyester: "Polyester", base_nitrate: "Nitrate", base_mixed: "Mixed"
   }
 
-  STOCK_FIELDS = [:stock_agfa, :stock_ansco, :stock_dupont, :stock_orwo, :stock_fuji, :stock_gevaert, :stock_kodak, :stock_ferrania, :stock_3_m,:stock_agfa_gevaert, :stock_pathe, :stock_unknown]
+  STOCK_FIELDS = [
+    :stock_3_m,:stock_agfa_gevaert, :stock_agfa, :stock_ansco, :stock_dupont, :stock_ferrania, :stock_fuji, :stock_gevaert,
+    :stock_ilford, :stock_kodak, :stock_orwo, :stock_pathe, :stock_unknown
+  ]
   STOCK_FIELDS_HUMANIZED = {
-      stock_agfa: 'Agfa', stock_ansco: "Ansco", stock_dupont: 'Dupont', stock_orwo: "Orwo", stock_fuji: "Fuji", stock_gevaert: "Gevaert",
-      stock_kodak: "Kodak", stock_ferrania: "Ferrania", stock_3_m: '3M', stock_agfa_gevaert: 'Agfa-Gevaert', stock_pathe: 'Pathe', stock_unknown: "Unknown"
+    stock_3_m: '3M', stock_agfa: 'Agfa', stock_agfa_gevaert: 'Agfa-Gevaert', stock_ansco: "Ansco", stock_dupont: 'Dupont',
+    stock_ferrania: "Ferrania",stock_fuji: "Fuji", stock_gevaert: "Gevaert", stock_ilford: "Ilford",stock_kodak: "Kodak",
+    stock_orwo: "Orwo",  stock_pathe: 'Pathe', stock_unknown: "Unknown"
   }
 
   PICTURE_TYPE_FIELDS = [
@@ -58,8 +62,8 @@ class Film < ApplicationRecord
       :color_bw_bw_toned, :color_bw_bw_tinted, :color_bw_bw_hand_coloring, :color_bw_bw_stencil_coloring, :color_bw_bw_black_and_white
   ]
   COLOR_COLOR_FIELDS = [
-      :color_bw_color_ektachrome, :color_bw_color_kodachrome, :color_bw_color_technicolor,
-      :color_bw_color_anscochrome, :color_bw_color_eco, :color_bw_color_eastman, :color_bw_color_color
+    :color_bw_color_anscochrome, :color_bw_color_eco, :color_bw_color_eastman, :color_bw_color_ektachrome, :color_bw_color_gaspar,
+    :color_bw_color_kodachrome, :color_bw_color_technicolor, :color_bw_color_color
   ]
   COLOR_FIELDS = COLOR_BW_FIELDS + COLOR_COLOR_FIELDS
 
@@ -67,17 +71,17 @@ class Film < ApplicationRecord
       color_bw_bw_toned: "Toned (Black and White)", color_bw_bw_tinted: "Tinted (Black and White)", color_bw_color_ektachrome: "Ektachrome",
       color_bw_color_kodachrome: "Kodachrome", color_bw_color_technicolor: "Technicolor", color_bw_color_anscochrome: "Anscochrome",
       color_bw_color_eco: "Eco", color_bw_color_eastman: "Eastman", color_bw_bw: "Black and White", color_bw_bw_hand_coloring: "Hand Coloring",
-      color_bw_bw_stencil_coloring: "Stencil Coloring", color_bw_color_color: "Color", color_bw_bw_black_and_white: 'Black & White'
+      color_bw_bw_stencil_coloring: "Stencil Coloring", color_bw_color_color: "Color", color_bw_bw_black_and_white: 'Black & White', color_bw_color_gaspar: "Gaspar Color"
   }
 
   ASPECT_RATIO_FIELDS = [
       :aspect_ratio_1_33_1, :aspect_ratio_1_37_1, :aspect_ratio_1_66_1, :aspect_ratio_1_85_1, :aspect_ratio_2_35_1, :aspect_ratio_2_39_1, :aspect_ratio_2_59_1,
-      :aspect_ratio_2_66_1, :aspect_ratio_1_36, :aspect_ratio_1_18, :aspect_ratio_2_55_1
+      :aspect_ratio_2_66_1, :aspect_ratio_1_36, :aspect_ratio_1_18, :aspect_ratio_2_55_1, :aspect_ratio_1_75_1
   ]
   ASPECT_RATIO_FIELDS_HUMANIZED = {
       aspect_ratio_1_33_1: "1.33:1", aspect_ratio_1_37_1: "1.37:1", aspect_ratio_1_66_1: "1.66:1", aspect_ratio_1_85_1: "1.85:1",
       aspect_ratio_2_35_1: "2.35:1", aspect_ratio_2_39_1: "2.39:1", aspect_ratio_2_59_1: "2.59:1", aspect_ratio_2_66_1: "2.66:1",
-      aspect_ratio_1_36: '1.36:1', aspect_ratio_1_18: '1.18:1', aspect_ratio_2_55_1: '2.55:1'
+      aspect_ratio_1_36: '1.36:1', aspect_ratio_1_18: '1.18:1', aspect_ratio_2_55_1: '2.55:1', aspect_ratio_1_75_1: "1.75:1"
   }
 
   SOUND_FORMAT_FIELDS = [
@@ -163,6 +167,10 @@ class Film < ApplicationRecord
 
   def medium_name
     "#{gauge} #{medium}"
+  end
+
+  def place_in_freezer?
+    ad_strip.to_f >= 2.5
   end
 
   def self.write_xlsx_header_row(worksheet)

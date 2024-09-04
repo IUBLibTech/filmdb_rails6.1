@@ -37,11 +37,12 @@
 		<th>Gauge/Format</th>
 		<th>Location</th>
 		<th>Pulled For</th>
+		<th>Queued By</th>
 		<th>Cancel</th>
 	</tr>
 	<% if @ingested.size > 0 %>
 	<tr>
-		<th colspan="8">Queued Physical Objects (Ingested)</th>
+		<th colspan="9">Queued Physical Objects (Ingested)</th>
 	</tr>
 	<% end %>
 	<% @ingested.each do |p| %>
@@ -58,12 +59,13 @@
 		<td><%= p.medium_name %></td>
 		<td><%=  p.storage_location %></td>
 		<td><%= p.active_component_group&.group_type %></td>
+		<td><%= p.current_workflow_status.created_by.username %></td>
 		<td><%= link_to "Remove from Queue", '#', id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
 	</tr>
 	<% end %>
 	<% if @not_ingested.size > 0 %>
 	<tr>
-		<th colspan="8">Queued Physical Objects (Not Ingested)</th>
+		<th colspan="9">Queued Physical Objects (Not Ingested)</th>
 	</tr>
 	<% end %>
 	<% @not_ingested.each do |p| %>
@@ -80,6 +82,7 @@
 			<td><%= p.medium_name %></td>
 			<td><%=  p.current_location %></td>
 			<td><%= p.active_component_group&.group_type %></td>
+			<td><%= p.current_workflow_status.user.username %></td>
 			<td><%= link_to "Remove from Queue", '#', id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
 		</tr>
 	<% end %>

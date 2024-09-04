@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_05_20_145238) do
+ActiveRecord::Schema.define(version: 2024_09_04_124450) do
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -91,7 +91,6 @@ ActiveRecord::Schema.define(version: 2024_05_20_145238) do
     t.boolean "hd"
     t.boolean "return_on_reel", default: false
     t.string "color_space"
-    t.string "delivery_location"
   end
 
   create_table "controlled_vocabularies", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -412,6 +411,9 @@ ActiveRecord::Schema.define(version: 2024_05_20_145238) do
     t.boolean "orientation_a_wind"
     t.boolean "orientation_b_wind"
     t.date "ad_strip_timestamp"
+    t.boolean "color_bw_color_gaspar"
+    t.boolean "stock_ilford"
+    t.boolean "aspect_ratio_1_75_1"
   end
 
   create_table "languages", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -506,6 +508,7 @@ ActiveRecord::Schema.define(version: 2024_05_20_145238) do
     t.string "compilation"
     t.integer "actable_id"
     t.string "actable_type"
+    t.text "photo_link"
     t.index ["actable_id", "actable_type"], name: "index_physical_objects_on_actable_id_and_actable_type", unique: true
     t.index ["current_workflow_status_id"], name: "index_physical_objects_on_current_workflow_status_id"
     t.index ["iu_barcode", "mdpi_barcode"], name: "index_physical_objects_on_iu_barcode_and_mdpi_barcode", unique: true
@@ -601,6 +604,14 @@ ActiveRecord::Schema.define(version: 2024_05_20_145238) do
     t.string "date"
     t.integer "total_episodes"
     t.bigint "spreadsheet_id"
+  end
+
+  create_table "shipping_metadata", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "workflow_status_id"
+    t.text "notes"
+    t.bigint "shipped_by"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "spread_sheet_searches", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
@@ -900,6 +911,7 @@ ActiveRecord::Schema.define(version: 2024_05_20_145238) do
     t.integer "component_group_id"
     t.integer "external_entity_id"
     t.bigint "created_by"
+    t.text "comment"
     t.index ["physical_object_id"], name: "index_workflow_statuses_on_physical_object_id"
     t.index ["status_name"], name: "index_workflow_statuses_on_status_name"
   end

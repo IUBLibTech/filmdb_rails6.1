@@ -12,7 +12,7 @@
   <tbody>
   <% @title.active_component_groups.each do |cg| %>
     <tr id="<%= cg.id %>">
-      <td id="cg_<%= cg.id %>_group_type" title="<%= cg.group_type %>"><%= cg.humanize_delivery_location %> (<%= "#{pluralize(cg.physical_objects.size, 'Object')}" %>)</td>
+      <td id="cg_<%= cg.id %>_group_type" title="<%= cg.group_type %>"><%= cg.delivery_location %> (<%= "#{pluralize(cg.physical_objects.size, 'Object')}" %>)</td>
       <td class="no_border_right"><%= cg.group_summary %></td>
 			<td class="edit_icon">
 				<%= link_to image_tag('edit2.png'), '#', class: 'edit_summary_link', id: "edit_summary_#{cg.id}", title: 'Click to edit the Component Group Summary' %>

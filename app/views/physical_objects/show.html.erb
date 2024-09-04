@@ -4,25 +4,27 @@
 <% if @continue_url %>
    &nbsp;|&nbsp;<%= link_to @continue_text, @continue_url %>
 <% end %>
-<div style="overflow: auto">
-	<% unless @physical_object.active_component_group.nil? %>
-		<div class="left" style="height: 30px; padding-top: 10px; width: 200px;">
-			<b>In Workflow For:</b> <%= @physical_object.active_component_group.group_type %>
-		</div>
-	<% end %>
+<div>
   <% if @physical_object.digitized %>
     <div class="digitized">
       Digitized
     </div>
   <% end %>
-  <div style="height: 20px">
+  <div>
+    <% unless @physical_object.active_component_group.nil? %>
+      <div class="left reason m_top">
+        <b>In Workflow For:</b> <%= @physical_object.active_component_group.group_summary %>
+      </div>
+    <% end %>
+  </div>
+  <div class="right m_top_10px">
     <div class="right _35">
       <b>Inventoried By: </b><%= @physical_object.inventorier.name %>&nbsp;(<%= @physical_object.acting_as.created_at.strftime('%Y-%m-%d %H:%M:%S') %>)
     </div>
-  </div>
-  <div style="heigh: 20px">
-    <div class="right _35">
-      <b>Modified By: </b><%= @physical_object.modifier.name %>&nbsp;(<%= @physical_object.updated_at.strftime('%Y-%m-%d %H:%M:%S') %>)
+    <div>
+      <div class="right">
+        <b>Modified By: </b><%= @physical_object.modifier.name %>&nbsp;(<%= @physical_object.updated_at.strftime('%Y-%m-%d %H:%M:%S') %>)
+      </div>
     </div>
   </div>
 </div>
@@ -45,7 +47,10 @@
     <div class="left _50">
       <b>Workflow Status</b>
       <% unless @physical_object.current_workflow_status.nil? %>
-        <%= link_to @physical_object.current_workflow_status.type_and_location, physical_object_workflow_history_path(@physical_object.acting_as), class: "#{@physical_object.missing? ? 'missing' : ''}" %>
+        <%= link_to @physical_object.current_workflow_status.type_and_location,
+                    physical_object_workflow_history_path(@physical_object.acting_as),
+                    class: "#{@physical_object.missing? ? 'missing' : ''}",
+                    title: @physical_object.current_workflow_status.comment %>
       <% end %>
       <br/>
       <b>Storage Location</b> <%= @physical_object.storage_location %><br>
@@ -62,7 +67,7 @@
       <%= format_newlines(@physical_object.format_notes) %>
     </div>
   <% end %>
-  <% unless @physical_object.accompanying_documentation.blank? && @physical_object.accompanying_documentation_location.blank? %>
+  <% unless @physical_object.accompanying_documentation.blank? && @physical_object.accompanying_documentation_location.blank?  %>
     <div id="accompanying_documentation_metadata" class="metadata_section">
       <h4>Accompanying Documentation</h4>
       <div>
@@ -73,6 +78,17 @@
       </div>
     </div>
   <% end %>
+  <% unless @physical_object.photo_link.blank? %>
+    <div>
+      <b>Photo Link</b><%= link_to @physical_object.photo_link.truncate(27), @physical_object.photo_link, target: "_blank"  %>
+    </div>
+  <% end %>
   <%= render partial: "physical_objects/#{physical_object_specific_medium}/show" %>
   <%= render partial: 'physical_objects/physical_object_old_barcodes' %>
+
+  <script type="text/javascript" charset="utf-8">
+    $(document).tooltip({
+        position: { my: "left-5 center", at: "right center" }
+    });
+  </script>
 <% end %>

@@ -47,7 +47,7 @@ module LocationHelper
         po.save!
         puts "#{po.iu_barcode} changed: #{current} -> #{po.current_workflow_status.status_name}"
       else
-        if new_loc == "In Workflow (ALF)"
+        if new_loc == WorkflowStatus::IN_WORKFLOW_ALF
           next if po.current_workflow_status.status_name == new_loc
           new_loc == WorkflowStatus::IN_WORKFLOW_ALF
           ws = WorkflowStatus.build_workflow_status(new_loc, po, true)

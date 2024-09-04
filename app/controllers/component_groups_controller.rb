@@ -41,6 +41,7 @@ class ComponentGroupsController < ApplicationController
           ).save!
           # post MDPI, override rules - last arg is true
           ws = WorkflowStatus.build_workflow_status(WorkflowStatus::QUEUED_FOR_PULL_REQUEST, po, true)
+          ws.comment = @component_group.group_summary
           po.current_workflow_status = ws
           po.workflow_statuses << ws
           po.active_component_group = @component_group

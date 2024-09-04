@@ -84,12 +84,19 @@ class ComponentGroup < ApplicationRecord
   end
 
   def deliver_to_alf?
-    ALF_DELIVERY_GROUPS.include?(group_type)
+    group_type == WORKFLOW_ALF
   end
 
+  # To handle legacy conditions with old component group types that are no longer in use, everything not explicitly labelled
+  # as WORKFLOW_ALF should be delivered to Wells
   def deliver_to_wells?
-   WELLS_DELIVERY_GROUPS.include?(group_type)
+    group_type != WORKFLOW_ALF
   end
+
+  def delivery_location
+    deliver_to_wells? ? WORKFLOW_WELLS : WORKFLOW_ALF
+  end
+  
 
   def is_reformating?
 	  group_type.include?('Reformatting') || group_type.include?('Best Copy')

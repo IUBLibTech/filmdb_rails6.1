@@ -221,6 +221,10 @@ table.version_table > tbody > tr > td > input {
     padding: 5px;
 
 }
+.warn {
+    font-weight: bold;
+    color: red;
+}
 #selected_titles > .warning, #physical_objects > .warning {
 	margin: 0;
 }
@@ -342,9 +346,11 @@ td#color {
     clear: both;
     height: 0px;
     display: none;
-}.clear {
-     clear: both;
- }
+}
+.clear {
+    clear: both;
+    overflow: auto;
+}
 
 .block {
     display: block;
@@ -400,6 +406,10 @@ td#color {
 
 ._100 {
     width: 99%;
+}
+
+._400px {
+    width: 400px;
 }
 .line_300 {
     line-height: 300%;
@@ -697,6 +707,9 @@ div#title_popup_header > h4 {
 .m_top_10px {
     margin-top: 10px;
 }
+.min_h_100px {
+    min-height: 100px;
+}
 .return_warn {
   padding: 5px;
   font-weight: bold;
@@ -758,7 +771,14 @@ div.check_box > div {
 	 margin-left: 10px;
 	 overflow: hidden;
  }
- 
+
+ #info_div {
+     float: left;
+ }
+ #info > p.warning {
+     margin: 5px;
+ }
+
  .hidden {
 	 display: none;
  }
@@ -840,8 +860,9 @@ div#title_summary, div#series_summary {
 }
 
 .digitized {
-  font-weight: bold;
-  padding: 5px;
+    font-weight: bold;
+    padding: 5px;
+    margin-top: 10px;
 }
 .digitized_tr, .digitized {
   background: rgba(16,180,35,0.57);
@@ -867,6 +888,10 @@ div.cat {
 td > img.cat {
   top: 5px;
   position: relative;
+}
+
+td.fill > input {
+    width: 96%;
 }
 
 td.widest {

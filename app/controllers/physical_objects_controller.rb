@@ -195,7 +195,6 @@ class PhysicalObjectsController < ApplicationController
     c = @physical_object.created_at
     begin
       PhysicalObject.transaction do
-
         # record the change in the modifications table
         Modification.new(object_type: 'PhysicalObject', object_id: @physical_object.acting_as.id, user: @physical_object.modifier).save!
 
