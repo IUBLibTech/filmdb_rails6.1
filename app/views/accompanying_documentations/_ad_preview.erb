@@ -1,0 +1,19 @@
+<%= link_to accompanying_documentation_path(ad) do %>
+<div class="ad _ad <%= css %>">
+  <h6><%= css == "raised_po" ? "Physical Object" : (css == "raised_title" ? "Title" : "Series") %></h6>
+  <div class="flex_column">
+    <div class="flex_row">
+      <label>Location</label>
+      <div >
+        <%= ad.location %>
+      </div>
+    </div>
+    <div class="flex_row">
+      <label>Description</label>
+    </div>
+    <div class="flex_row flex_row_desc">
+      <%= ad.description %>
+    </div>
+  </div>
+</div>
+<% end %>

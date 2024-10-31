@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :accompanying_documentations
   #get '/denied.html', to: 'users#denied', as: 'denied'
 
   get '/ajax/title_date/type/', to: 'ajax#title_date_type', as: 'ajax_title_date_type'
@@ -89,6 +90,8 @@ Rails.application.routes.draw do
   get '/pull_requests/:id', to: 'pull_requests#show', as: 'show_pull_request'
 
   get '/search', to: 'search#search', as: 'barcode_search'
+  get '/services/barcode_lookup/:barcode', to: 'physical_objects#valid_physical_object_barcode?', as: 'barcode_lookup_service'
+
 
   resources :series
   get '/series/:id/new_physical_object', to: 'series#new_physical_object', as: 'series_new_physical_object'

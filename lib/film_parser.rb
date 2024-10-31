@@ -729,7 +729,7 @@ class FilmParser < CsvParser
     # FIXME: this will change eventually to relational objects.
     acd = row[column_index ACCOMPANYING_DOCUMENTATION]
     unless acd.blank?
-      po.send(:accompanying_documentation=, acd)
+      po.send(:accompanying_documentations, acd)
     end
   end
 

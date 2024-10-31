@@ -1,0 +1,26 @@
+<p id="notice"><%= notice %></p>
+<%= link_to 'Edit', edit_accompanying_documentation_path(@accompanying_documentation) %>
+
+<h4>Accompanying Documentation</h4>
+<div id="fields">
+  <div class="lb"><b>Location</b></div><div class="fd"><%= @accompanying_documentation.location  %></div>
+  <div class="lb"><b>Description</b></div><div class="left m_bottom_10px"><%= @accompanying_documentation.description %></div>
+</div>
+
+<h4 class="m_top_10px">Associated Objects</h4>
+<% if @accompanying_documentation.series %>
+  <div class="left mr_10"><b>Series Title</b></div>
+  <div class="left"><%= link_to @accompanying_documentation.series.title, series_path(@accompanying_documentation.series) %></div>
+<% elsif @accompanying_documentation.title %>
+  <div class="left mr_10"><b>Title</b></div>
+  <div class="left">
+    <%= link_to @accompanying_documentation.title.title_text, title_path(@accompanying_documentation.title) %>
+  </div>
+<% elsif @accompanying_documentation.physical_objects.size > 0 %>
+  <div><b>Physical Object(s)</b></div>
+  <% @accompanying_documentation.physical_objects.each do |po| %>
+    <div class="m_top_5px">
+      <%= link_to po.iu_barcode, physical_object_path(po) %>
+    </div>
+  <% end %>
+<% end %>

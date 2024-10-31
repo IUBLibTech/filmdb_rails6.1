@@ -359,6 +359,21 @@ class PhysicalObjectsController < ApplicationController
     end
   end
 
+  def valid_physical_object_barcode?
+    pos = PhysicalObject.where(iu_barcode: params[:barcode])
+    rsp = {}
+    if pos.size == 1
+      rsp[:success] = true
+      rsp[:id] = pos.first.id
+      rsp[:barcode] = pos.first.iu_barcode
+      rsp[:msg] = "#{params[:barcode]} is a valid barcode that belongs to an existing PhysicalObject"
+    else
+      rsp[:success] = false
+      rsp[:msg] = "Could not find a PhysicalObject with barcode #{params[:barcode]}"
+    end
+    render json: rsp.to_json
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_physical_object

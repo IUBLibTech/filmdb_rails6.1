@@ -69,7 +69,7 @@
   <% end %>
   <% unless @physical_object.accompanying_documentation.blank? && @physical_object.accompanying_documentation_location.blank?  %>
     <div id="accompanying_documentation_metadata" class="metadata_section">
-      <h4>Accompanying Documentation</h4>
+      <h4>Ephemera</h4>
       <div>
         <%= format_newlines(@physical_object.accompanying_documentation) %>
       </div>
@@ -78,6 +78,29 @@
       </div>
     </div>
   <% end %>
+  <div id="new_ad" class="metadata_section">
+    <h4>Accompanying Documentation</h4>
+    <div class="flex_wrap">
+      <% unless @physical_object.accompanying_documentations.size == 0 %>
+        <% @physical_object.accompanying_documentations.each do |ad| %>
+          <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_po'}  %>
+        <% end %>
+      <% end %>
+      <% @physical_object.titles.each do |t| %>
+        <% Title.accompanying_documentations(t).each do |ad| %>
+          <%= render partial: 'accompanying_documentations/ad_preview',locals: {ad: ad, css: 'raised_title'}  %>
+        <% end %>
+      <% end %>
+      <% @physical_object.titles.each do |t| %>
+        <% unless t.series.nil? %>
+          <% Series.accompanying_documentations(t.series).each do |ad| %>
+            <%= render partial: 'accompanying_documentations/ad_preview',locals: {ad: ad, css: 'raised_series'}  %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
   <% unless @physical_object.photo_link.blank? %>
     <div>
       <b>Photo Link</b><%= link_to @physical_object.photo_link.truncate(27), @physical_object.photo_link, target: "_blank"  %>

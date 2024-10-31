@@ -44,4 +44,12 @@ class Series < ApplicationRecord
     res.first.nil? ? 0 : res.first[0]
   }
 
+  scope :accompanying_documentations, -> (series) {
+    AccompanyingDocumentation.where(series_id: series.id)
+  }
+
+  def accompanying_documentations
+    AccompanyingDocumentation.where(series_id: self.id)
+  end
+
 end

@@ -214,10 +214,10 @@ class Video < ApplicationRecord
                        gauge, humanize_generations_fields, generation_notes, '', '', duration, (physical_object_dates.collect {|d| "#{d.date} [#{d&.controlled_vocabulary.value}]"}.join(', ') unless physical_object_dates.size == 0),
                        humanize_base_fields, humanize_stock_fields, (physical_object_original_identifiers.collect {|oi| oi.identifier}.join(', ') unless physical_object_original_identifiers.size == 0),
                        reel_number, '', humanize_picture_type_fields, '', humanize_color_fields,
-                       humanize_aspect_ratio_fields, '', sound,'', humanize_sound_format_fields,
+                       humanize_aspect_ratio_fields, '', sound, '', humanize_sound_format_fields,
                        humanize_sound_content_fields, humanize_sound_configuration_fields,
                        '', (languages.collect {|l| "#{l.language} [#{l.language_type}]"}.join(', ') unless languages.size == 0), format_notes,
-                       accompanying_documentation, accompanying_documentation_location, condition_rating, condition_notes,
+                       accompanying_documentations, accompanying_documentation_location, condition_rating, condition_notes,
                        research_value, research_value_notes, '', '', mold,
                        ((boolean_conditions.collect {|c| "#{c.condition_type} (#{c.comment})"} + value_conditions.collect {|c| "#{c.condition_type}: #{c.value} (#{c.comment})"}).join(' | ') unless (boolean_conditions.size == 0 && value_conditions.size == 0)),
                        missing_footage, miscellaneous, conservation_actions, t.modifier&.username]

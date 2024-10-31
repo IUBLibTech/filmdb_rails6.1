@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Accompanying Documentations</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @accompanying_documentations.each do |ad| %>
+      <tr>
+        <td><%= link_to 'Show', ad %></td>
+        <td><%= link_to 'Edit', edit_accompanying_documentation_path(ad) %></td>
+        <td><%= link_to 'Destroy', ad, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Accompanying Documentation', new_accompanying_documentation_path %>

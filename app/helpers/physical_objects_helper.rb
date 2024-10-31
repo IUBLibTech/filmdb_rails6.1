@@ -3,7 +3,7 @@ module PhysicalObjectsHelper
 
   # attributes that belong to the base PhysicalObject model
   PO_ONLY_ATTRIBUTES = [:location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-                        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+                        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
                         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
                         :catalog_key, :compilation, :format_notes]
 
@@ -163,29 +163,29 @@ module PhysicalObjectsHelper
     if params[:film]
       params.require(:film).permit(
           # physical object specific attributes
-          :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-          :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
-          :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
+        :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
+        :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
     elsif params[:video]
       params.require(:video).permit(
           # physical object specific attributes
-          :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-          :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
-          :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
+        :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
+        :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
     elsif params[:recorded_sound]
       params.require(:recorded_sound).permit(
           # physical object specific attributes
-          :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-          :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
-          :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized, :photo_link
+        :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
+        :catalog_key, :compilation, :format_notes, :digitized, :photo_link
       )
     elsif params[:equipment_technology]
       params.require(:equipment_technology).permit(
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :photo_link
       )
@@ -198,135 +198,135 @@ module PhysicalObjectsHelper
     if params[:film]
       params.require(:film).permit(
           # physical object specific attributes
-          :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-          :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
-          :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized, :photo_link,
+        :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
+        :catalog_key, :compilation, :format_notes, :digitized, :photo_link,
 
-          # film specific attributes
-          :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :ad_strip_timestamp, :shrinkage, :mold,
-          :missing_footage, :condition_rating, :condition_notes, :research_value, :research_value_notes, :multiple_items_in_can,
-          # version attributes
-          :first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample,
-          :preview, :revised, :version_original, :captioned, :excerpt, :catholic, :domestic, :trailer,:english, :television,
-          :x_rated,
-          # generation
-          :generation_projection_print, :generation_a_roll, :generation_b_roll,
-          :generation_c_roll, :generation_d_roll, :generation_answer_print, :generation_composite, :generation_duplicate,
-          :generation_edited, :generation_original_camera, :generation_fine_grain_master, :generation_intermediate,
-          :generation_kinescope, :generation_magnetic_track, :generation_mezzanine, :generation_negative,
-          :generation_optical_sound_track, :generation_original, :generation_outs_and_trims, :generation_positive, :generation_master,
-          :generation_reversal, :generation_separation_master, :generation_work_print, :generation_mixed, :generation_other,
-          :generation_interpositive, :generation_notes,
-          # orientation fields
-          :orientation_a_wind, :orientation_b_wind,
-          # base, stock
-          :base_acetate, :base_polyester, :base_nitrate, :base_mixed, :stock_agfa, :stock_ansco,
-          :stock_dupont, :stock_orwo, :stock_fuji, :stock_gevaert, :stock_kodak, :stock_ferrania, :stock_ilford,
-          # picture attributes
-          :picture_not_applicable, :picture_silent_picture, :picture_mos_picture, :picture_composite_picture, :picture_intertitles_only,
-          :picture_credits_only, :picture_picture_effects, :picture_picture_outtakes, :picture_kinescope, :picture_titles, :picture_text,
+        # film specific attributes
+        :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :ad_strip_timestamp, :shrinkage, :mold,
+        :missing_footage, :condition_rating, :condition_notes, :research_value, :research_value_notes, :multiple_items_in_can,
+        # version attributes
+        :first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample,
+        :preview, :revised, :version_original, :captioned, :excerpt, :catholic, :domestic, :trailer, :english, :television,
+        :x_rated,
+        # generation
+        :generation_projection_print, :generation_a_roll, :generation_b_roll,
+        :generation_c_roll, :generation_d_roll, :generation_answer_print, :generation_composite, :generation_duplicate,
+        :generation_edited, :generation_original_camera, :generation_fine_grain_master, :generation_intermediate,
+        :generation_kinescope, :generation_magnetic_track, :generation_mezzanine, :generation_negative,
+        :generation_optical_sound_track, :generation_original, :generation_outs_and_trims, :generation_positive, :generation_master,
+        :generation_reversal, :generation_separation_master, :generation_work_print, :generation_mixed, :generation_other,
+        :generation_interpositive, :generation_notes,
+        # orientation fields
+        :orientation_a_wind, :orientation_b_wind,
+        # base, stock
+        :base_acetate, :base_polyester, :base_nitrate, :base_mixed, :stock_agfa, :stock_ansco,
+        :stock_dupont, :stock_orwo, :stock_fuji, :stock_gevaert, :stock_kodak, :stock_ferrania, :stock_ilford,
+        # picture attributes
+        :picture_not_applicable, :picture_silent_picture, :picture_mos_picture, :picture_composite_picture, :picture_intertitles_only,
+        :picture_credits_only, :picture_picture_effects, :picture_picture_outtakes, :picture_kinescope, :picture_titles, :picture_text,
 
-          # color attributes
-          :color_bw_bw_black_and_white, :color_bw_color_color, :color_bw_bw_toned, :color_bw_bw_tinted,
-          :color_bw_color_ektachrome, :color_bw_color_kodachrome, :color_bw_color_technicolor,
-          :color_bw_color_anscochrome, :color_bw_color_eco, :color_bw_color_eastman,
-          :color_bw_bw_hand_coloring, :color_bw_bw_stencil_coloring, :color_bw_color, :color_bw_bw, :color_bw_color_gaspar,
-          #aspect ratios
-          :aspect_ratio_2_66_1, :aspect_ratio_1_33_1, :aspect_ratio_1_37_1, :aspect_ratio_1_66_1, :aspect_ratio_1_85_1, :aspect_ratio_2_35_1,
-          :aspect_ratio_2_39_1, :aspect_ratio_2_59_1, :aspect_ratio_1_36, :aspect_ratio_1_18, :aspect_ratio_2_55_1, :aspect_ratio_1_75_1,
-          :anamorphic,
-          # sound format attributes
-          :sound_format_digital_dolby_digital_sr, :sound_format_digital_dolby_digital_a, :stock_3_m, :stock_agfa_gevaert, :stock_pathe,
-          :stock_unknown, :close_caption, :captions_or_subtitles_notes, :sound, :sound_format_optical, :sound_format_optical_variable_area,
-          :sound_format_optical_variable_density, :sound_format_magnetic, :sound_format_digital_sdds, :sound_format_digital_dts,
-          :sound_format_digital_dolby_digital, :sound_format_sound_on_separate_media, :sound_format_optical_variable_area_bilateral,
-          :sound_format_optical_variable_area_dual_bilateral, :sound_format_optical_variable_area_unilateral,
-          :sound_format_optical_variable_area_dual_unilateral, :sound_format_optical_variable_area_rca_duplex,
-          :sound_format_optical_variable_density_multiple_density, :sound_format_optical_variable_area_maurer,
-          # sound content attributes
-          :sound_content_music_track,
-          :sound_content_effects_track, :sound_content_dialog, :sound_content_composite_track, :sound_content_outtakes,
-          :sound_content_narration, :sound_configuration_mono, :sound_configuration_stereo, :sound_configuration_surround,
-          :sound_configuration_dual_mono, :sound_configuration_single, :track_count,
+        # color attributes
+        :color_bw_bw_black_and_white, :color_bw_color_color, :color_bw_bw_toned, :color_bw_bw_tinted,
+        :color_bw_color_ektachrome, :color_bw_color_kodachrome, :color_bw_color_technicolor,
+        :color_bw_color_anscochrome, :color_bw_color_eco, :color_bw_color_eastman,
+        :color_bw_bw_hand_coloring, :color_bw_bw_stencil_coloring, :color_bw_color, :color_bw_bw, :color_bw_color_gaspar,
+        #aspect ratios
+        :aspect_ratio_2_66_1, :aspect_ratio_1_33_1, :aspect_ratio_1_37_1, :aspect_ratio_1_66_1, :aspect_ratio_1_85_1, :aspect_ratio_2_35_1,
+        :aspect_ratio_2_39_1, :aspect_ratio_2_59_1, :aspect_ratio_1_36, :aspect_ratio_1_18, :aspect_ratio_2_55_1, :aspect_ratio_1_75_1,
+        :anamorphic,
+        # sound format attributes
+        :sound_format_digital_dolby_digital_sr, :sound_format_digital_dolby_digital_a, :stock_3_m, :stock_agfa_gevaert, :stock_pathe,
+        :stock_unknown, :close_caption, :captions_or_subtitles_notes, :sound, :sound_format_optical, :sound_format_optical_variable_area,
+        :sound_format_optical_variable_density, :sound_format_magnetic, :sound_format_digital_sdds, :sound_format_digital_dts,
+        :sound_format_digital_dolby_digital, :sound_format_sound_on_separate_media, :sound_format_optical_variable_area_bilateral,
+        :sound_format_optical_variable_area_dual_bilateral, :sound_format_optical_variable_area_unilateral,
+        :sound_format_optical_variable_area_dual_unilateral, :sound_format_optical_variable_area_rca_duplex,
+        :sound_format_optical_variable_density_multiple_density, :sound_format_optical_variable_area_maurer,
+        # sound content attributes
+        :sound_content_music_track,
+        :sound_content_effects_track, :sound_content_dialog, :sound_content_composite_track, :sound_content_outtakes,
+        :sound_content_narration, :sound_configuration_mono, :sound_configuration_stereo, :sound_configuration_surround,
+        :sound_configuration_dual_mono, :sound_configuration_single, :track_count,
 
-          value_conditions_attributes: [:id, :condition_type, :value, :comment, :_destroy],
-          boolean_conditions_attributes: [:id, :condition_type, :comment, :_destroy],
-          languages_attributes: [:id, :language, :language_type, :_destroy],
-          physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
-          physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy],
-          edge_codes_attributes: [:id, :code, :_destroy]
+        value_conditions_attributes: [:id, :condition_type, :value, :comment, :_destroy],
+        boolean_conditions_attributes: [:id, :condition_type, :comment, :_destroy],
+        languages_attributes: [:id, :language, :language_type, :_destroy],
+        physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
+        physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy],
+        edge_codes_attributes: [:id, :code, :_destroy]
       )
     elsif params[:video]
       params.require(:video).permit(
           # physical object specific attributes
-          :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-          :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
-          :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized,
+        :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
+        :catalog_key, :compilation, :format_notes, :digitized,
 
-          # video specific attributes
-          :gauge, :first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample, :revised,
-          :original, :excerpt, :catholic, :domestic, :trailer, :english, :television, :x_rated, :generation_b_roll,
-          :generation_commercial_release, :generation_copy_access, :generation_dub, :generation_duplicate, :generation_edited,
-          :generation_fine_cut, :generation_intermediate, :generation_line_cut, :generation_master, :generation_master_production,
-          :generation_master_distribution, :generation_off_air_recording, :generation_original, :generation_picture_lock,
-          :generation_rough_cut, :generation_stock_footage, :generation_submaster, :generation_work_tapes, :generation_work_track,
-          :generation_other, :generation_notes,
-          :reel_number, :size, :recording_standard, :base, :stock, :detailed_stock_information, :tape_capacity,
-          :playback_speed, :picture_type_not_applicable, :picture_type_silent_picture, :picture_type_mos_picture, :picture_type_composite_picture,
-          :picture_type_credits_only, :picture_type_picture_effects, :picture_type_picture_outtakes, :picture_type_other,
-          :picture_type_not_applicable,
-          :image_color_bw, :image_color_color, :image_color_mixed, :image_color_other, :image_aspect_ratio_4_3, :image_aspect_ratio_16_9,
-          :image_aspect_ratio_5_4, :image_aspect_ratio_16_10, :image_aspect_ratio_21_9,
-          :image_aspect_ratio_other, :captions_or_subtitles, :captions_or_subtitles_notes, :silent, :sound_format_type_magnetic, :sound_format_type_digital,
-          :sound_format_type_sound_on_separate_media, :sound_format_type_other, :sound_content_type_music_track, :sound_content_type_effects_track,
-          :sound_content_type_dialog, :sound_content_type_composite_track, :sound_content_type_outtakes, :sound_configuration_mono,
-          :sound_configuration_stereo, :sound_configuration_surround, :sound_configuration_other, :sound_noise_redux_dolby_a,
-          :sound_noise_redux_dolby_b, :sound_noise_redux_dolby_c, :sound_noise_redux_dolby_s, :sound_noise_redux_dolby_sr,
-          :sound_noise_redux_dolby_nr, :sound_noise_redux_dolby_hx, :sound_noise_redux_dolby_hx_pro, :sound_noise_redux_dbx,
-          :sound_noise_redux_dbx_type_1, :sound_noise_redux_dbx_type_2, :sound_noise_redux_high_com, :sound_noise_redux_high_com_2,
-          :sound_noise_redux_adres, :sound_noise_redux_anrs, :sound_noise_redux_dnl, :sound_noise_redux_dnr, :sound_noise_redux_cedar,
-          :sound_noise_redux_none, :notes, :condition_rating, :condition_notes, :research_value, :research_value_notes, :mold,
+        # video specific attributes
+        :gauge, :first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample, :revised,
+        :original, :excerpt, :catholic, :domestic, :trailer, :english, :television, :x_rated, :generation_b_roll,
+        :generation_commercial_release, :generation_copy_access, :generation_dub, :generation_duplicate, :generation_edited,
+        :generation_fine_cut, :generation_intermediate, :generation_line_cut, :generation_master, :generation_master_production,
+        :generation_master_distribution, :generation_off_air_recording, :generation_original, :generation_picture_lock,
+        :generation_rough_cut, :generation_stock_footage, :generation_submaster, :generation_work_tapes, :generation_work_track,
+        :generation_other, :generation_notes,
+        :reel_number, :size, :recording_standard, :base, :stock, :detailed_stock_information, :tape_capacity,
+        :playback_speed, :picture_type_not_applicable, :picture_type_silent_picture, :picture_type_mos_picture, :picture_type_composite_picture,
+        :picture_type_credits_only, :picture_type_picture_effects, :picture_type_picture_outtakes, :picture_type_other,
+        :picture_type_not_applicable,
+        :image_color_bw, :image_color_color, :image_color_mixed, :image_color_other, :image_aspect_ratio_4_3, :image_aspect_ratio_16_9,
+        :image_aspect_ratio_5_4, :image_aspect_ratio_16_10, :image_aspect_ratio_21_9,
+        :image_aspect_ratio_other, :captions_or_subtitles, :captions_or_subtitles_notes, :silent, :sound_format_type_magnetic, :sound_format_type_digital,
+        :sound_format_type_sound_on_separate_media, :sound_format_type_other, :sound_content_type_music_track, :sound_content_type_effects_track,
+        :sound_content_type_dialog, :sound_content_type_composite_track, :sound_content_type_outtakes, :sound_configuration_mono,
+        :sound_configuration_stereo, :sound_configuration_surround, :sound_configuration_other, :sound_noise_redux_dolby_a,
+        :sound_noise_redux_dolby_b, :sound_noise_redux_dolby_c, :sound_noise_redux_dolby_s, :sound_noise_redux_dolby_sr,
+        :sound_noise_redux_dolby_nr, :sound_noise_redux_dolby_hx, :sound_noise_redux_dolby_hx_pro, :sound_noise_redux_dbx,
+        :sound_noise_redux_dbx_type_1, :sound_noise_redux_dbx_type_2, :sound_noise_redux_high_com, :sound_noise_redux_high_com_2,
+        :sound_noise_redux_adres, :sound_noise_redux_anrs, :sound_noise_redux_dnl, :sound_noise_redux_dnr, :sound_noise_redux_cedar,
+        :sound_noise_redux_none, :notes, :condition_rating, :condition_notes, :research_value, :research_value_notes, :mold,
 
-          value_conditions_attributes: [:id, :condition_type, :value, :comment, :_destroy],
-          boolean_conditions_attributes: [:id, :condition_type, :comment, :_destroy],
-          languages_attributes: [:id, :language, :language_type, :_destroy],
-          physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
-          physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy]
+        value_conditions_attributes: [:id, :condition_type, :value, :comment, :_destroy],
+        boolean_conditions_attributes: [:id, :condition_type, :comment, :_destroy],
+        languages_attributes: [:id, :language, :language_type, :_destroy],
+        physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
+        physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy]
       )
     elsif params[:recorded_sound]
       params.require(:recorded_sound).permit(
           # physical object specific attributes
-          :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-          :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
-          :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
-          :catalog_key, :compilation, :format_notes, :digitized,
+        :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
+        :catalog_key, :compilation, :format_notes, :digitized,
 
-          # recorded sound specific attributes
-          :version_first_edition, :version_second_edition, :version_third_edition, :version_fourth_edition, :version_abridged,
-          :version_anniversary, :version_domestic, :version_english, :version_excerpt, :version_long, :version_original,
-          :version_reissue, :version_revised, :version_sample, :version_short, :version_x_rated, :gauge, :generation_copy_access,
-          :generation_dub, :generation_duplicate, :generation_intermediate, :generation_master, :generation_master_distribution,
-          :generation_master_production, :generation_off_air_recording, :generation_original_recording, :generation_preservation,
-          :generation_work_tapes, :generation_other, :generation_notes, :sides, :part, :size, :base, :stock, :detailed_stock_information,
-          :multiple_items_in_can, :playback, :sound_content_type_composite_track, :sound_content_type_dialog, :sound_content_type_effects_track,
-          :sound_content_type_music_track, :sound_content_type_outtakes, :sound_configuration_dual_mono, :sound_configuration_mono,
-          :sound_configuration_stereo, :sound_configuration_surround, :sound_configuration_unknown, :sound_configuration_other,
-          :condition_rating, :condition_notes, :research_value, :research_value_notes, :mold, :noise_reduction, :capacity, :track_configuration,
+        # recorded sound specific attributes
+        :version_first_edition, :version_second_edition, :version_third_edition, :version_fourth_edition, :version_abridged,
+        :version_anniversary, :version_domestic, :version_english, :version_excerpt, :version_long, :version_original,
+        :version_reissue, :version_revised, :version_sample, :version_short, :version_x_rated, :gauge, :generation_copy_access,
+        :generation_dub, :generation_duplicate, :generation_intermediate, :generation_master, :generation_master_distribution,
+        :generation_master_production, :generation_off_air_recording, :generation_original_recording, :generation_preservation,
+        :generation_work_tapes, :generation_other, :generation_notes, :sides, :part, :size, :base, :stock, :detailed_stock_information,
+        :multiple_items_in_can, :playback, :sound_content_type_composite_track, :sound_content_type_dialog, :sound_content_type_effects_track,
+        :sound_content_type_music_track, :sound_content_type_outtakes, :sound_configuration_dual_mono, :sound_configuration_mono,
+        :sound_configuration_stereo, :sound_configuration_surround, :sound_configuration_unknown, :sound_configuration_other,
+        :condition_rating, :condition_notes, :research_value, :research_value_notes, :mold, :noise_reduction, :capacity, :track_configuration,
 
-          # additional physical object specific associations
-          value_conditions_attributes: [:id, :condition_type, :value, :comment, :_destroy],
-          boolean_conditions_attributes: [:id, :condition_type, :comment, :_destroy],
-          languages_attributes: [:id, :language, :language_type, :_destroy],
-          physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
-          physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy]
+        # additional physical object specific associations
+        value_conditions_attributes: [:id, :condition_type, :value, :comment, :_destroy],
+        boolean_conditions_attributes: [:id, :condition_type, :comment, :_destroy],
+        languages_attributes: [:id, :language, :language_type, :_destroy],
+        physical_object_original_identifiers_attributes: [:id, :identifier, :_destroy],
+        physical_object_dates_attributes: [:id, :controlled_vocabulary_id, :date, :_destroy]
       )
     elsif params[:equipment_technology]
       params.require(:equipment_technology).permit(
         # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :condition_rating, :condition_notes, :research_value, :research_value_notes,
 

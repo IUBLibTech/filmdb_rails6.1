@@ -119,6 +119,7 @@ ul.nav {
     position: absolute;
     word-spacing: normal;
     border-radius: 3px;
+    z-index: 1;
 }
 ul.nav > li {
     list-style-type: none;
@@ -267,6 +268,14 @@ h5 {
   margin: 0 15px 0 0;
   background: #b1ccdb;
 }
+
+h6 {
+    font-size: 1em;
+    padding: 0;
+    margin: 0;
+    font-style: italic;
+    color: rgba(0, 0, 0, .5);
+}
 div.simple_text {
   margin: 0 15px 0 0;
 }
@@ -405,7 +414,7 @@ td#color {
 }
 
 ._100 {
-    width: 99%;
+    width: 100%;
 }
 
 ._400px {
@@ -894,6 +903,11 @@ td.fill > input {
     width: 96%;
 }
 
+td.fill_w_pad > input, textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 td.widest {
   width: 75%;
 }
@@ -938,6 +952,36 @@ a.title_link {
   min-width: 5rem;
 }
 
+.flex_row > label {
+    margin-right: 5px;
+    font-weight: bold;
+}
+.flex_row > div {
+    overflow: auto;
+    max-height: 45px;
+}.flex_row_desc {
+    max-height: 4.5em;
+    overflow: auto;
+    margin-top: -.5em;
+}
+.flex_wrap > a {
+    display: inline;
+    width: 23%;
+    font-weight: normal;
+    color: black;
+    padding: 0;
+    width: 25%;
+}
+._ad {
+    border-radius: 5px;
+    padding: 3px;
+    height: 115px;
+    margin: 5px 5px 0 0;
+}
+.ad > .flex_column > .flex_row {
+    flex-wrap: nowrap;
+}
+
 div.po_error_div > ul {
   margin-left: 2rem;
 }
@@ -948,4 +992,52 @@ div.po_error_div > ul {
 
 .edge_code_select, span.ec {
     font-size: 1.5em;
+}
+
+.raised {
+    border-radius: 5px;
+    background: #e69a37;
+    padding: 4px 5px;
+    font-weight: bold;
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: help;
+}
+
+.raised_po {
+    background: #f4e1f9
+}
+.raised_title {
+    background: #d3e8e8
+}
+.raised_series {
+    background: #cea9a1
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    left: 105%;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }

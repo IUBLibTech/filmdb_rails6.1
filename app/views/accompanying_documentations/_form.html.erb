@@ -1,0 +1,349 @@
+<%= form_for :accompanying_documentations, url: accompanying_documentations_path, method: (action_name == "new" ? :post : :patch ), html: { id: "ad_form"} do |f| %>
+  <% if accompanying_documentations.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(accompanying_documentations.errors.count, "error") %> prohibited this Accompanying Documentation from being saved:</h2>
+      <ul>
+        <% accompanying_documentations.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <table class="_100">
+    <tbody>
+    <tr>
+      <th class="_25">Location</th>
+      <td class="fill_w_pad"><%= f.text_field :location %></td>
+    </tr>
+    <tr>
+      <th>Description</th>
+      <td class="fill_w_pad"><%= f.text_area :description %></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h4>Applies to</h4>
+  <%= hidden_field_tag :po_ids %>
+  <%= hidden_field_tag :title_id %>
+  <%= hidden_field_tag :series_id %>
+  <table class="_100">
+    <tbody>
+    <tr>
+      <th class="_25">Physical Objects:</th><td id="barcodes" class="fill_w_pad"><%= text_field_tag :add_barcode %></td>
+    </tr>
+    <tr>
+      <th colspan="2"></th>
+    </tr>
+    <tr>
+      <th class="_25">Title:</th>
+      <td id="title_list" class="fill_w_pad"><%= text_field_tag :title_text %></td>
+    </tr>
+    <tr>
+      <th class="_25">Series Title:</th>
+      <td id="series_list" class="fill_w_pad"><%= text_field_tag :series_text %></td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="actions">
+    <%= f.submit "Save Accompanying Documentation" %>
+  </div>
+<% end %>
+<script type="text/javascript">
+
+  let assocType = '';
+
+  $(document).ready( function() {
+      // barcode input event handler
+      $('#add_barcode').on("input", function() {
+          if ($(this).val().length >= 14) {
+            if (validateIUBarcode($(this))) {
+                let url = "../../services/barcode_lookup/"+$(this).val();
+                $.ajax({
+                    url: url,
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        swal({
+                            title: 'Ajax Error',
+                            text: 'An error occurred while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                        }, function () {
+                            window.location.replace(url)
+                        })
+                    },
+                    success: function(result) {
+                        if (result["success"] === true) {
+                            addPo(result);
+                        } else {
+                            swal({
+                                title: "Warning",
+                                text: result["msg"],
+                                messageType: "warning",
+                                showCancelButton: false
+                            },
+                            function(isConfirm) {
+                                $("#add_barcode").val("");
+
+                            }
+                          )
+                        }
+                    },
+                })
+            }
+          } else {
+              markValid($(this));
+          }
+      })
+
+      // title autocompleter
+      $("#title_text").autocomplete({
+          minLength: 4,
+          source: '../..<%= autocomplete_title_path %>',
+          delay: 400,
+          focus: function (event, ui) {
+              $(".ui-autocomplete > li").attr("title", ui.item.summary);
+              return false;
+          },
+          select: function (event, ui) {
+              addTitle(ui.item);
+              $("#title_text").val("");
+              return false;
+          }
+      })
+
+      //series autocompleter
+      $("#series_text").autocomplete({
+          minLength: 3,
+          source: '../..<%= autocomplete_series_path %>',
+          delay: 400,
+          focus: function (event, ui) {
+              $(".ui-autocomplete > li").attr("title", ui.item.summary);
+              return false;
+          },
+          select: function (event, ui) {
+              addSeries(ui.item);
+              $("#series_text").val("");
+              return false;
+          }
+      });
+
+      // form submission client validation
+      function warn() {
+          swal({
+              messageType: "warning",
+              title: "Missing Required Field",
+              text: "To save Accompanying Documentation, all fields are required as well as at least one object association."
+          })
+      }
+
+      $("#ad_form").submit(
+          function (event) {
+              if ($("#accompanying_documentation_location").val().length === 0 || $("#accompanying_documentation_description").val().length === 0 || assocType === '') {
+                  event.preventDefault();
+                  warn();
+                  return false;
+              }
+          }
+      );
+
+      <% if @accompanying_documentation.physical_objects.size > 0 %>
+          let adds = <%= @accompanying_documentation.physical_objects.collect { |po| { "id": po.id, "barcode": po.iu_barcode } }.to_json.html_safe %>;
+          for (let x = 0; x < adds.length; x++) {
+              let add = adds[x]
+              addPo(add);
+          }
+      <% elsif @accompanying_documentation.title %>
+          addTitle(<%= {"value": @accompanying_documentation.title.id, "label": @accompanying_documentation.title.title_text}.to_json.html_safe %>);
+      <% elsif @accompanying_documentation.series %>
+         addSeries(<%= {"value": @accompanying_documentation.series.id, "label": @accompanying_documentation.series.title}.to_json.html_safe %>)
+      <% end %>
+  });
+
+  function warnReplaceSingleAssoc(type, func) {
+      swal({
+          messageType: "warning",
+          html: true,
+          title: "",
+          text: "Only single "+type+" can be associated with Accompanying Documentation and another association already exists!<br/>"+
+              "Do you want to replace that association?",
+          showConfirmButton: true,
+          showCancelButton: true,
+          cancelButtonText: "No",
+          confirmButtonText: "Yes"
+          },
+          function(isConfirm) {
+              func(isConfirm);
+          }
+      )
+  }
+  function warnAssocExists(func) {
+      swal({
+          messageType: "warning",
+          title: assocType+" Association Already Exists!",
+          html: true,
+          text: "<p>Accompanying Documentation can only be associated with <i><b>one</b></i> of the following types of objects:" +
+          "<br/><br/>One or more Physical Objects"+
+          "<br/>A <i>single</i> Title"+
+          "<br/>A <i>single</i> Series"+
+          "<br/><br/>If you continue, the existing association will be removed.",
+          showConfirmButton: true,
+          showCancelButton: true,
+          },
+          function(isConfirm) {
+              swal.close();
+              func(isConfirm);
+          }
+      );
+  }
+  function addTitle(item) {
+      let title = item.label;
+      let id = item.value;
+      function adder(confirm) {
+          if (confirm) {
+              removeAssoc()
+              $("#title_text").before(
+                  "<div class='raised raised_title tooltip' data-id='"+id+"'>"+
+                  "<div class='bc'>"+title+"</div>"+
+                  "<span class=tooltiptext>Click to remove</span>"+
+                  "</div>"
+              )
+              assocType = 'Title'
+              $(".raised[data-id='"+id+"']").on("click", function(event) { event.preventDefault(); removeTitle(); });
+          }
+          $("#title_id").val(id);
+      }
+      if ((assocType != null && assocType != '' && assocType != 'Title')) {
+          warnAssocExists(adder);
+      } else if (assocType === 'Title' && $('#title_id').val() != id.toString()) {
+          warnReplaceSingleAssoc('Title', adder)
+      } else {
+          adder(true);
+      }
+      $("#title_text").val("");
+
+  }
+  function removeTitle() {
+      assocType = "";
+      $("#title_id").val("");
+      $("#title_list > div").remove();
+  }
+  function addSeries(item) {
+      let title = item.label
+      let id = item.value
+      function adder(isConfirm) {
+          if (confirm) {
+              removeAssoc();
+              $("#series_text").before(
+                  "<div class='raised raised_series tooltip' data-id='"+id+"'>"+
+                  "<div class='bc'>"+title+"</div>"+
+                  "<span class=tooltiptext>Click to remove</span>"+
+                  "</div>"
+              )
+              assocType = 'Series'
+              $(".raised[data-id='"+id+"']").on("click", function(event) { event.preventDefault(); removeSeries(); });
+              $("#series_id").val(id);
+          }
+      }
+      if ((assocType != null && assocType != '' && assocType != 'Series')) {
+          warnAssocExists(adder);
+      } else if (assocType === 'Series' && $('#series_id').val() != id.toString()) {
+          warnReplaceSingleAssoc('Series', adder)
+      } else {
+          adder(true);
+      }
+      $("#series_text").val("");
+  }
+  function removeSeries() {
+      assocType = "";
+      $("#series_title").val("");
+      $("#series_list > div").remove();
+  }
+  function removeAssoc() {
+      switch (assocType) {
+          case 'Physical Object':
+              removePos();
+          case "Title":
+              removeTitle();
+          case "Series":
+              removeSeries();
+      }
+  }
+  function addPo(json) {
+      let id = json["id"];
+      let barcode = json["barcode"];
+      let pos = getPos();
+      if (assocType === 'Physical Object' && pos.includes(id.toString()) && !force) {
+          swal({
+              title: "Warning",
+              messageType: "warning",
+              text: barcode+" has already been associated with this Accompanying Documentation.",
+              showCancelButton: false
+
+          })
+      } else {
+          function adder(confirm) {
+              if (confirm) {
+                  // 1 or MORE POs can be associated so do not clear existing ones
+                  removeTitle();
+                  removeSeries();
+                  pos.push(id);
+                  setPos(pos);
+                  $("#add_barcode").before(
+                      "<div class='raised raised_po tooltip' data-id='"+id+"'>"+
+                      "<div class='bc'>"+barcode+"</div>"+
+                      "<span class=tooltiptext>Click to remove</span>"+
+                      "</div>"
+                  )
+                  $(".raised[data-id='"+id+"']").on("click", function(event) { event.preventDefault(); removePo(id); });
+                  assocType = "Physical Object";
+              }
+          }
+          if (assocType != null && assocType != '' && assocType != 'Physical Object') {
+              warnAssocExists(adder)
+          } else {
+              adder(true);
+          }
+      }
+      $("#add_barcode").val("");
+      return false;
+  }
+  function removePo(id) {
+      let pos = getPos();
+      let orig = [...pos];
+      if (pos.includes(id.toString())) {
+          let index = pos.indexOf(id.toString());
+          let new_pos = pos.toSpliced(index, 1);
+          if (new_pos.length === 0) {
+              assocType = null;
+          }
+          setPos(new_pos);
+          let del = $(".raised[data-id='"+id+"']");
+          del.remove();
+      } else {
+          swal({
+              title: "Warning",
+              messageType: "warning",
+              text: "An unexpected error occurred while trying to remove a Physical Object from the association list that was not found in the association list."+
+                  " Please email Carmel a detailed list of the steps which generated this error message.",
+              showCancelButton: "false",
+          })
+      }
+      return false;
+  }
+  function removePos() {
+      setPos([]);
+      $("#barcodes > div").remove();
+      assocType = null;
+  }
+  function getPos() {
+      //this to return a 0-length array when there are no ids stored yet
+      return $("#po_ids").val().split(",").filter(o=>o);
+  }
+  function setPos(pos_array) {
+      return $("#po_ids").val(pos_array.join(","))
+  }
+
+
+
+
+
+
+</script>

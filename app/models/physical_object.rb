@@ -40,6 +40,12 @@ class PhysicalObject < ApplicationRecord
   has_many :physical_object_original_identifiers
 	has_many :workflow_statuses, validate: false
 
+	has_many :physical_object_accompanying_documentations
+	has_many :accompanying_documentations, through: :physical_object_accompanying_documentations
+
+	# has_many :physical_object_accompanying_documentations, class: AccompanyingDocumentation
+	# has_many :accompanying_documentations, through: :physical_object_accompanying_documentations
+
 
   accepts_nested_attributes_for :boolean_conditions, allow_destroy: true
   accepts_nested_attributes_for :value_conditions, allow_destroy: true
