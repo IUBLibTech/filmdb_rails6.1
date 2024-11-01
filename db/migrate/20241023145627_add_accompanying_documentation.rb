@@ -1,4 +1,4 @@
-class AccompanyingDocumentation < ActiveRecord::Migration[6.1]
+class AddAccompanyingDocumentation < ActiveRecord::Migration[6.1]
   def change
     create_table :accompanying_documentations do |t|
       t.string :location
