@@ -68,8 +68,10 @@
     <% @title.accompanying_documentations.each do |ad| %>
       <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_title'}  %>
     <% end %>
-    <% @title.series.accompanying_documentations.each do |ad| %>
-      <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_series'}  %>
+    <% unless @titles.series.nil? %>
+      <% @title.series.accompanying_documentations.each do |ad| %>
+        <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_series'}  %>
+      <% end %>
     <% end %>
   </div>
 <% end %>
