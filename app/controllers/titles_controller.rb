@@ -690,7 +690,7 @@ class TitlesController < ApplicationController
                        date: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text],
                        summary_text: params[:summary_text], location_text: params[:location_text],
                        subject_text: params[:subject_text], collection_id: (params[:collection_id] == '0' ? 0 : params[:collection_id]),
-                       digitized_status: params[:digitized_status])
+                       digitized_status: params[:digitized_status], medium_filter: params[:medium_filter])
   end
 	helper_method :page_link_path
 

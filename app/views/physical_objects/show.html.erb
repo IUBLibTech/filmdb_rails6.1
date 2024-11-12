@@ -67,17 +67,6 @@
       <%= format_newlines(@physical_object.format_notes) %>
     </div>
   <% end %>
-  <% unless @physical_object.accompanying_documentation.blank? && @physical_object.accompanying_documentation_location.blank?  %>
-    <div id="accompanying_documentation_metadata" class="metadata_section">
-      <h4>Ephemera</h4>
-      <div>
-        <%= format_newlines(@physical_object.accompanying_documentation) %>
-      </div>
-      <div>
-        <b>Location</b> <%= @physical_object.accompanying_documentation_location %>
-      </div>
-    </div>
-  <% end %>
   <div id="new_ad" class="metadata_section">
     <h4>Accompanying Documentation</h4>
     <div class="flex_wrap">
@@ -99,6 +88,18 @@
         <% end %>
       <% end %>
     </div>
+  </div>
+    <% unless @physical_object.accompanying_documentation.blank? && @physical_object.accompanying_documentation_location.blank?  %>
+      <div id="accompanying_documentation_metadata" class="metadata_section">
+        <h4>Ephemera</h4>
+        <div>
+          <%= format_newlines(@physical_object.accompanying_documentation) %>
+        </div>
+        <div>
+          <b>Location</b> <%= @physical_object.accompanying_documentation_location %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <% unless @physical_object.photo_link.blank? %>

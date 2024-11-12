@@ -57,7 +57,7 @@
     </div>
   </div>
 </div>
-<% if @title.physical_objects.any?{|po| po.accompanying_documentations.size > 0} || @title.accompanying_documentations.size > 0 || (@title&.series && @title&.series.accompanying_documentations.size > 0.accompanying_documentations.size > 0.accompanying_documentations.size > 0)%>
+<% if @title.physical_objects.any?{|po| po.accompanying_documentations.size > 0} || @title.accompanying_documentations.size > 0 || (@title&.series && @title&.series.accompanying_documentations.size > 0)%>
   <h4>Accompanying Documentation</h4>
   <div class="flex_wrap">
     <% @title.physical_objects.each do |po| %>
@@ -68,7 +68,7 @@
     <% @title.accompanying_documentations.each do |ad| %>
       <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_title'}  %>
     <% end %>
-    <% unless @titles.series.nil? %>
+    <% unless @title.series.nil? %>
       <% @title.series.accompanying_documentations.each do |ad| %>
         <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_series'}  %>
       <% end %>

@@ -10,9 +10,18 @@
   <b>ALF/Freezer Location</b> <%= @physical_object.alf_shelf %> <br>
 </div>
 <div class="metadata_section">
-  <h4 class="m_top_10px">Accompanying Documentation</h4>
+
+  <% if @physical_object.accompanying_documentations.size > 0 %>
+    <h4 class="m_top_10px">Accompanying Documentation</h4>
+    <div class="flex_wrap">
+    <% @physical_object.accompanying_documentations.each do |ad| %>
+      <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_po'}  %>
+    <% end %>
+    </div>
+  <% end %>
+  <h4 class="m_top_10px">Ephemera</h4>
   <div>
-    <%= format_newlines(@physical_object.accompanying_documentations) %>
+    <%= format_newlines(@physical_object.accompanying_documentation) %>
   </div>
   <div>
     <b>Location</b> <%= @physical_object.accompanying_documentation_location %>

@@ -3,7 +3,7 @@ module PhysicalObjectsHelper
 
   # attributes that belong to the base PhysicalObject model
   PO_ONLY_ATTRIBUTES = [:location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-                        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+                        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
                         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
                         :catalog_key, :compilation, :format_notes]
 
@@ -164,28 +164,28 @@ module PhysicalObjectsHelper
       params.require(:film).permit(
           # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
     elsif params[:video]
       params.require(:video).permit(
           # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :photo_link)
     elsif params[:recorded_sound]
       params.require(:recorded_sound).permit(
           # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :photo_link
       )
     elsif params[:equipment_technology]
       params.require(:equipment_technology).permit(
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :photo_link
       )
@@ -199,7 +199,7 @@ module PhysicalObjectsHelper
       params.require(:film).permit(
           # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :photo_link,
 
@@ -261,7 +261,7 @@ module PhysicalObjectsHelper
       params.require(:video).permit(
           # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized,
 
@@ -299,7 +299,7 @@ module PhysicalObjectsHelper
       params.require(:recorded_sound).permit(
           # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized,
 
@@ -326,7 +326,7 @@ module PhysicalObjectsHelper
       params.require(:equipment_technology).permit(
         # physical object specific attributes
         :location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
-        :creator, :language, :accompanying_documentations, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
+        :creator, :language, :accompanying_documentation, :notes, :unit_id, :collection_id, :alf_shelf, :duration,
         :conservation_actions, :mdpi_barcode, :accompanying_documentation_location, :miscellaneous, :title_control_number,
         :catalog_key, :compilation, :format_notes, :digitized, :condition_rating, :condition_notes, :research_value, :research_value_notes,
 

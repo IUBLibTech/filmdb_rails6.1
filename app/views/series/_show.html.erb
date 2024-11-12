@@ -11,11 +11,11 @@
   </div>
 </div>
 
-<% if @series.accompanying_documentation.size > 0 %>
+<% if @series.accompanying_documentations.size > 0 %>
 
 <h4>Accompanying Documentation</h4>
   <div class="flex_wrap">
-    <% @series.accompanying_documentation.each do |ad| %>
+    <% @series.accompanying_documentations.each do |ad| %>
       <%= render partial: 'accompanying_documentations/ad_preview', locals: { ad: ad, css: 'raised_series'}  %>
     <% end %>
   </div>
