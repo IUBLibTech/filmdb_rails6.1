@@ -266,16 +266,19 @@
         })
     });
 
-
-    function hookReelNumberValidator() {
-	    $("#film_reel_number, #video_reel_number").bind("input", function() {
-	    	let v = $(this).val()
+    function checkReelNumber() {
+        let v = $(this).val()
         if (validReelNumber(v)) {
-	        $(this).removeClass('bad_barcode')
+            $(this).removeClass('bad_barcode')
         } else {
-	        $(this).addClass('bad_barcode')
+            $(this).addClass('bad_barcode')
         }
-	    });
+    }
+    function hookReelNumberValidator() {
+        $("#film_reel_number, #video_reel_number").bind("input", checkReelNumber);
+        // when an object is edited, this input listener is bound AFTER the value has been set for the input.
+        // Must check that legacy invalid text does not exist in this field
+        $("#film_reel_number, #video_reel_number").each(checkReelNumber)
     }
     function validReelNumber(val) {
     	return val === "" || /^[\d]+ of [\d?]+$/.test(val);
