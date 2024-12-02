@@ -289,8 +289,8 @@ class TitlesController < ApplicationController
   # does the actual title merge for ajax search based merging
   def merge_autocomplete_titles
     master = Title.joins(:physical_objects).includes(:physical_objects).find(params[:master_title_id])
-    PhysicalObject.transaction do
-      mergees = Title.where("titles.id in (?)", params[:mergees].split(",").collect { |s| s.to_i }).joins(:physical_objects).includes(:physical_objects)
+    Title.transaction do
+      mergees = Title.where("titles.id in (?)", params[:mergees].split(",").collect { |s| s.to_i }).includes(:physical_objects)
       # DO NOT use TitleHelper title_merge. This code was created to implement Title merging based on
       # significantly different UI inputs that no longer exist in Filmdb's Title Merge functionality. The code is retained
       # for historical and reference purposes.
@@ -337,9 +337,12 @@ class TitlesController < ApplicationController
             master.title_locations << tl
           end
         end
-        PhysicalObjectTitle.where(title_id: m.id).update_all(title_id: master.id)
-      end
+        m.accompanying_documentations.update_all(title_id: master.id)
 
+        ComponentGroup.where(title_id: m.id).update_all(title_id: master.id)
+        PhysicalObjectTitle.where(title_id: m.id).update_all(title_id: master.id)
+        m.destroy!
+      end
 
       # now update any active POs
       active_pos = []
@@ -367,9 +370,10 @@ class TitlesController < ApplicationController
     @title = master
     render 'titles/show'
   end
+
   def old_merge_autocomplete_titles
     begin
-      PhysicalObject.transaction do
+      Title.transaction do
         @component_group_cv = ControlledVocabulary.component_group_cv
         @master = Title.find(params[:master_title_id])
         @title = @master
@@ -686,7 +690,7 @@ class TitlesController < ApplicationController
                        date: params[:date], publisher_text: params[:publisher_text], creator_text: params[:creator_text],
                        summary_text: params[:summary_text], location_text: params[:location_text],
                        subject_text: params[:subject_text], collection_id: (params[:collection_id] == '0' ? 0 : params[:collection_id]),
-                       digitized_status: params[:digitized_status])
+                       digitized_status: params[:digitized_status], medium_filter: params[:medium_filter])
   end
 	helper_method :page_link_path
 

@@ -11,7 +11,7 @@ class PhysicalObjectAdditionalMetadataFields < ActiveRecord::Migration[4.2]
     add_column :physical_objects, :distributors, :string
     add_column :physical_objects, :credits, :string
     add_column :physical_objects, :language, :string
-    add_column :physical_objects, :accompanying_documentation, :text
+    add_column :physical_objects, :accompanying_documentations, :text
     add_column :physical_objects, :notes, :text
 
   end

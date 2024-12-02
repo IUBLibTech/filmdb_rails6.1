@@ -15,7 +15,7 @@ class CreateCollectionInventoryConfigurations < ActiveRecord::Migration[4.2]
       t.boolean :distributors
       t.boolean :credits
       t.boolean :language
-      t.boolean :accompanying_documentation
+      t.boolean :accompanying_documentations
       t.boolean :notes
 
       t.timestamps

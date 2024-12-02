@@ -19,11 +19,11 @@ module EquipmentTechnologyHelper
     pos = EquipmentTechnology.all
     pos.each do |p|
       eq.add_row( [
-        p.iu_barcode, p.collection&.name, p.accompanying_documentation, p.humanize_boolean_fields(EquipmentTechnology::TYPE_FIELDS),
-        p.manufacturer, p.model, p.serial_number, "#{p.related_media_format} (#{p.related_media_format_gauges})", p.box_number,
-        p.production_year, p.production_location, p.original_identifiers_text, p.summary, p.cost_notes, p.cost_estimate,
-        p.photos_url, p.external_reference_links, p.original_notes_from_donor, p.working_condition, p.condition_rating,
-        p.condition_notes, p.research_value, p.research_value_notes, p.conservation_actions
+                    p.iu_barcode, p.collection&.name, p.accompanying_documentations, p.humanize_boolean_fields(EquipmentTechnology::TYPE_FIELDS),
+                    p.manufacturer, p.model, p.serial_number, "#{p.related_media_format} (#{p.related_media_format_gauges})", p.box_number,
+                    p.production_year, p.production_location, p.original_identifiers_text, p.summary, p.cost_notes, p.cost_estimate,
+                    p.photos_url, p.external_reference_links, p.original_notes_from_donor, p.working_condition, p.condition_rating,
+                    p.condition_notes, p.research_value, p.research_value_notes, p.conservation_actions
       ])
     end
     success = x.serialize(eq_file_location)

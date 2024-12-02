@@ -13,8 +13,9 @@ class PhysicalObject < ApplicationRecord
   belongs_to :cage_shelf, optional: true
 	belongs_to :active_component_group, class_name: 'ComponentGroup', foreign_key: 'component_group_id', autosave: true, optional: true
 
-	# this must be optional because there is not workflow status at PO creation (inventorying)
+	# this must be optional because there is no workflow status at PO creation (inventorying)
 	belongs_to :current_workflow_status, class_name: 'WorkflowStatus', foreign_key: 'current_workflow_status_id', autosave: true, optional: true
+	
 
 	has_many :physical_object_old_barcodes
   has_many :component_group_physical_objects, dependent: :delete_all
@@ -39,6 +40,12 @@ class PhysicalObject < ApplicationRecord
   has_many :languages, autosave: true
   has_many :physical_object_original_identifiers
 	has_many :workflow_statuses, validate: false
+
+	has_many :physical_object_accompanying_documentations
+	has_many :accompanying_documentations, through: :physical_object_accompanying_documentations
+
+	# has_many :physical_object_accompanying_documentations, class: AccompanyingDocumentation
+	# has_many :accompanying_documentations, through: :physical_object_accompanying_documentations
 
 
   accepts_nested_attributes_for :boolean_conditions, allow_destroy: true

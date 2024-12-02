@@ -59,6 +59,10 @@ class Title < ApplicationRecord
     Title.where(title_text: titles_in).where('spreadsheet_id IS NULL OR spreadsheet_id != ?', ss_id).group(:title_text).count
   }
 
+	scope :accompanying_documentations, -> (title) {
+		AccompanyingDocumentation.where(title_id: title.id)
+	}
+
   scope :title_text_count_in_series, -> (series_id) {
     Title.where(series_id: series_id).group('title_text').count
   }
@@ -290,6 +294,10 @@ class Title < ApplicationRecord
 			cs = p.current_workflow_status
 			(!cs.nil? && !WorkflowStatus.is_storage_status?(cs.status_name)) &&	cs.status_name != WorkflowStatus::JUST_INVENTORIED_ALF && cs.status_name != WorkflowStatus::JUST_INVENTORIED_WELLS
 		}
+	end
+
+	def accompanying_documentations
+		AccompanyingDocumentation.where(title_id: self.id)
 	end
 
 	def active_component_groups

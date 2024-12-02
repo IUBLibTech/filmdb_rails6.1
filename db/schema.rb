@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_04_124450) do
+ActiveRecord::Schema.define(version: 2024_10_23_145733) do
+
+  create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "location"
+    t.text "description"
+    t.integer "title_id"
+    t.integer "series_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
@@ -432,12 +441,26 @@ ActiveRecord::Schema.define(version: 2024_09_04_124450) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "physical_object_accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "physical_object_id"
+    t.integer "accompanying_documentation_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "physical_object_dates", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.bigint "controlled_vocabulary_id"
     t.string "date"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "physical_object_ephemeras", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "physical_object_id"
+    t.integer "ephemera_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "physical_object_old_barcodes", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
