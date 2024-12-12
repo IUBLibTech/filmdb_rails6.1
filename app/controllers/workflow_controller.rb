@@ -546,24 +546,19 @@ class WorkflowController < ApplicationController
 		else
 			PhysicalObject.transaction do
 				current = po.current_location
-				active_cg = po.active_component_group
-				if po.medium != 'Film' && (params[:location] == WorkflowStatus::IN_FREEZER || params[:location] == WorkflowStatus::AWAITING_FREEZER)
+				#active_cg = po.active_component_group
+				if po.medium != 'Film'
 					flash.now[:warning] = "Only Films can be moved to the Freezer. #{po.iu_barcode} is a #{po.medium_name}"
-					break
-				end
-				ws = WorkflowStatus.build_workflow_status(params[:location], po, true)
-				po.workflow_statuses << ws
-				po.current_workflow_status = ws
-				if !params[:remove].nil?
-					if !active_cg.nil?
-						ComponentGroupPhysicalObject.where(physical_object_id: po.id, component_group_id: active_cg.id).delete_all
+				else
+					if current == WorkflowStatus::IN_FREEZER || current == WorkflowStatus::AWAITING_FREEZER
+						ws = WorkflowStatus.build_workflow_status(params[:location], po, true)
+						po.workflow_statuses << ws
+						po.current_workflow_status = ws
+						po.save
+						flash[:notice] = "#{po.iu_barcode} was moved from #{current} to #{ws.status_name}.".html_safe
+					else
+						flash.now[:warning] = "Only POs already in the freezer can change their freezer location. #{po.iu_barcode} is currently: #{current}"
 					end
-					po.active_component_group = nil
-				end
-				po.save
-				flash[:notice] = "#{po.iu_barcode} was moved from #{current} to #{ws.status_name}.".html_safe
-				if !active_cg.nil?
-					flash[:notice] = "#{flash[:notice]} Additionally the physical object was <b>#{!params[:remove].nil? ? 'removed' : 'not removed'}</b> from its active component group."
 				end
 			end
 		end
