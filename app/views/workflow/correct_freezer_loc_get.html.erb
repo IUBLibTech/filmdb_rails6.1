@@ -17,15 +17,15 @@
       <%= select_tag 'location', options_for_select([[WorkflowStatus::IN_FREEZER, WorkflowStatus::IN_FREEZER], [WorkflowStatus::AWAITING_FREEZER, WorkflowStatus::AWAITING_FREEZER]]) %>
     </td>
   </tr>
-  <tr>
-    <th>Remove from CG</th>
-    <td>
-      <%= check_box_tag "remove" %>
-    </td>
-  </tr>
+<!--  <tr>-->
+<!--    <th>Remove from CG</th>-->
+<!--    <td>-->
+      <%#= check_box_tag "remove" %>
+<!--    </td>-->
+<!--  </tr>-->
   <tr>
     <td colspan="2">
-      <%= submit_tag "Return"%>
+      <%= submit_tag "Update Location"%>
     </td>
   </tr>
   </tbody>
