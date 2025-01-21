@@ -9,7 +9,7 @@ class MoveEphemeraToProcessHistory < ActiveRecord::Migration[6.1]
       if File.exist? path
         x = Roo::Spreadsheet.open(path, extension: :xlsx)
         x.default_sheet = x.sheets[0]
-        i = 2
+        i = 1
         while (i <= x.last_row)
           bc = x.row(i)[0].to_int
           puts "\t#{i} Processing #{bc}"
