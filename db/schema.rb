@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_10_23_145733) do
+ActiveRecord::Schema.define(version: 2025_01_16_150032) do
 
-  create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
     t.text "description"
     t.integer "title_id"
@@ -441,7 +441,7 @@ ActiveRecord::Schema.define(version: 2024_10_23_145733) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "physical_object_accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "physical_object_accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.integer "physical_object_id"
     t.integer "accompanying_documentation_id"
     t.datetime "created_at", precision: 6, null: false
