@@ -77,10 +77,19 @@ class AccompanyingDocumentationsController < ApplicationController
 
   # DELETE /accompanying_documentations/1 or /accompanying_documentations/1.json
   def destroy
+    ad = @accompanying_documentation
+    url = if ad.physical_objects.any?
+            physical_object_path(ad.physical_objects.first)
+          else
+            if ad.title
+              title_path(ad.title)
+            else
+              ad.series ? series_path(ad.series) : root_path
+            end
+          end
     @accompanying_documentation.destroy
-
     respond_to do |format|
-      format.html { redirect_to accompanying_documentation_url, notice: "Accompanying Documentation was successfully destroyed." }
+      format.html { redirect_to url, notice: "Accompanying Documentation was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -93,7 +102,7 @@ class AccompanyingDocumentationsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def accompanying_documentation_params
-    params.require(:accompanying_documentations).permit(:location, :description, :title_id, :series_id, :po_ids)
+    params.require(:accompanying_documentation).permit(:location, :description, :photo_link, :title_id, :series_id, :po_ids)
   end
   def only_one?(pos, title, series)
     return SERIES_ASSOC if (pos.blank? && title.blank? && !series.blank?)

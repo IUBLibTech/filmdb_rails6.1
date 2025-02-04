@@ -477,9 +477,13 @@ td#color {
 .right {
     float: right;
 }
+.p_0 {
+    padding: 0
+}
 .rp_10px {
     padding-right: 10px;
 }
+
 .label {
     display: flex;
     clear: both;
@@ -1040,4 +1044,20 @@ div.po_error_div > ul {
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+#to_top {
+    display: none;
+    position: fixed;
+    bottom: 400px;
+    right: 5px;
+    z-index: 99;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    background-color: #496D89;
+    color: white;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 4px;
 }

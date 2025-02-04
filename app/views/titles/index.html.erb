@@ -84,34 +84,14 @@
 					<% path = title_xls_search_path(params.permit(
 						:authenticity_token, :ts, :commit, :title_text, :series_name_text, :date, :publisher_text, :creator_text,
 						:genre, :form, :summary_text, :location_text, :subject_text, :collection_id, :digitized_status, :medium_filter).to_h.symbolize_keys.merge) %>
-          <%= link_to "Download Search Results", path  %>
+          <%= link_to "Download Search Results", path, target: "_blank"  %>
         <% end %>
       </div>
 		</td>
 	</tr>
 </table>
 <% end %>
-<%# if params[:title_text] %>
-<!--<h4>Search Results for:</h4>-->
-<!--<table>-->
-<!--	<tr>-->
-<!--		<th>Title Text:</th>-->
-<!--		<td><%#= params[:title_text] %></td>-->
-<!--    <th>Series Name:</th>-->
-<!--    <td><%#= params[:series_name_text] %></td>-->
-<!--		<th>Date</th>-->
-<!--		<td><%#= params[:date] %></td>-->
-<!--		<th>Publisher</th>-->
-<!--		<td><%#= params[:publisher_text] %></td>-->
-<!--		<th>Creator</th>-->
-<!--		<td><%#= params[:creator_text] %></td>-->
-<!--		<th>Collection:</th>-->
-<!--		<td><%#= params[:collection_id] == '0' ? 'All' : "#{Collection.find(params[:collection_id].to_i).name}" %></td>-->
-<!--    <th>Digitized Status</th>-->
-<!--    <td><%#= params[:digitized_status].upcase %></td>-->
-<!--	</tr>-->
-<!--</table>-->
-<%# end %>
+
 <% if @titles %>
 <br>
 <br>
@@ -190,7 +170,25 @@
 	<% end %>
 </table>
 <% end %>
+<button id="to_top" onclick="topOfPage()" title="Return to top of page">Back Top</button>
 <script type="text/javascript">
+
+	let topButton = document.getElementById("to_top")
+
+
+	function topOfPage() {
+		document.body.scrollTop = 0;
+		document.documentElement.scrollTop = 0;
+	}
+
+	$(window).scroll( function() {
+		if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+			topButton.style.display = "block";
+		} else {
+			topButton.style.display = "none";
+		}
+	});
+
 	let avail_genres = <%= ControlledVocabulary.where(model_type: "TitleGenre").pluck(:value).to_json.html_safe %>;
 	let avail_forms = <%= ControlledVocabulary.where(model_type: "TitleForm").pluck(:value).to_json.html_safe %>;
 	$(document).ready(function() {
@@ -266,5 +264,10 @@
 			})
 			$("#medium_filter").val(mask);
 		}
+
+
+
 	});
+
+
 </script>
