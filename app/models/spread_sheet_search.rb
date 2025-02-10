@@ -67,7 +67,16 @@ class SpreadSheetSearch < ApplicationRecord
   handle_asynchronously :create # this tells the delayed_job gem to run this in a background process
 
   def run_query
-    titles = title_text.blank? ? Title.all : Title.where("title_text like '%#{title_text}%'")
+    if title_text.blank?
+      titles = Title.all
+    else
+      match = title_text.match(Title::QUOTED)
+      if match
+        titles = Title.where("title_text REGEXP ?", "\\b"+match[1]+"\\b")
+      else
+        titles = Title.where("title_text like '%#{title_text}%'")
+      end
+    end
     titles = titles.joins(:physical_objects).includes(:physical_objects)
     if collection_id != 0
       titles = titles.where("physical_objects.collection_id = ?", collection_id) unless collection_id == 0
