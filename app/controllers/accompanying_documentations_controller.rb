@@ -31,7 +31,7 @@ class AccompanyingDocumentationsController < ApplicationController
     po_ids = params[:po_ids]
     title_id = params[:title_id]
     series_id = params[:series_id]
-    @accompanying_documentation = AccompanyingDocumentation.new(location: params[:accompanying_documentations][:location], description: params[:accompanying_documentations][:description])
+    @accompanying_documentation = AccompanyingDocumentation.new(location: params[:accompanying_documentation][:location], description: params[:accompanying_documentation][:description], photo_link: params[:accompanying_documentation][:photo_link])
 
     type = only_one?(po_ids, title_id, series_id)
     if type == TITLE_ASSOC
