@@ -136,6 +136,7 @@ class SeriesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_series
       @series = Series.find(params[:id])
+      @series.titles.order(:title_text)
       @cv = ControlledVocabulary.physical_object_cv('Film')
       @l_cv = ControlledVocabulary.language_cv
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_01_16_150032) do
+ActiveRecord::Schema.define(version: 2025_01_31_162830) do
 
   create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2025_01_16_150032) do
     t.integer "series_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "photo_link"
   end
 
   create_table "boolean_conditions", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|

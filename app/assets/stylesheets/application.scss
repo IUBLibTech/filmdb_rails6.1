@@ -477,9 +477,13 @@ td#color {
 .right {
     float: right;
 }
+.p_0 {
+    padding: 0
+}
 .rp_10px {
     padding-right: 10px;
 }
+
 .label {
     display: flex;
     clear: both;
@@ -920,6 +924,19 @@ a.title_link {
   display: flex;
   flex-wrap: wrap;
 }
+.flex_wrap > div.ad {
+    display: inline;
+    font-weight: normal;
+    color: black;
+    padding: 0;
+    width: 25%;
+    height: 100%;
+}
+.flex_wrap > div.ad > a {
+    padding: 0;
+    font-weight: normal;
+}
+
 .flex_col_wrap {
   display: flex;
   flex-direction: row;
@@ -952,9 +969,13 @@ a.title_link {
   min-width: 5rem;
 }
 
-.flex_row > label {
+.flex_row > label.fr, .flex_row > div > label.fr {
     margin-right: 5px;
     font-weight: bold;
+    vertical-align: top;
+}
+.flex_row > div > label.fr {
+    font-weight: normal;
 }
 .flex_row > div {
     overflow: auto;
@@ -964,14 +985,7 @@ a.title_link {
     overflow: auto;
     margin-top: -.5em;
 }
-.flex_wrap > a {
-    display: inline;
-    width: 23%;
-    font-weight: normal;
-    color: black;
-    padding: 0;
-    width: 25%;
-}
+
 ._ad {
     border-radius: 5px;
     padding: 3px;
@@ -1040,4 +1054,20 @@ div.po_error_div > ul {
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+#to_top {
+    display: none;
+    position: fixed;
+    bottom: 400px;
+    right: 5px;
+    z-index: 99;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    background-color: #496D89;
+    color: white;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 4px;
 }

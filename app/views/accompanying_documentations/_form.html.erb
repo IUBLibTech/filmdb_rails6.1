@@ -1,4 +1,4 @@
-<%= form_for :accompanying_documentations, url: accompanying_documentations_path, method: (action_name == "new" ? :post : :patch ), html: { id: "ad_form"} do |f| %>
+<%= form_for @accompanying_documentation, html: { id: "ad_form"} do |f| %>
   <% if accompanying_documentations.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(accompanying_documentations.errors.count, "error") %> prohibited this Accompanying Documentation from being saved:</h2>
@@ -9,7 +9,6 @@
       </ul>
     </div>
   <% end %>
-
   <table class="_100">
     <tbody>
     <tr>
@@ -19,6 +18,11 @@
     <tr>
       <th>Description</th>
       <td class="fill_w_pad"><%= f.text_area :description %></td>
+    </tr>
+
+    <tr>
+      <th>Photo Link</th>
+      <td class="fill_w_pad"><%= f.text_field :photo_link %></td>
     </tr>
     </tbody>
   </table>
@@ -47,6 +51,7 @@
   </table>
   <div class="actions">
     <%= f.submit "Save Accompanying Documentation" %>
+    <%= button_to "Cancel", accompanying_documentations_path(@accompanying_documentations) %>
   </div>
 <% end %>
 <script type="text/javascript">

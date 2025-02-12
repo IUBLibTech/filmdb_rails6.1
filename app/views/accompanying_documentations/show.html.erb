@@ -1,10 +1,11 @@
 <p id="notice"><%= notice %></p>
-<%= link_to 'Edit', edit_accompanying_documentation_path(@accompanying_documentation) %>
-
+<%= link_to 'Edit', edit_accompanying_documentation_path(@accompanying_documentation) %>&nbsp|&nbsp;
+<%= link_to "Delete", accompanying_documentation_path(@accompanying_documentation), method: :delete, data: { confirm: "Are you sure you wish to delete this Accompany Documentation Object?" } %>
 <h4>Accompanying Documentation</h4>
 <div id="fields">
   <div class="lb"><b>Location</b></div><div class="fd"><%= @accompanying_documentation.location  %></div>
   <div class="lb"><b>Description</b></div><div class="left m_bottom_10px"><%= @accompanying_documentation.description %></div>
+  <div class="lb clear"><b>Photo Link</b></div><div class="fd"><a class="p_0" href="<%= @accompanying_documentation.photo_link %>" target="_blank"><%= @accompanying_documentation.photo_link %></a></div>
 </div>
 
 <h4 class="m_top_10px">Associated Objects</h4>
