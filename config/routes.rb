@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
 
   resources :accompanying_documentations
-  #delete 'accompanying_documentations/:id', to: "accompanying_documentations#destroy", as: 'destroy_accompanying_documentations'
+  # get 'accompanying_documentations/new', to: "accompanying_documentations#new", as: 'new_accompanying_documentations'
+  # get 'accompanying_documentation/:id', to: "accompanying_documentations#show", as: 'accompanying_documentation'
+  # get 'accompanying_documentation/:id/edit', to: "accompanying_documentations#edit", as: 'edit_accompanying_documentation'
+  # patch 'accompanying_documentation/:id', to: "accompanying_documentations#update", as: 'update_accompanying_documentation'
+
 
   get '/ajax/title_date/type/', to: 'ajax#title_date_type', as: 'ajax_title_date_type'
   get '/ajax/title_genre/genre/', to: 'ajax#title_genre', as: 'ajax_title_genre'
