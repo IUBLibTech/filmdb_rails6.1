@@ -1,5 +1,5 @@
 <%= form_for @accompanying_documentation, html: { id: "ad_form"} do |f| %>
-  <% if accompanying_documentations.errors.any? %>
+  <% if @accompanying_documentation.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(accompanying_documentations.errors.count, "error") %> prohibited this Accompanying Documentation from being saved:</h2>
       <ul>
@@ -160,6 +160,7 @@
       <% elsif @accompanying_documentation.series %>
          addSeries(<%= {"value": @accompanying_documentation.series.id, "label": @accompanying_documentation.series.title}.to_json.html_safe %>)
       <% end %>
+
   });
 
   function warnReplaceSingleAssoc(type, func) {

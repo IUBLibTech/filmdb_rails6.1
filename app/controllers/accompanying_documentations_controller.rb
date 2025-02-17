@@ -1,15 +1,12 @@
 class AccompanyingDocumentationsController < ApplicationController
+  skip_before_action :verify_authenticity_token, :only => [:update]
 
   before_action :set_accompanying_documentation, only: %i[ show edit update destroy ]
-
   PO_ASSOC = PhysicalObject
   TITLE_ASSOC = Title
   SERIES_ASSOC = Series
 
-  # GET /accompanying_documentations or /accompanying_documentations.json
-  def index
-    @accompanying_documentations = AccompanyingDocumentation.all
-  end
+
 
   # GET /accompanying_documentations/1 or /accompanying_documentations/1.json
   def show
@@ -23,7 +20,6 @@ class AccompanyingDocumentationsController < ApplicationController
   # GET /accompanying_documentations/1/edit
   def edit
     @pos = @accompanying_documentation.physical_objects
-
   end
 
   # POST /accompanying_documentations or /accompanying_documentations.json
@@ -64,6 +60,7 @@ class AccompanyingDocumentationsController < ApplicationController
 
   # PATCH/PUT /accompanying_documentations/1 or /accompanying_documentations/1.json
   def update
+
     respond_to do |format|
       if @accompanying_documentation.update(accompanying_documentation_params)
         format.html { redirect_to accompanying_documentation_url(@accompanying_documentation), notice: "Accompanying Documentation was successfully updated." }
