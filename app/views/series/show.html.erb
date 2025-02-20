@@ -9,13 +9,18 @@
 </div>
 <%= render partial: 'show' %>
 <h4>Titles in this Series</h4>
+<table>
+  <tbody>
+  <tr><th>Title</th><th>Series Part</th></tr>
 <% if @series.titles.size > 0 %>
-    <% @series.titles.each do |t| %>
-        <div>
-          <%= link_to "#{t.title_text}", title_path(t) %>
-        </div>
+    <% @series.titles.order(:title_text).each do |t| %>
+        <tr>
+          <td><%= link_to "#{t.title_text}", title_path(t) %></td><td><%= t.series_part %></td>
+        </tr>
     <% end %>
 <% else %>
     none
 <% end %>
+  </tbody>
+</table>
 

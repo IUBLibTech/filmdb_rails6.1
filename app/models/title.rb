@@ -39,6 +39,9 @@ class Title < ApplicationRecord
 	VIDEO_MEDIUMS = 2
 	RECORDED_SOUND_MEDIUMS = 4
 
+	# regex for detecting quoted words - these will use MySQL regex search instead of 'like' searches
+	QUOTED = /"(.*)"/
+
   # returns an array of distinct titles that appear in the specified spreadsheet
   scope :title_text_in_spreadsheet, -> (ss_id) {
     Title.select(:title_text).where(spreadsheet_id: ss_id).distinct.pluck(:title_text)
@@ -110,9 +113,19 @@ class Title < ApplicationRecord
 	  res
   }
 
+	# This does not appear to be used currently... CLEANUP???
 	scope :title_spreadsheet_search, -> (title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text,
 																			 subject_text, collection_id, digitized_status, medium_filter) {
-		t = title_text.blank? ? Title.all : Title.where("title_text like #{escape_wildcard(title_text)}")
+		if title_text.blank?
+			Title.all
+		else
+			match = title_text.match(QUOTED)
+			if match
+				Title.where("titles_text REGEXP ?", "\\\\b"+match[1]+"\\\\b")
+			else
+				Title.where("title_text like #{escape_wildcard(title_text)}")
+			end
+		end
 		t = t.where("summary_text like #{escape_wildcard(summary_text)}") unless summary_text.blank?
 		t = t.where("subject like #{escape_wildcard(subject_text)}") unless subject_text.blank?
 		t.includes(:series, :title_dates, :title_publishers, :title_creators, :title_locations, :physical_objects)
@@ -476,8 +489,13 @@ class Title < ApplicationRecord
 	def self.title_search_where_sql(title_text, series_name_text, date, publisher_text, creator_text, genre, form, summary_text, location_text, subject_text, collection_id, digitized_status, medium_filter)
 		filter = medium_filter.to_i
 		sql = (title_text.blank? && series_name_text.blank? && date.blank? && publisher_text.blank? && creator_text.blank? && genre.blank? && form.blank? && summary_text.blank? && location_text.blank? && subject_text.blank? && collection_id.blank? && digitized_status == "all" && filter == 0) ? "" : "WHERE"
-		if !title_text.blank?
-			sql << " titles.title_text like #{escape_wildcard(title_text)}"
+		unless title_text.blank?
+			match = title_text.match(QUOTED)
+			if match
+				sql << " titles.title_text REGEXP '\\\\b"+match[1]+"\\\\b'"
+			else
+				sql << " titles.title_text like #{escape_wildcard(title_text)}"
+			end
 		end
 		if !series_name_text.blank?
 			add_and(sql)
