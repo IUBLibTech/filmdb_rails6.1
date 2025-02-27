@@ -288,7 +288,7 @@ class TitlesController < ApplicationController
 
   # does the actual title merge for ajax search based merging
   def merge_autocomplete_titles
-    master = Title.joins(:physical_objects).includes(:physical_objects).find(params[:master_title_id])
+    master = Title.find(params[:master_title_id])
     Title.transaction do
       mergees = Title.where("titles.id in (?)", params[:mergees].split(",").collect { |s| s.to_i }).includes(:physical_objects)
       # DO NOT use TitleHelper title_merge. This code was created to implement Title merging based on
@@ -366,7 +366,8 @@ class TitlesController < ApplicationController
       end
       flash[:notice] = "#{mergees.size} selected Title#{mergees.size > 1 ? "s" : ""} #{mergees.size > 1 ? "were" : "was"} merged into: <b><i>#{master.title_text}</i></b>".html_safe
     end
-    master.reload
+    master.save!
+    #master.reload
     @title = master
     render 'titles/show'
   end
