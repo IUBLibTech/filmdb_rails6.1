@@ -37,7 +37,7 @@ module EquipmentTechnologyHelper
 
   private
   def accompanying_doc_human_readable(ad_list)
-    ad.collect{|ad| "[#{ad.location}] [#{ad.description}] [#{ad.photo_link}]"}.join(" | ")
+    ad_list.collect{|ad| "[#{ad.location}] [#{ad.description}] [#{ad.photo_link}]"}.join(" | ")
   end
 
 end
