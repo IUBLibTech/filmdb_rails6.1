@@ -550,14 +550,15 @@ class WorkflowController < ApplicationController
 				if po.medium != 'Film'
 					flash.now[:warning] = "Only Films can be moved to the Freezer. #{po.iu_barcode} is a #{po.medium_name}"
 				else
-					if current == WorkflowStatus::IN_FREEZER || current == WorkflowStatus::AWAITING_FREEZER
+					po = po.specific
+					if po.ad_strip == "2.5" || po.ad_strip == "3.0 (place for freezer)"
 						ws = WorkflowStatus.build_workflow_status(params[:location], po, true)
 						po.workflow_statuses << ws
 						po.current_workflow_status = ws
 						po.save
 						flash[:notice] = "#{po.iu_barcode} was moved from #{current} to #{ws.status_name}.".html_safe
 					else
-						flash.now[:warning] = "Only POs already in the freezer can change their freezer location. #{po.iu_barcode} is currently: #{current}"
+						flash.now[:warning] = "Only Films with AD Strip value of 2.5 or higher can be moved to the freezer. #{po.iu_barcode} current AD Strip: #{po.ad_strip}"
 					end
 				end
 			end
