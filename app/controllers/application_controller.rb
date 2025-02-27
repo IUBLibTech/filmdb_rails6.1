@@ -40,6 +40,10 @@ class ApplicationController < ActionController::Base
     params[:physical_object] = params.delete(:film) if params[:film]
   end
 
+  def denied
+    render "users/denied"
+  end
+
   private
   def scope_current_username
     User.current_username = current_username
