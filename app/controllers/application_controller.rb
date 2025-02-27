@@ -1,10 +1,11 @@
 class ApplicationController < ActionController::Base
-  # Prevent CSRF attacks by raising an exception.
-  # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :exception
   include SessionsHelper
   include Pundit::Authorization
   include ApplicationHelper
+
+  # Prevent CSRF attacks by raising an exception.
+  # For APIs, you may want to use :null_session instead.
+  protect_from_forgery with: :exception
 
   before_action :signed_in_user, except: [:denied]
 
@@ -38,10 +39,6 @@ class ApplicationController < ActionController::Base
   def acting_as_params
     params[:physical_object] = params.delete(:video) if params[:video]
     params[:physical_object] = params.delete(:film) if params[:film]
-  end
-
-  def denied
-    render "users/denied"
   end
 
   private
