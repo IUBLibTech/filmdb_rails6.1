@@ -36,7 +36,7 @@ class SessionsController < ActionController::Base
   def new_iu_login
     url = "#{which_iu_login}/cas/login?service=#{root_url}sessions/validate_login"
     logger.warn "Redirecting to IU Login for authentication: #{url}"
-    redirect_to(url)
+    redirect_to(url, allow_other_host: true)
   end
 
   def validate_login
