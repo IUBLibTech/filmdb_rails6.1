@@ -9,7 +9,7 @@ development:
   host: <%= Rails.application.credentials[:host] %>
   port: <%= Rails.application.credentials[:port] %>
 
-local:
+laptop:
   adapter: mysql2
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000

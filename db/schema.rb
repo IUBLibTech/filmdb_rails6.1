@@ -10,15 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_01_31_162830) do
-
+ActiveRecord::Schema[8.0].define(version: 2025_02_03_152113) do
   create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
     t.text "description"
     t.integer "title_id"
     t.integer "series_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "photo_link"
   end
 
@@ -29,15 +28,15 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.text "fixed_comment"
     t.bigint "fixed_user_id"
     t.boolean "active", default: true
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "cage_shelf_physical_objects", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.bigint "cage_shelf_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "cage_shelves", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -45,11 +44,11 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.bigint "mdpi_barcode"
     t.string "identifier"
     t.text "notes"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.boolean "returned", default: false
-    t.datetime "shipped"
-    t.datetime "returned_date"
+    t.datetime "shipped", precision: nil
+    t.datetime "returned_date", precision: nil
     t.index ["mdpi_barcode"], name: "index_cage_shelves_on_mdpi_barcode", unique: true
   end
 
@@ -59,16 +58,16 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.bigint "top_shelf_id"
     t.bigint "middle_shelf_id"
     t.bigint "bottom_shelf_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.boolean "ready_to_ship", default: false
     t.boolean "shipped", default: false
   end
 
   create_table "collections", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.bigint "unit_id"
     t.text "summary"
     t.boolean "accessible"
@@ -80,8 +79,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
   create_table "component_group_physical_objects", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "component_group_id"
     t.bigint "physical_object_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "scan_resolution"
     t.string "clean"
     t.boolean "hand_clean_only"
@@ -92,8 +91,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
   create_table "component_groups", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id", null: false
     t.string "group_type", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.text "group_summary"
     t.text "scan_resolution"
     t.string "clean", default: "Yes"
@@ -109,8 +108,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.string "value"
     t.boolean "default"
     t.integer "menu_index", default: 0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.boolean "active_status", default: true
   end
 
@@ -119,13 +118,13 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.integer "attempts", default: 0, null: false
     t.text "handler", null: false
     t.text "last_error"
-    t.datetime "run_at"
-    t.datetime "locked_at"
-    t.datetime "failed_at"
+    t.datetime "run_at", precision: nil
+    t.datetime "locked_at", precision: nil
+    t.datetime "failed_at", precision: nil
     t.string "locked_by"
     t.string "queue"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
@@ -134,23 +133,23 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.string "object_type"
     t.string "human_readable_identifier"
     t.string "who_deleted"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "digiprovs", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.text "digital_provenance_text"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.bigint "cage_shelf_id"
   end
 
   create_table "edge_codes", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "code", limit: 3
     t.integer "physical_object_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "equipment_technologies", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
@@ -186,8 +185,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.string "photos_url"
     t.text "external_reference_links"
     t.string "working_condition"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.text "original_notes_from_donor"
     t.boolean "film_gauge_8mm"
     t.boolean "film_gauge_super_8mm"
@@ -430,73 +429,73 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.bigint "physical_object_id"
     t.string "language"
     t.string "language_type"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "modifications", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.string "object_type"
     t.integer "object_id"
     t.bigint "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "physical_object_accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.integer "physical_object_id"
     t.integer "accompanying_documentation_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "physical_object_dates", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.bigint "controlled_vocabulary_id"
     t.string "date"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "physical_object_ephemeras", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "physical_object_id"
     t.integer "ephemera_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "physical_object_old_barcodes", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.bigint "iu_barcode"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "physical_object_original_identifiers", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.string "identifier", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "physical_object_pull_requests", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.bigint "pull_request_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "physical_object_titles", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id"
     t.bigint "physical_object_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.index ["physical_object_id", "title_id"], name: "index_physical_object_titles_on_physical_object_id_and_title_id", unique: true
   end
 
   create_table "physical_objects", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "date_inventoried"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
+    t.datetime "date_inventoried", precision: nil
     t.bigint "inventoried_by"
     t.string "location"
     t.bigint "collection_id"
@@ -541,16 +540,16 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
   create_table "pod_pushes", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.text "response", size: :long
     t.bigint "cage_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "pull_requests", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "created_by_id"
     t.string "filename"
     t.text "file_contents", size: :medium
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.boolean "caia_soft"
     t.text "json_payload", size: :medium
     t.boolean "caia_soft_upload_success"
@@ -609,8 +608,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.string "mold"
     t.integer "actable_id"
     t.string "actable_type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "noise_reduction"
     t.string "capacity"
     t.text "generation_notes"
@@ -620,8 +619,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
   create_table "series", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.string "title"
     t.string "summary"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.bigint "created_by_id"
     t.bigint "modified_by_id"
     t.string "production_number"
@@ -634,8 +633,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.bigint "workflow_status_id"
     t.text "notes"
     t.bigint "shipped_by"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "spread_sheet_searches", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
@@ -657,8 +656,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.text "error_message"
     t.float "request_ts"
     t.string "file_location"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "genre"
     t.string "form"
     t.integer "medium_filter"
@@ -669,14 +668,14 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.integer "submission_progress"
     t.boolean "successful_submission"
     t.text "failure_message", size: :long
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "spreadsheets", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.string "filename", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.boolean "successful_upload", default: false
     t.index ["filename"], name: "index_spreadsheets_on_filename", unique: true
   end
@@ -685,16 +684,16 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.bigint "title_id"
     t.string "name"
     t.string "role"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "title_dates", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id"
     t.string "date_text"
     t.string "date_type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.date "start_date"
     t.boolean "start_month_present"
     t.boolean "start_day_present"
@@ -709,45 +708,45 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
   create_table "title_forms", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id"
     t.string "form"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "title_genres", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id"
     t.string "genre"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "title_locations", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id"
     t.string "location", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "title_original_identifiers", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id"
     t.string "identifier"
     t.string "identifier_type"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "title_publishers", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "title_id"
     t.string "name"
     t.string "publisher_type"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "titles", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.string "title_text", limit: 1024
     t.text "summary"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.bigint "series_id"
     t.bigint "spreadsheet_id"
     t.integer "series_title_index"
@@ -772,8 +771,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
 
   create_table "units", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "abbreviation", null: false
     t.string "institution", null: false
     t.string "campus"
@@ -786,8 +785,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.string "first_name", null: false
     t.string "last_name", null: false
     t.integer "role_mask", default: 0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.boolean "active", default: false
     t.string "email_address"
     t.bigint "created_in_spreadsheet"
@@ -808,8 +807,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.text "fixed_comment"
     t.bigint "fixed_user_id"
     t.boolean "active", default: true
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "videos", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -927,8 +926,8 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
   create_table "workflow_statuses", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
     t.bigint "physical_object_id"
     t.string "notes"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "workflow_type"
     t.string "whose_workflow"
     t.string "status_name"
@@ -939,5 +938,4 @@ ActiveRecord::Schema.define(version: 2025_01_31_162830) do
     t.index ["physical_object_id"], name: "index_workflow_statuses_on_physical_object_id"
     t.index ["status_name"], name: "index_workflow_statuses_on_status_name"
   end
-
 end
