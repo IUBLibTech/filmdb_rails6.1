@@ -153,7 +153,7 @@ module AlfHelper
 	# NOTE: This uses standard Ruby Net/Http libs but is REALLY slow - simple request of single PO takes 2+ minutes to
 	# complete... See #cs_upload_curl as an alternative
 	def cs_upload_libs(pos, user)
-		uri = cs_endpoint
+		uri = URI(cs_circrequest_path)
 		key_name = cs_api_key_name
 		key = cs_api_key
 
@@ -165,15 +165,28 @@ module AlfHelper
 		res = http.request(req)
 	end
 
-	# this uses system curl command to send the JSON payload. It behaves as expected - almost instantaneous response from
-	# the CS server
+	# this uses system curl command to send a JSON payload to the CaiaSoft /api/circrequest/v1 API
 	def cs_upload_curl(pos, user)
-		url = cs_endpoint
+		url = URI(cs_circrequest_path)
 		key_name = cs_api_key_name
 		key = cs_api_key
 		payload = cs_json_payload(pos, user)
 		payload_file = write_payload_to_file(payload, user)
 		`curl -X POST #{url} -H #{key_name}:#{key} -d @#{payload_file}`
+	end
+
+	def cs_itemloc(barcode)
+		uri = URI(cs_itemloc_path(barcode))
+		key_name = cs_api_key_name
+		key = cs_api_key
+
+		http = Net::HTTP.new(uri.host, uri.port)
+		http.use_ssl = true
+
+		req = Net::HTTP::Get.new(uri)
+		req[key_name] = key
+		response = http.request(req)
+		response.body
 	end
 
 	# this method generates a JSON payload based on generated physical objects with "fake" barcodes - they should fail the
@@ -209,9 +222,9 @@ module AlfHelper
 		filename
 	end
 
-	# generates the JSON payload for upload as for the resquest's body to the CaiaSoft inventory system, and creates the
-	# global PullRequest object @pr - does NOT save @pr: this should be handled by other code that checks whether the
-	# pull request was successful on the CaiaSoft end
+	# generates the JSON payload for upload as the resquest's body for the CaiaSoft inventory system, and creates the
+	# global PullRequest object @pr - does NOT save @pr to the database: this should be handled by other code that checks
+	# whether the pull request was successfully received by CaiaSoft
 	def cs_json_payload(pos, user)
 		payload = []
 		PullRequest.transaction do
@@ -245,9 +258,17 @@ module AlfHelper
 		 "title" => "#{title}"}
 	end
 
-	def cs_endpoint
-		URI(Rails.application.credentials[:caia_soft_endpoint])
+	def cs_endpoint_path
+		Rails.application.credentials[:caia_soft_endpoint]
 	end
+	def cs_circrequest_path
+		"#{cs_endpoint_path}/#{Rails.application.credentials[:caia_soft_circrequest]}"
+	end
+
+	def cs_itemloc_path(barcode)
+		"#{cs_endpoint_path}#{Rails.application.credentials[:caia_soft_itemloc]}/#{barcode}"
+	end
+
 	def cs_api_key_name
 		Rails.application.credentials[:caia_soft_api_key_name]
 	end

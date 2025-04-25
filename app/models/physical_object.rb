@@ -191,7 +191,24 @@ class PhysicalObject < ApplicationRecord
 	def who_requested
 		pull_requests.last.requester
 	end
-	# where (IN ALF!!!) the PO should be stored
+
+	# FIXME: see #storage_location right below
+	def alf_storage_loc
+		resp = cs_itemloc(iu_barcode)
+		json = JSON.parse(resp)
+		if json["item"][0]["status"] == "Item not Found"
+			if alf_shelf.blank?
+				"#{self.current_workflow_status.status_name} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
+			else
+				"#{self.alf_shelf} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
+			end
+		else
+			"#{json["item"][0]["location"]} / #{json["item"][0]["status"]}"
+		end
+	end
+
+	# FIXME: alf_storage_loc needs to replace this for DISPLAY but it is used for return to storage and a few other things.
+	# There will be a transitional period where both will be needed
 	def storage_location
 		stats = workflow_statuses.where("status_name in (#{WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage'].map{ |s| "'#{s}'"}.join(',')})").order('created_at ASC')
 		# anything with ad_strip > 2.0 must go to the freezer. If it's never been in the freezer if must go to awaiting freezer first for prep.
