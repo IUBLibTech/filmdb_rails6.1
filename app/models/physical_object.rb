@@ -1,4 +1,5 @@
 class PhysicalObject < ApplicationRecord
+	include AlfHelper
 	actable
 
 	include ActiveModel::Validations
@@ -194,13 +195,13 @@ class PhysicalObject < ApplicationRecord
 
 	# FIXME: see #storage_location right below
 	def alf_storage_loc
-		resp = cs_itemloc(iu_barcode)
+		resp = cs_itemloc_curl(iu_barcode)
 		json = JSON.parse(resp)
 		if json["item"][0]["status"] == "Item not Found"
 			if alf_shelf.blank?
-				"#{self.current_workflow_status.status_name} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
+				"#{self.current_workflow_status} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
 			else
-				"#{self.alf_shelf} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
+				"#{alf_shelf} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
 			end
 		else
 			"#{json["item"][0]["location"]} / #{json["item"][0]["status"]}"

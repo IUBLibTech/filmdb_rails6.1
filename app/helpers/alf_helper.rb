@@ -189,6 +189,13 @@ module AlfHelper
 		response.body
 	end
 
+	def cs_itemloc_curl(barcode)
+		url = URI(cs_itemloc_path(barcode))
+		key_name = cs_api_key_name
+		key = cs_api_key
+		`curl #{url} -H #{key_name}:#{key}`
+	end
+
 	# this method generates a JSON payload based on generated physical objects with "fake" barcodes - they should fail the
 	# iu_barcode? validation test and result in a denied pull against the CaiaSoft system
 	#

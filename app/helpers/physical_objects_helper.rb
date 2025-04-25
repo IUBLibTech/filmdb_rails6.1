@@ -1,6 +1,5 @@
 module PhysicalObjectsHelper
   include MailHelper
-  include AlfHelper
 
   # attributes that belong to the base PhysicalObject model
   PO_ONLY_ATTRIBUTES = [:location, :media_type, :medium, :iu_barcode, :format, :spreadsheet_id, :inventoried_by, :alternative_title,
