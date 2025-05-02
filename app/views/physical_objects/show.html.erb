@@ -33,7 +33,7 @@
 <% else %>
   <div id="core_metadata" class="metadata_section clear">
     <h4>Core Metadata</h4>
-    <div class="left _50">
+    <div class="left _48_pr_2">
       <b>Title(s)</b>
       <% @physical_object.titles.each_with_index do |t, i| %>
         <%= link_to t.title_text, title_path(t), class: 'title_link' %><% if @physical_object.titles.size > i + 1 %>|<% end %>
@@ -53,8 +53,7 @@
                     title: @physical_object.current_workflow_status.comment %>
       <% end %>
       <br/>
-      <b>Storage Location</b> <%= @physical_object.storage_location %><br>
-      <b>ALF/Freezer Location</b> <%= @physical_object.alf_shelf %> <br>
+      <b>Alf Storage Location/Status</b> <%= @physical_object.acting_as.alf_storage_loc %><br>
       <b>IU Barcode</b> <%= @physical_object.iu_barcode %><% if @physical_object.physical_object_old_barcodes.size > 0 %><%= link_to "*", "#old_barcodes" %><% end %><br/>
       <b>MDPI Barcode</b> <%= @physical_object.mdpi_barcode %><br/>
       <b>IUCAT Title No.</b> <%= @physical_object.title_control_number %><br/>

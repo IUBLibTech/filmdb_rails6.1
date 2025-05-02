@@ -1,4 +1,5 @@
 class PhysicalObject < ApplicationRecord
+	include AlfHelper
 	actable
 
 	include ActiveModel::Validations
@@ -191,7 +192,48 @@ class PhysicalObject < ApplicationRecord
 	def who_requested
 		pull_requests.last.requester
 	end
-	# where (IN ALF!!!) the PO should be stored
+
+	# FIXME: see #storage_location right below
+	def alf_storage_loc
+		resp = cs_itemloc_curl(iu_barcode)
+		json = JSON.parse(resp)
+		if json["item"][0]["status"] == "Item not Found"
+			if alf_shelf.blank?
+				"#{self.current_workflow_status} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
+			else
+				"#{alf_shelf} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
+			end
+		else
+				"#{alf_building(json["item"][0]["location"])} / #{json["item"][0]["status"]}"
+		end
+	end
+
+	# takes an ALF row/shelf/bin location and converts it to one of the following: ALF 1, ALF 2, ALF 3
+	def alf_building(alf_location)
+		num = alf_location.split("-").first
+
+		if !is_number?(num)
+			"<b class='red_red'>Error: #{alf_location}</b>".html_safe
+		elsif num.to_i >= 0 && num.to_i <= 12
+			"AFL 1"
+		elsif num.to_i >= 13 && num.to_i <= 24
+			"ALF 2"
+		elsif num.to_i >= 25
+			"ALF 3"
+		else
+			"<b class='red_red'>Error: #{alf_location}</b>".html_safe
+		end
+	end
+
+	# Checks val and determines if it's a number - val can be either a Numberic or string representation of a number.
+	# WARNING: because of computer floating point precision (not every number can be represented in "normal" floats), this
+	# will fail certain use cases: "15.33333333333333333333", "015", ect.
+	def is_number?(val)
+		val.to_f.to_s == val.to_s || val.to_i.to_s == val.to_s
+	end
+
+	# FIXME: alf_storage_loc needs to replace this for DISPLAY but it is used for return to storage and a few other things.
+	# There will be a transitional period where both will be needed
 	def storage_location
 		stats = workflow_statuses.where("status_name in (#{WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage'].map{ |s| "'#{s}'"}.join(',')})").order('created_at ASC')
 		# anything with ad_strip > 2.0 must go to the freezer. If it's never been in the freezer if must go to awaiting freezer first for prep.
