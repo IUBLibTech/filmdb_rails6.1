@@ -204,8 +204,32 @@ class PhysicalObject < ApplicationRecord
 				"#{alf_shelf} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
 			end
 		else
-			"#{json["item"][0]["location"]} / #{json["item"][0]["status"]}"
+				"#{alf_building(json["item"][0]["location"])} / #{json["item"][0]["status"]}"
 		end
+	end
+
+	# takes an ALF row/shelf/bin location and converts it to one of the following: ALF 1, ALF 2, ALF 3
+	def alf_building(alf_location)
+		num = alf_location.split("-").first
+
+		if !is_number?(num)
+			"<b class='red_red'>Error: #{alf_location}</b>".html_safe
+		elsif num.to_i >= 0 && num.to_i <= 12
+			"AFL 1"
+		elsif num.to_i >= 13 && num.to_i <= 24
+			"ALF 2"
+		elsif num.to_i >= 25
+			"ALF 3"
+		else
+			"<b class='red_red'>Error: #{alf_location}</b>".html_safe
+		end
+	end
+
+	# Checks val and determines if it's a number - val can be either a Numberic or string representation of a number.
+	# WARNING: because of computer floating point precision (not every number can be represented in "normal" floats), this
+	# will fail certain use cases: "15.33333333333333333333", "015", ect.
+	def is_number?(val)
+		val.to_f.to_s == val.to_s || val.to_i.to_s == val.to_s
 	end
 
 	# FIXME: alf_storage_loc needs to replace this for DISPLAY but it is used for return to storage and a few other things.

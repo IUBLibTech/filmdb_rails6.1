@@ -33,7 +33,7 @@
 <% else %>
   <div id="core_metadata" class="metadata_section clear">
     <h4>Core Metadata</h4>
-    <div class="left _50">
+    <div class="left _48_pr_2">
       <b>Title(s)</b>
       <% @physical_object.titles.each_with_index do |t, i| %>
         <%= link_to t.title_text, title_path(t), class: 'title_link' %><% if @physical_object.titles.size > i + 1 %>|<% end %>
