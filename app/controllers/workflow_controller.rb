@@ -148,7 +148,11 @@ class WorkflowController < ApplicationController
 			bad_req = []
 			begin
 				push_pull_request(pos, User.current_user_object)
-				flash[:notice] = "Storage has been notified to pull #{@pr.automated_pull_physical_objects.size} #{"record".pluralize(@pr.automated_pull_physical_objects.size)}."
+				if @pr.caia_soft_upload_success
+					flash[:notice] = "Storage has been notified to pull #{@pr.automated_pull_physical_objects.size} #{"record".pluralize(@pr.automated_pull_physical_objects.size)}."
+				else
+					flash[:warning] = "Pull Request Failed at ALF end: #{@pr.caia_soft_response}"
+				end
 			rescue Exception => e
 				puts e.message
 				puts e.backtrace.join("\n")
