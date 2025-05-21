@@ -28,6 +28,8 @@ module AlfHelper
 			unless Rails.application.credentials[:use_caia_soft]
 				upload_gfa(physical_objects, user)
 			else
+				# this executes a system curl call which connects to caiasoft, checked the success of the call and creates
+				# @pr
 				result = cs_upload_curl(physical_objects, user)
 				# Make sure the curl process exited successfully and if yes, parse the result
 				exit_status = $?.exitstatus
@@ -36,7 +38,7 @@ module AlfHelper
 					if response["success"] == true
 						@pr.caia_soft_upload_success = true
 						@pr.caia_soft_response = result
-						@pr.save
+						@pr.save!
 						@pr.physical_objects.each do |p|
 							ws = WorkflowStatus.build_workflow_status(WorkflowStatus::PULL_REQUESTED, p)
 							p.workflow_statuses << ws
