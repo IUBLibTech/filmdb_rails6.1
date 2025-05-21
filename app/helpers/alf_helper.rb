@@ -271,7 +271,7 @@ module AlfHelper
 		Rails.application.credentials[:caia_soft_endpoint]
 	end
 	def cs_circrequest_path
-		"#{cs_endpoint_path}/#{Rails.application.credentials[:caia_soft_circrequest]}"
+		"#{cs_endpoint_path}#{Rails.application.credentials[:caia_soft_circrequest]}"
 	end
 
 	def cs_itemloc_path(barcode)
