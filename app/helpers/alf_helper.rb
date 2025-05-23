@@ -14,6 +14,8 @@ module AlfHelper
 
 	ALF_STOP = "AM"
 	WELLS_STOP = "MI"
+	# FIXME: add testing which uses this after Adam/Vaughn
+	DO_NOT_DELIVER = ""
 
 	CURL_COMMAND = "curl -X POST -H '$API_KEY_NAME:$API_KEY' -H 'Content-Type: application/json' -d '$REQUEST' $CS_ENDPOINT"
 
@@ -262,7 +264,11 @@ module AlfHelper
 	# (item) barcode, request_type, and stop
 	def cs_line(po, user)
 		title = po.titles_text.gsub('"', "").gsub("'", "")
-		stop = po.active_component_group.deliver_to_alf? ? "AM" : "MI"
+		if Rails.env == "production" || Rails.env == "production_dev"
+			stop = po.active_component_group.deliver_to_alf? ? "AM" : "MI"
+		else
+			stop == DO_NOT_DELIVER
+		end
 		{"request_type" => "PYR", "barcode" => "#{po.iu_barcode}", "stop" =>  stop, "requestor" => "IULMIA", "patron_id" => "#{user.email_address}",
 		 "title" => "#{title}"}
 	end
