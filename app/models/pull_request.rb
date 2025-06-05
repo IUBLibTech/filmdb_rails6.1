@@ -39,5 +39,12 @@ class PullRequest < ApplicationRecord
 		20
 	end
 
+	# checks if any PO in the request was denied by CaisSoft
+	def any_denied?
+		cs_po_map.values.any?{|v| v["deny"] == "Y"}
+	end
+
+
+
 
 end

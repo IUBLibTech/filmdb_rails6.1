@@ -1,3 +1,6 @@
+<% # maps iu barcodes to the CS response json %>
+<% map = @pull_request.cs_po_map %>
+<% any_denied = map.values.any?{|v| v["deny"] == "Y"} %>
 <p>This pull request was made against ALF's new inventory software, CaiaSoft. Below is the status of the pull request</p>
 <% if @pull_request.caia_soft_upload_success %>
   <p>CaiaSoft successfully received the pull request</p>
@@ -8,8 +11,10 @@
         <th>Expected Storage Location</th>
         <th>Pull Request Status</th>
         <th>Reason if Denied</th>
+        <% if any_denied %>
+          <th>Change Workflow Status To:</th>
+        <% end %>
       </tr>
-      <% map = @pull_request.cs_po_map %>
       <% @pull_request.physical_objects.each do |p| %>
         <% denied = (map[p.iu_barcode] != nil && map[p.iu_barcode]["deny"]) == "Y" %>
         <% cl = denied ? "warning" : ""%>
@@ -23,6 +28,13 @@
           <% end %>
           <td class="<%= cl %>"><%=  denied ? "Denied" : "Accepted" %></td>
           <td class="<%= cl %>"><%= map[p.iu_barcode]["istatus"] if denied %></td>
+          <% if any_denied %>
+          <td>
+            <% if denied  %>
+              <%= select_tag("p.id",  options_for_select(WorkflowStatus::CAIASOFT_DENIED_LOCATIONS.collect{|ws| [ws, ws]})) %>
+            <% end %>
+          </td>
+          <% end %>
         </tr>
       <% end %>
     </table>

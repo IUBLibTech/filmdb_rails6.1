@@ -600,6 +600,9 @@ class WorkflowController < ApplicationController
 	# pull request (which puts the item back in storage), or to requeue the item so that it appears on the "Request Pull From Storage" page
 	def cancel_after_pull_request
 		@physical_objects = PhysicalObject.where_current_workflow_status_is(nil, nil, false, WorkflowStatus::PULL_REQUESTED)
+		# @physical_objects =
+		# 	PhysicalObject.joins("INNER JOIN workflow_statuses on physical_objects.id = workflow_statuses.physical_object_id")
+		# 								.where("physical_objects.current_workflow_status_id = workflow_statuses.id AND status_name = 'Queued for Pull Request'")
 	end
 
 	def process_cancel_after_pull_request

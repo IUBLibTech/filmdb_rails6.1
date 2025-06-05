@@ -59,14 +59,7 @@ class PhysicalObject < ApplicationRecord
 	attr_accessor :workflow
 	attr_accessor :updated
 
-	# handling this manually in physical_objects_controller#update
-	#before_save :record_barcode_changes
-	# def record_barcode_changes(po_id, old)
-	# 	PhysicalObjectOldBarcode.new(physical_object_id: po_id, iu_barcode: old).save!
-	# end
-
 	# returns all physical whose workflow status matches any specified in *status - use WorkflowStatus status constants as values
-	#
 	# FIXME: PhysicalObject.joins(:current_workflow_status).where("workflow_statuses.status_name = '#{WorkflowStatus::QUEUED_FOR_PULL_REQUEST}'")
 	scope :where_current_workflow_status_is, lambda { |offset, limit, digitized, *status|
 		# status values are concatenated into an array so if you want to pass an array of values (constants stored in other classes for instance) the passed array is wrapped in
@@ -169,6 +162,20 @@ class PhysicalObject < ApplicationRecord
 		current_workflow_status.status_name == WorkflowStatus::PULL_REQUESTED
 	end
 
+	# returns the pull request object that put this PO in active workflow or nil if the PO is not in active workflow
+	def active_pull_request
+		if active?
+			last = physical_object_pull_requests.last
+			if last
+				last.pull_request
+			else
+				nil
+			end
+		else
+			nil
+		end
+	end
+
 	def in_storage?
 		WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage'].include?(current_location)
 	end
@@ -206,6 +213,12 @@ class PhysicalObject < ApplicationRecord
 		else
 				"#{alf_building(json["item"][0]["location"])} / #{json["item"][0]["status"]}"
 		end
+	end
+
+	def alf_itemloc
+		resp = cs_itemloc_curl(iu_barcode)
+		json = JSON.parse(resp)
+		json["item"][0]["status"]
 	end
 
 	# takes an ALF row/shelf/bin location and converts it to one of the following: ALF 1, ALF 2, ALF 3

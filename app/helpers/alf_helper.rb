@@ -137,7 +137,7 @@ module AlfHelper
 		payload = []
 		PullRequest.transaction do
 			# @pr = PullRequest.new(filename: nil, file_contents: nil, requester: user, caia_soft: true)
-			@pr = PullRequest.new(filename: )
+			@pr = PullRequest.new(filename: nil, file_contents: nil, requester: user, caia_soft: true)
 			pos.each do |p|
 				# ALF staff only pull ingested and "normal" storage items. If a PO is in the freezer or awaiting freezer,
 				# or in ALF but not yet ingested into GFA/CaiaSoft, IULMIA staff manually pull these items themselves - only send
@@ -161,11 +161,12 @@ module AlfHelper
 	# Generates a single entry in the JSON payload for CaiaSoft, required fields are:
 	# (item) barcode, request_type, and stop
 	def cs_line(po, user)
+		stop = ""
 		title = po.titles_text.gsub('"', "").gsub("'", "")
 		if Rails.env == "production" || Rails.env == "production_dev"
 			stop = po.active_component_group.deliver_to_alf? ? "AM" : "MI"
 		else
-			stop == DO_NOT_DELIVER
+			stop = DO_NOT_DELIVER
 		end
 		{"request_type" => "PYR", "barcode" => "#{po.iu_barcode}", "stop" =>  stop, "requestor" => "IULMIA", "patron_id" => "#{user.email_address}",
 		 "title" => "#{title}"}

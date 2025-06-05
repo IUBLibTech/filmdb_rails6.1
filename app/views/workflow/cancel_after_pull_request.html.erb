@@ -1,15 +1,31 @@
-<h4>Physical Objects in transit from storage</h4>
+<h4>Physical Objects in transit from storage (Pull Requested)</h4>
 <table>
 	<tr>
 		<th>Barcode</th>
 		<th>Title</th>
+		<th>Pull Request Date - Pulled By</th>
+		<th>Alf Reported Location</th>
 		<th>Action</th>
 	</tr>
 	<% @physical_objects.each do |p| %>
 		<tr>
-			<td><%= p.iu_barcode %></td>
+			<td><%= link_to p.iu_barcode, physical_object_path(p) %></td>
 			<td><%= p.titles_text %></td>
-			<td><%= link_to 'Cancel Pull Request', process_cancel_after_pull_request_path(p), method: :post %> | <%= link_to 'Requeue Pull Request', process_requeue_after_pull_request_path(p), method: :post %></td>
+			<td>
+				<% if p.active_pull_request %>
+					<%= p.active_pull_request.created_at.strftime("%m/%d/%Y")  %> - <%= p.active_pull_request.requester.username %>
+				<% else %>
+					<span class="red">No Pull Request object found!</span>
+				<% end %>
+			</td>
+			<td><%= p.alf_itemloc %></td>
+			<td>
+				<%= link_to 'Cancel Pull Request', process_cancel_after_pull_request_path(p), method: :post %> |
+				<%= link_to 'Requeue Pull Request', process_requeue_after_pull_request_path(p), method: :post %>
+				<% if p.active_pull_request %>
+					| <%= link_to 'View Pull Request', show_pull_request_path(p.active_pull_request), method: :get %>
+				<% end %>
+			</td>
 		</tr>
 	<% end %>
 </table>
