@@ -32,7 +32,7 @@
 	<div class="menuItem">
 		<a href="#">Workflow</a>
 		<ul class="nav">
-			<li><%= link_to 'Cancel Pull Request', cancel_after_pull_request_path %></li>
+<!--			<li><%#= link_to 'Cancel Pull Request', cancel_after_pull_request_path %></li>-->
 			<% if policy(User).can_change_location? %>
 				<li><%= link_to "Correct Physical Object Location", correct_location_path %></li>
 			<% end %>
