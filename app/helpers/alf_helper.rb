@@ -6,6 +6,9 @@ module AlfHelper
 	require 'uri'
 	require 'open3'
 
+	# CaiaSoft itemloclist restricts to a max of 500 items for the API CALL
+	ITEMLOCLIST_MAX = 500
+
 	# 4th field after AL/MI is patron id, not email address, try to figure out which field is email address and use the IULMIA account that Andy monitors
 	PULL_LINE_MDPI = "\"REQI\",\":IU_BARCODE\",\"IULMIA – MDPI\",\":TITLE\",\"AM\",\"AM\",\"\",\"\",\":EMAIL_ADDRESS\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"PHY\""
 	PULL_LINE_WELLS = "\"REQI\",\":IU_BARCODE\",\"IULMIA – MDPI\",\":TITLE\",\"MI\",\"MI\",\"\",\"\",\":EMAIL_ADDRESS\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"PHY\""
@@ -18,10 +21,60 @@ module AlfHelper
 
 	CURL_COMMAND = "curl -X POST -H '$API_KEY_NAME:$API_KEY' -H 'Content-Type: application/json' -d '$REQUEST' $CS_ENDPOINT"
 
+	### CaiaSoft Statuses from API docs: https://portal.caiasoft.com/apiguide.php?serv=restapi&rec=4&oper=statuslist ###
+	RESTRICTED_API_ACCESS = "Item Restricted from this API Key"
+	NOT_FOUND = "Item not Found"
+	WAITING_ON_INCOMING_ACCESSION_STREAM = "Item Waiting on Incoming Accession Stream"
+	IN_ACCESSION_PROCESS = "Item In Accession Process"
+	COMMITTED = "Item Committed"
+	DEACCESSIONED = "Item has been Deaccessioned"
+	OUT_OF_ALF = "Out on Physical Retrieval"
+	PULLED_E_RETIEVAL = "Pulled for E-Retrieval"
+	OUT_ON_SHIP_SERVICE = "Out on SH-I-P Service"
+	IN_ALF = "Item In at Rest"
+	IN_QUEUE_REFILE = "In Queue for Refile"
+	IN_QUEUE_PHYSICAL_RETIEVAL = "In Queue for Physical Retrieval"
+	IN_QUEUE_E_RETIEVAL = "In Queue for E-Retrieval"
+	IN_QUEUE_SHIP_SERVICE = "In Queue for SH-I-P Service"
+	IN_QUEUE_DEACCESSION = "In Queue for De-accession"
+	### The statuses that Filmdb cares about ####
+	CAIASOFT_STATUSES = [
+		RESTRICTED_API_ACCESS, NOT_FOUND, IN_ACCESSION_PROCESS, DEACCESSIONED, OUT_OF_ALF, IN_ALF,
+		IN_QUEUE_PHYSICAL_RETIEVAL, IN_QUEUE_DEACCESSION
+	]
+	### Equivalency maps CS to Filmdb Workflow Statuses ###
+	# these are not directly one to one but more relative For instance NOT_FOUND in caiasoft could mean a lot of things
+	# in Filmdb and could be conditional as well: NOT FOUND could correlate to MISSING in filmdb if the item was never
+	# ingested in CS
+	EQUIVALENCIES = {
+		RESTRICTED_API_ACCESS => [], # no correlation to filmdb - this means the API key has changed!!! Error
+		NOT_FOUND => [
+			WorkflowStatus::JUST_INVENTORIED_ALF, WorkflowStatus::JUST_INVENTORIED_WELLS, WorkflowStatus::AWAITING_FREEZER,
+			WorkflowStatus::IN_FREEZER, WorkflowStatus::IN_STORAGE_AWAITING_INGEST, WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE,
+			WorkflowStatus::MISSING, WorkflowStatus::SHIPPED_EXTERNALLY, WorkflowStatus::DEACCESSIONED, WorkflowStatus::IN_WORKFLOW_ALF,
+			WorkflowStatus::IN_WORKFLOW_WELLS
+		],
+		IN_ACCESSION_PROCESS => [WorkflowStatus::IN_STORAGE_AWAITING_INGEST],
+		DEACCESSIONED => [WorkflowStatus::DEACCESSIONED],
+		IN_QUEUE_DEACCESSION => [WorkflowStatus::DEACCESSIONED],
+		OUT_OF_ALF => [
+			WorkflowStatus::IN_WORKFLOW_WELLS, WorkflowStatus::IN_WORKFLOW_ALF, WorkflowStatus::SHIPPED_EXTERNALLY,
+			WorkflowStatus::MISSING, WorkflowStatus::BEST_COPY_MDPI_WELLS, WorkflowStatus::BEST_COPY_WELLS, WorkflowStatus::BEST_COPY_ALF
+		],
+		IN_ALF => [WorkflowStatus::IN_STORAGE_INGESTED],
+		IN_QUEUE_PHYSICAL_RETIEVAL => [WorkflowStatus::PULL_REQUESTED]
+	}
+
+	ALF_TO_FDB_STORAGE_LOCATIONS = {
+		IN_ALF => "In Storage",
+		NOT_FOUND => "Not Ingested in ALF",
+		OUT_OF_ALF => "Delivered to IULMIA",
+		IN_QUEUE_PHYSICAL_RETIEVAL => "Pull Requested",
+	}
+
 	# this method is responsible for generating and upload the ALF system pull request file
-	#{"success"=>true, "error"=>"", "request_count"=>"1",
-	# "results"=>[{"item"=>"30000136732413", "deny"=>"Y", "istatus"=>"Item in Collection BL cannot circulate to Stop MI - Location default"}]}
-	#
+	# See "API Return" section of https://portal.caiasoft.com/apiguide.php?serv=restapi&rec=3&oper=circrequests
+	# for information about what the API returns
 	def push_pull_request(physical_objects, user)
 		# transaction in case anything goes wrong while writing the upload file and saving the PullRequest object
 		# see #generate_upload_file for details
@@ -54,16 +107,22 @@ module AlfHelper
 		end
 	end
 
+	# def alf_storage_readable(alf_status)
+	# 	match = ALF_TO_FDB_STORAGE_LOCATIONS[alf_status]
+	# 	return alf_status if match.nil?
+	# 	return match
+	# end
+
 	private
-	def generate_pull_file_contents(physical_objects, user)
-		str = []
-		physical_objects.each do |po|
-			if po.storage_location == WorkflowStatus::IN_STORAGE_INGESTED
-				str << populate_line(po, user)
-			end
-		end
-		str
-	end
+	# def generate_pull_file_contents(physical_objects, user)
+	# 	str = []
+	# 	physical_objects.each do |po|
+	# 		if po.storage_location == WorkflowStatus::IN_STORAGE_INGESTED
+	# 			str << populate_line(po, user)
+	# 		end
+	# 	end
+	# 	str
+	# end
 
 	def populate_line(po, user)
 		pl = nil
@@ -89,16 +148,23 @@ module AlfHelper
 		sprintf "%05d", (id.nil? ? 1 : id+1)
 	end
 
-	# this uses system curl command to send a JSON payload to the CaiaSoft /api/circrequest/v1 API
+	# used for pull requests, this utilizes system curl command to send a JSON payload to CaiaSoft's
+	# API at .../api/circrequests/v1
+	# See https://portal.caiasoft.com/apiguide.php?serv=restapi&rec=3&oper=circrequests for information about the API
 	def cs_upload_curl(pos, user)
 		url = URI(cs_circrequest_path)
 		key_name = cs_api_key_name
 		key = cs_api_key
-		payload = cs_json_payload(pos, user)
+		payload = cs_pull_request_json_payload(pos, user)
 		payload_file = write_payload_to_file(payload, user)
-		`curl -X POST #{url} -H #{key_name}:#{key} -d @#{payload_file}`
+		response = `curl -X POST #{url} -H #{key_name}:#{key} -d @#{payload_file}`
+		File.delete(payload_file)
+		response
 	end
 
+	# using ruby's built in Net::HTTP libraries, calls CaiaSoft's API at .../api/itemloc/v1/<barcode> to get information
+	# about the location and status of the specified Physical Object.
+	# See https://portal.caiasoft.com/apiguide.php?serv=restapi&rec=1&oper=itemloc for information about the API call
 	def cs_itemloc(barcode)
 		uri = URI(cs_itemloc_path(barcode))
 		key_name = cs_api_key_name
@@ -110,16 +176,37 @@ module AlfHelper
 		req = Net::HTTP::Get.new(uri)
 		req[key_name] = key
 		response = http.request(req)
-		response.body
+		json = JSON.parse(response.body)
+		save_itemloc(json["item"].first)
+		json
 	end
 
-	def cs_itemloc_curl(barcode)
-		url = URI(cs_itemloc_path(barcode))
+	# using the system's cURL command, calls CaiaSoft's API at ../api/itemloc/v1/<barcode> to get information about the
+	# location and status of the specified Physical Object. See https://portal.caiasoft.com/apiguide.php?serv=restapi&rec=1&oper=itemloc
+	# for information about the API call
+	# def cs_itemloc_curl(barcode)
+	# 	url = URI(cs_itemloc_path(barcode))
+	# 	key_name = cs_api_key_name
+	# 	key = cs_api_key
+	# 	`curl #{url} -H #{key_name}:#{key}`
+	# end
+
+	# uses the system's cURL command to call CaoaSoft's API at .../api/itemloclist/api to get information about the array
+	# of physical objects. See https://portal.caiasoft.com/apiguide.php?serv=restapi&rec=3&oper=itemloclist for information
+	# about the API call
+	def cs_itemloclist(pos, user = nil)
+		user = User.current_user_object if user.nil?
+		url = URI(cs_itemloclist_path)
 		key_name = cs_api_key_name
 		key = cs_api_key
-		`curl #{url} -H #{key_name}:#{key}`
+		payload = cs_itemloclist_json_payload(pos)
+		payload_file = write_payload_to_file(payload, user)
+		response = `curl -X POST #{url} -H #{key_name}:#{key} -d @#{payload_file}`
+		File.delete(payload_file)
+		@itemloclist = JSON.parse(response)
+		save_itemloclist(@itemloclist)
+		@itemloclist
 	end
-
 
 	def write_payload_to_file(payload, user)
 		filename = File.join(Rails.root, 'tmp', "#{user.username}_pull_request.json")
@@ -130,18 +217,27 @@ module AlfHelper
 		filename
 	end
 
+	# deletes all files in <Rails.root>/tmp that match the wildcard pattern and are more than exp_days old
+	def clear_tmp_files(pattern, exp_days)
+		files = Dir[File.join(Rails.root, "tmp", pattern)]
+		files.each do |f|
+			if File.mtime(f) < exp_days.days.ago
+				File.delete(f)
+			end
+		end
+	end
+
 	# generates the JSON payload for upload as the resquest's body for the CaiaSoft inventory system, and creates the
 	# global PullRequest object @pr - does NOT save @pr to the database: this should be handled by other code that checks
 	# whether the pull request was successfully received by CaiaSoft
-	def cs_json_payload(pos, user)
+	def cs_pull_request_json_payload(pos, user)
 		payload = []
 		PullRequest.transaction do
 			# @pr = PullRequest.new(filename: nil, file_contents: nil, requester: user, caia_soft: true)
 			@pr = PullRequest.new(filename: nil, file_contents: nil, requester: user, caia_soft: true)
 			pos.each do |p|
-				# ALF staff only pull ingested and "normal" storage items. If a PO is in the freezer or awaiting freezer,
-				# or in ALF but not yet ingested into GFA/CaiaSoft, IULMIA staff manually pull these items themselves - only send
-				# POs where storage location is ingested
+				# ALF staff currently (06/2025) only pull ingested and items awaiting ingest. Freezer items are completely
+				# managed by IULMIA staff.
 				if p.storage_location == WorkflowStatus::IN_STORAGE_INGESTED
 					payload << cs_line(p, user)
 				end
@@ -152,6 +248,10 @@ module AlfHelper
 			@pr.json_payload = payload.to_s
 		end
 		{"requests": payload}.to_json
+	end
+
+	def cs_itemloclist_json_payload(pos)
+		"{\"items\": [#{pos.collect{|p| p.iu_barcode}.join(",\n")}] }"
 	end
 
 	def parse_cs_json_response(result)
@@ -179,6 +279,9 @@ module AlfHelper
 		"#{cs_endpoint_path}#{Rails.application.credentials[:caia_soft_circrequest]}"
 	end
 
+	def cs_itemloclist_path
+		"#{cs_endpoint_path}#{Rails.application.credentials[:caia_soft_itemloclist]}"
+	end
 	def cs_itemloc_path(barcode)
 		"#{cs_endpoint_path}#{Rails.application.credentials[:caia_soft_itemloc]}/#{barcode}"
 	end
@@ -190,5 +293,52 @@ module AlfHelper
 		Rails.application.credentials[:caia_soft_api_key]
 	end
 
+	# Call this with an iu_barcode to extract the "status" field value from a CaiaSoft API call to /itemloclist
+	# See https://portal.caiasoft.com/apiguide.php?serv=restapi&rec=3&oper=itemloclist for details on the response.
+	# If the barcode passed is not in the response, nil is returned
+	def status_from_cs_response(barcode)
+		field_from_cs_response("status", barcode)
+	end
+
+	def location_from_cs_response(barcode)
+		field_from_cs_response("location", barcode)
+	end
+
+	def field_from_cs_response(field, barcode)
+		@itemloclist = JSON.parse(@itemloclist) if @itemloclist.is_a? String
+		if @itemloclist["success"] == true
+			found = @itemloclist["item"].find{ |p| p["barcode"] == barcode}
+			found ? found[field] : nil
+		else
+			nil
+		end
+	end
+
+	# compares a Filmdb workflow status name to a CaiaSoft "status" (location) to see if they are functionally equivalent
+	def fdb_cs_locs_equivalent?(fdb_location, cs_location)
+		EQUIVALENCIES[cs_location].include? fdb_location
+	end
+
+	# takes a single "item" entry from CaiaSoft's JSON response and either saves an existing record with the current values,
+	# or creates a new record if the PO has never been checked against CaiaSoft
+	def save_itemloc(item)
+		bc = item["barcode"]
+		po = PhysicalObject.where(iu_barcode: bc.to_i).first
+		raise "Could not find a PhysicalObject with barcode: #{bc}!" if po.nil?
+
+		cs = CaiaSoftItemLoc.where(iu_barcode: bc.to_i).first
+		if cs.nil?
+			cs = CaiaSoftItemLoc.new()
+		end
+		cs.copy_json(item)
+		cs.physical_object = po
+		cs.save!
+	end
+
+	def save_itemloclist(json)
+		json["item"].each do |po|
+			save_itemloc(po)
+		end
+	end
 
 end

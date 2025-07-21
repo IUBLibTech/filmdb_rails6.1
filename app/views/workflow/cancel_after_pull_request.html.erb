@@ -18,12 +18,14 @@
 					<span class="red">No Pull Request object found!</span>
 				<% end %>
 			</td>
-			<td><%= p.alf_itemloc %></td>
+			<% status = status_from_cs_response(p.iu_barcode) %>
+			<td class="<%= status != "Out on Physical Retrieval" ? "warning" : "" %>">
+				<%= status %>
+			</td>
 			<td>
-				<%= link_to 'Cancel Pull Request', process_cancel_after_pull_request_path(p), method: :post %> |
-				<%= link_to 'Requeue Pull Request', process_requeue_after_pull_request_path(p), method: :post %>
+				<%= link_to 'Cancel Pull Request', process_cancel_after_pull_request_path(p), method: :post %>
 				<% if p.active_pull_request %>
-					| <%= link_to 'View Pull Request', show_pull_request_path(p.active_pull_request), method: :get %>
+				| <%= link_to 'View Pull Request', show_pull_request_path(p.active_pull_request), method: :get %>
 				<% end %>
 			</td>
 		</tr>

@@ -15,6 +15,9 @@
         <td><%= f.submit 'Mark Returned' %> </td>
         <td id="ajax_show_storage_message"></td>
       </tr>
+			<tr id="msg" class="error">
+				<td colspan="2"></td>
+			</tr>
     </table>
 <% end %>
 <script type="text/javascript" charset="utf-8">
@@ -27,6 +30,8 @@
 					title: "Invalid Barcode",
 					text: $('.ajax_barcode_lookup').val()+" is not a valid barcode. Please rescan."
 				});
+				return false;
+			} else if (valid_locations.length == 0) {
 				return false;
 			} else if (!valid_locations.includes($('#physical_object_location').find(":selected").text())) {
 				swal({
@@ -54,35 +59,40 @@
 						});
 					},
 					success: function (json) {
-						let select = $("#physical_object_location");
 						// reset options for the select
-						select.empty();
+						clearLocations();
 						valid_locations = json["locations"]
 						valid_locations.forEach(function(val) {
-							select.append('<option value="' + val + '">' + val + '</option>')
+							$("#physical_object_location").append('<option value="' + val + '">' + val + '</option>')
 						})
 
 						// highlight warning if necessary
 						let msg_el = $("#ajax_show_storage_message");
-						if (json["warn"]) {
+						if (json["warn"] && json["warn"].length > 0) {
 							msg_el.addClass("warn");
 							msg_el.text(json["warn"])
+						} else if (json["notice"] && json["notice"].length > 0) {
+							msg_el.removeClass("warn");
+							msg_el.addClass("noti")
+							msg_el.text(json["notice"])
 						} else {
 							msg_el.removeClass("warn");
+							msg_el.removeClass("noti")
 							msg_el.text(json["msg"]);
 						}
 					}
 
 				});
 			} else {
-				clear_locations();
+				clearLocations();
 			}
 		});
 	})
 
-	function clear_locations() {
+	function clearLocations() {
 		valid_locations = [];
 		$("#physical_object_location > option").remove();
+		$("#ajax_show_storage_message").removeClass("warn").removeClass("noti")
 	}
 
 </script>

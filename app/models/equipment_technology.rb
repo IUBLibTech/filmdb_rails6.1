@@ -166,6 +166,11 @@ class EquipmentTechnology < ApplicationRecord
     vals
   end
 
+  # override because Eq/Tech object are never stored in ALF - always stored in offsite location
+  def storage_location
+    return WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE
+  end
+
   def medium_name
     "#{medium} [#{humanize_boolean_fields EquipmentTechnology::TYPE_FIELDS}]"
   end
@@ -179,6 +184,8 @@ class EquipmentTechnology < ApplicationRecord
   def to_xml(options)
     raise "No specification for how to export EquipmentTechnology Physical Objects to XML"
   end
-
+  def titles_text
+    "N/A - Equipment/Technology"
+  end
 
 end

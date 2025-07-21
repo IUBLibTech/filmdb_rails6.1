@@ -16,3 +16,18 @@
 .w_100per {
   width: 100%;
 }
+.error {
+  background: red;
+  display: none;
+  font-weight: bold;
+}
+.response_table {
+  //display: none;
+}
+.response_table > .locs {
+  //display: none;
+}
+.bad {
+  color:red;
+  font-weight: bold;
+}

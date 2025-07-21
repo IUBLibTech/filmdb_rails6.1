@@ -2,27 +2,31 @@
 	<% if @msg %>
 		<p class="warning"><%= @msg %></p>
 	<% else  %>
-		<% if @physical_object.same_active_component_group_members? != false %>
-			<p class="notice">
-				<% bcs = @physical_object.same_active_component_group_members?&.collect{|p| p.iu_barcode}  %>
-				<%= "#{bcs.join(', ')} also #{bcs.size == 1 ? 'belongs' : 'belong'} to this title and #{bcs.size == 1 ? 'has' : 'have'} not yet been received from storage." %>
-			</p>
-		<% end %>
-		<table>
-			<tr>
-				<th>Reason Pulled</th>
-				<td>
-					<%= @physical_object.active_component_group&.group_type %>
-				</td>
-			</tr>
-			<tr>
-				<th>Title</th>
-				<td><%= @physical_object.titles.collect{ |t| t.title_text }.join(', ') %></td>
-			</tr>
-			<tr>
-				<th>Requested By</th>
-				<td><%= @physical_object.current_workflow_status.user.username %></td>
-			</tr>
-		</table>
-	<% end  %>
+		<% if @physical_object.specific.is_a? EquipmentTechnology %>
+			<p class="notice"><%= @physical_object.iu_barcode %> is an Equipment/Technology Physical Object. When returning to storage, please make sure to <b><i>Return to Storage</i></b> through Filmdb.</p>
+		<% else %>
+			<% if @physical_object.same_active_component_group_members? != false %>
+				<p class="notice">
+					<% bcs = @physical_object.same_active_component_group_members?&.collect{|p| p.iu_barcode}  %>
+					<%= "#{bcs.join(', ')} also #{bcs.size == 1 ? 'belongs' : 'belong'} to this title and #{bcs.size == 1 ? 'has' : 'have'} not yet been received from storage." %>
+				</p>
+			<% end %>
+			<table>
+				<tr>
+					<th>Reason Pulled</th>
+					<td>
+						<%= @physical_object.active_component_group&.group_type %>
+					</td>
+				</tr>
+				<tr>
+					<th>Title</th>
+					<td><%= @physical_object.titles.collect{ |t| t.title_text }.join(', ') %></td>
+				</tr>
+				<tr>
+					<th>Requested By</th>
+					<td><%= @physical_object.current_workflow_status.user.username %></td>
+				</tr>
+			</table>
+		<% end  %>
+	<% end %>
 </div>

@@ -8,12 +8,10 @@
       <tr>
         <th>IU Barcode</th>
         <th>Title</th>
-        <th>Expected Storage Location</th>
         <th>Pull Request Status</th>
         <th>Reason if Denied</th>
-        <% if any_denied %>
-          <th>Change Workflow Status To:</th>
-        <% end %>
+        <th>Filmdb Last Storage Location</th>
+        <th><i>Current</i> ALF Reported Location</th>
       </tr>
       <% @pull_request.physical_objects.each do |p| %>
         <% denied = (map[p.iu_barcode] != nil && map[p.iu_barcode]["deny"]) == "Y" %>
@@ -21,20 +19,22 @@
         <tr>
           <td><%= link_to "#{p.iu_barcode}", physical_object_path(p) %></td>
           <td><%= p.titles_text %></td>
-          <% if p.storage_location != WorkflowStatus::IN_STORAGE_INGESTED %>
-            <td class="warning"><%= p.storage_location %> - Manual Pull</td>
+
+          <% # special case Freezer items %>
+          <td class="<%= cl %>"><%=  denied ? "Denied" : "Accepted" %></td>
+          <% if denied && WorkflowStatus.is_freezer_storage?(p.storage_location) %>
+            <td class="<%= cl %>"><%= p.current_location %> - IULMIA Staff Pull</td>
+          <% else %>
+            <td class="<%= cl %>"><%= map[p.iu_barcode]["istatus"] if denied %></td>
+          <% end %>
+          <% if WorkflowStatus.is_freezer_storage?(p.storage_location) %>
+            <td class="warning"><%= p.last_known_storage_location %> - IULMIA Staff Pull</td>
           <% else %>
             <td><%= p.storage_location %></td>
           <% end %>
-          <td class="<%= cl %>"><%=  denied ? "Denied" : "Accepted" %></td>
-          <td class="<%= cl %>"><%= map[p.iu_barcode]["istatus"] if denied %></td>
-          <% if any_denied %>
-          <td>
-            <% if denied  %>
-              <%= select_tag("p.id",  options_for_select(WorkflowStatus::CAIASOFT_DENIED_LOCATIONS.collect{|ws| [ws, ws]})) %>
-            <% end %>
-          </td>
-          <% end %>
+
+
+          <td><%= status_from_cs_response(p.iu_barcode) %></td>
         </tr>
       <% end %>
     </table>

@@ -5,6 +5,7 @@ class PhysicalObjectsController < ApplicationController
   include MailHelper
   include EquipmentTechnologyHelper
   include EdgeCodeHelper
+  include AlfHelper
 
   # when the user is creating/editing a PO and changes the medium, this results in a POST to #edit so that a new form can
   # be built specific to the PO specific selected, as well as seeding the new form with any entered values that are shared
@@ -16,24 +17,18 @@ class PhysicalObjectsController < ApplicationController
   # GET /physical_objects
   # GET /physical_objects.json
   def index
-    @statuses = WorkflowStatus::ALL_STATUSES.uniq.sort.collect{ |t| [t, t]}
+    @statuses = WorkflowStatus::PHYSICAL_OBJECT_STATUSES.uniq.sort.collect{ |t| [t, t]}
 	  if params[:status] && !params[:status].blank?
-      @count = PhysicalObject.joins(:current_workflow_status).where("workflow_statuses.status_name = '#{params[:status]}'")
+      @count = PhysicalObject.where(medium: ["Film", "Video", "Recorded Sound"]).joins(:current_workflow_status).where("workflow_statuses.status_name = '#{params[:status]}'")
       @count = @count.where("physical_objects.digitized = true") if params[:digitized]
       @count = @count.size
-      #@count = PhysicalObject.count_where_current_workflow_status_is(params[:digitized], params[:status])
       if @count > PhysicalObject.per_page
         @paginate = true
         @page = (params[:page].nil? ? 1 : params[:page].to_i)
-        #@physical_objects = PhysicalObject.where_current_workflow_status_is((@page - 1) * PhysicalObject.per_page, PhysicalObject.per_page, params[:digitized], params[:status])
-        @physical_objects = PhysicalObject.joins(:current_workflow_status).includes([:current_workflow_status, :titles, :active_component_group]).where("workflow_statuses.status_name = '#{params[:status]}'").order("titles.title_text asc")
-        if params[:digitized]
-          @physical_objects = @physical_object.where('physical_objects.digitized = true')
-        end
-        @physical_objects = @physical_objects.offset((@page - 1) * PhysicalObject.per_page).limit(PhysicalObject.per_page)
+        @physical_objects = PhysicalObject.where_current_workflow_status_is((@page - 1) * PhysicalObject.per_page, PhysicalObject.per_page, params[:digitized], params[:status]).order("titles.title_text asc")
       else
         #@physical_objects = PhysicalObject.where_current_workflow_status_is(nil, nil, params[:digitized], params[:status])
-        @physical_objects = PhysicalObject.joins(:current_workflow_status).includes([:current_workflow_status, :titles, :active_component_group]).where("workflow_statuses.status_name = '#{params[:status]}'").order("titles.title_text asc")
+        @physical_objects = PhysicalObject.where(medium: ["Film", "Video", "Recorded Sound"]).joins(:current_workflow_status).includes([:current_workflow_status, :titles, :active_component_group]).where("workflow_statuses.status_name = '#{params[:status]}'").order("titles.title_text asc")
         @physical_objects = @physical_objects.where('physical_objects.digitized = true') if params[:digitized]
       end
     elsif params[:status] == ''
@@ -41,12 +36,14 @@ class PhysicalObjectsController < ApplicationController
       @page = (params[:page].nil? ? 1 : params[:page].to_i)
       @paginate = true
 		  @physical_objects = (params[:digitized] ?
-         PhysicalObject.where(digitized: true).includes([:current_workflow_status, :titles, :active_component_group]).offset((@page - 1) * PhysicalObject.per_page).limit(PhysicalObject.per_page) :
-         PhysicalObject.includes([:current_workflow_status, :titles, :active_component_group]).all.offset((@page - 1) * PhysicalObject.per_page).limit(PhysicalObject.per_page)
+         PhysicalObject.where(medium: ["Film", "Video", "Recorded Sound"]).where(digitized: true).includes([:current_workflow_status, :titles, :active_component_group]).offset((@page - 1) * PhysicalObject.per_page).limit(PhysicalObject.per_page) :
+         PhysicalObject.where(medium: ["Film", "Video", "Recorded Sound"]).includes([:current_workflow_status, :titles, :active_component_group]).all.offset((@page - 1) * PhysicalObject.per_page).limit(PhysicalObject.per_page)
       )
     else
       @physical_objects = []
 	  end
+    # check alf for the item locs
+    @itemloclist = cs_itemloclist(@physical_objects) unless @physical_objects.size == 0
   end
 
   def compilations
@@ -57,7 +54,7 @@ class PhysicalObjectsController < ApplicationController
   end
 
   def equipment_technology
-    @physical_objects = PhysicalObject.where(medium: 'Equipment/Technology')
+    @physical_objects = PhysicalObject.where(medium: 'Equipment/Technology').includes(:current_workflow_status)
     render 'physical_objects/equipment_technology/index'
   end
 
@@ -308,7 +305,7 @@ class PhysicalObjectsController < ApplicationController
   end
 
   def workflow_history
-    @physical_object = PhysicalObject.find(params[:id])
+    @physical_object = PhysicalObject.find(params[:id]).specific
   end
 
   # DELETE /physical_objects/1

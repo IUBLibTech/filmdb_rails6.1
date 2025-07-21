@@ -6,7 +6,7 @@
 	</tr>
 	<tr>
 		<th>IU Barcode</th>
-		<td colspan="5"><%= link_to @physical_object.iu_barcode, physical_object_path(@physical_object) %></td>
+		<td colspan="5"><%= link_to @physical_object.iu_barcode, physical_object_path(@physical_object.acting_as) %></td>
 	</tr>
 	<tr>
 		<th>Date</th>

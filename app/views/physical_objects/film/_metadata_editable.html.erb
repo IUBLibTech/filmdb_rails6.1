@@ -271,10 +271,16 @@
       <div><%= f.check_box :picture_titles %>Titles</div>
       <div><%= f.check_box :picture_text %>Text</div>
     </div>
-    <div class="clear">
-      <b class='block'>Frame Rate</b><%= f.select :frame_rate, options_for_select(@cv[:frame_rate], @physical_object.frame_rate), {include_blank: ''}  %>
+    <b class='block'>Frame Rate</b>
+    <div class="flex_wrap flex_col_wrap">
+      <div><%= f.check_box :fps_12 %>12 fps</div>
+      <div><%= f.check_box :fps_16 %>16 fps</div>
+      <div><%= f.check_box :fps_18 %>18 fps</div>
+      <div><%= f.check_box :fps_24 %>24 fps</div>
+      <div><%= f.check_box :fps_25 %>25 fps</div>
     </div>
-    <div id="color_div">
+
+    <div id="color_div" class="clear">
       <b class="block">Color</b>
       <div class="flex_wrap flex_col_wrap h_75px">
         <div><%= f.check_box :color_bw_bw_black_and_white %>Black and White</div>

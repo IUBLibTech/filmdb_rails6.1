@@ -1,33 +1,4 @@
-<table id="pull_stats">
-	<tbody>
-	<tr>
-		<th>Total Pullable Physical Objects</th>
-		<th>Total Reformatting Reels</th>
-		<th>Total Best Copy Reels (ALF)</th>
-		<th>Total Best Copy Reels (Wells)</th>
-	</tr>
-
-	<tr>
-		<td><%= @physical_objects.size %></td>
-		<td><%= @physical_objects.size - @best_copy_alf_count - @best_copy_wells_count %></td>
-		<td><%= @best_copy_alf_count %></td>
-		<td><%= @best_copy_wells_count %></td>
-	</tr>
-	<tr>
-		<th>Count Selected</th>
-		<th>Count Reformatting Selected</th>
-		<th>Count Best Copy ALF Select</th>
-		<th>Count Best Copy Wells Select</th>
-	</tr>
-	<tr>
-		<td id="selected_count">0</td>
-		<td id="selected_reformatting">0</td>
-		<td id="selected_bc_alf">0</td>
-		<td id="selected_bc_wells">0</td>
-	</tr>
-	</tbody>
-</table>
-<br>
+<h4>Physical Objects Queued for Pull Request</h4>
 <table id="physical_objects_table">
 	<tr>
 		<th>Select To Pull</th>
@@ -35,56 +6,57 @@
 		<th>IU Barcode</th>
 		<th>Can Size</th>
 		<th>Gauge/Format</th>
-		<th>Location</th>
-		<th>Pulled For</th>
 		<th>Queued By</th>
+		<th>Last Filmdb Storage Location</th>
+		<th>ALF Location</th>
 		<th>Cancel</th>
 	</tr>
-	<% if @ingested.size > 0 %>
-	<tr>
-		<th colspan="9">Queued Physical Objects (Ingested)</th>
-	</tr>
-	<% end %>
-	<% @ingested.each do |p| %>
+	<% @physical_objects.each do |p| %>
     <% p = p.specific %>
 	<tr>
-		<td><%= check_box_tag "po_#{p.acting_as.id}", '', false, {class: "cg_#{p.active_component_group.group_type.tr('()','').tr(' ','_').downcase}"}%></td>
+		<%
+			storage_name = p.last_known_storage_location
+			freezer_item = WorkflowStatus.is_freezer_storage?(storage_name)
+			alf_status = status_from_cs_response(p.iu_barcode)
+			in_alf = alf_status == AlfHelper::IN_ALF
+			can_pull = freezer_item || in_alf || p.last_known_storage_location == WorkflowStatus::IN_STORAGE_AWAITING_INGEST
+		%>
+		<% if can_pull %>
+			<td><%= check_box_tag "po_#{p.acting_as.id}", '', false, {class: "cg_#{p.active_component_group.group_type.tr('()','').tr(' ','_').downcase}"}%></td>
+		<% else %>
+			<td class="warning">Cannot Pull</td>
+		<% end %>
+
 		<td>
 			<% p.titles.each do |t| %>
 				<%= link_to "#{t.title_text}", title_path(t) %> <br>
 			<% end %>
 		</td>
-		<td><%=  p.iu_barcode %></td>
+		<td><%= link_to p.iu_barcode, physical_object_path(p.acting_as) %></td>
 		<td><%= p.has_attribute?(:can_size) ? p.can_size : ''%></td>
 		<td><%= p.medium_name %></td>
-		<td><%=  p.storage_location %></td>
-		<td><%= p.active_component_group&.group_type %></td>
-		<td><%= p.current_workflow_status.created_by.username %></td>
-		<td><%= link_to "Remove from Queue", '#', id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
-	</tr>
-	<% end %>
-	<% if @not_ingested.size > 0 %>
-	<tr>
-		<th colspan="9">Queued Physical Objects (Not Ingested)</th>
-	</tr>
-	<% end %>
-	<% @not_ingested.each do |p| %>
-    <% p = p.specific %>
-		<tr>
-			<td><%= check_box_tag "po_#{p.acting_as.id}", '', false, {class: "cg_#{p.active_component_group.group_type.tr('()','').tr(' ','_').downcase}"}%></td>
-			<td>
-				<% p.titles.each do |t| %>
-					<%= link_to "#{t.title_text}", title_path(t) %> <br>
-				<% end %>
-			</td>
-			<td><%=  link_to p.iu_barcode, physical_object_path(p.acting_as), target: '_blank' %></td>
-			<td><%= p.has_attribute?(:can_size) ? p.can_size : '' %></td>
-			<td><%= p.medium_name %></td>
-			<td><%=  p.current_location %></td>
-			<td><%= p.active_component_group&.group_type %></td>
-			<td><%= p.current_workflow_status.user.username %></td>
+		<td><%= p.current_workflow_status.user.name %></td>
+		<td class="<%= can_pull ? "" : "warning" %>"><%= storage_name %></td>
+		<% if can_pull %>
+			<td><%= alf_status %></td>
+		<% else %>
+			<% if freezer_item %>
+				<td class="warn">Freezer Item - IULMIA Staff Pull</td>
+			<% else %>
+				<td class="warning"><%= alf_status %></td>
+			<% end %>
+		<% end %>
+
+		<% if can_pull %>
 			<td><%= link_to "Remove from Queue", '#', id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
-		</tr>
+		<% else %>
+			<% if policy(User).can_change_location? %>
+				<td><%= link_to "Correct Location", correct_location_path, id: "po_#{p.acting_as.id}", class: 'remove_from_queue' %></td>
+			<% else %>
+				<td>Contact Carmel about the Filmdb/ALF location conflict</td>
+			<% end %>
+		<% end %>
+	</tr>
 	<% end %>
 	<tr>
 		<td colspan="2">
@@ -95,6 +67,7 @@
 		</td>
 	</tr>
 </table>
+
 <script type="text/javascript">
 	var lastChecked = null;
 	$(document).ready(function() {
@@ -131,13 +104,13 @@
 							url: url,
 							method: 'POST',
 							error: function(jqXHR, textStatus, errorThrown) {
-                  swal({
-                      title: 'Ajax Error',
-                      text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
-                  }, function() {
-                      window.location.replace(url)
-                  });
-              },
+								swal({
+									title: 'Ajax Error',
+									text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+								}, function() {
+									window.location.replace(url)
+								});
+							},
 							success: function (result) {
 								swal({
 										title: 'Reponse',

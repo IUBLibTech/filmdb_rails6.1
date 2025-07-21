@@ -6,6 +6,13 @@
 </div>
 <div class="left _50">
   <b>IU Barcode</b> <%= @physical_object.iu_barcode %><% if @physical_object.physical_object_old_barcodes.size > 0 %><%= link_to "*", "#old_barcodes" %><% end %><br/>
+
+  <b>Workflow Status</b>
+    <%= link_to @physical_object.current_workflow_status.type_and_location,
+                physical_object_workflow_history_path(@physical_object.acting_as),
+                class: "#{@physical_object.missing? ? 'missing' : ''}",
+                title: @physical_object.current_workflow_status.comment %>
+   <br>
   <b>Storage Location</b> <%= @physical_object.storage_location %><br>
   <b>ALF/Freezer Location</b> <%= @physical_object.alf_shelf %> <br>
 </div>

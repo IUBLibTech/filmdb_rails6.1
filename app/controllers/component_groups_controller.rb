@@ -21,6 +21,7 @@ class ComponentGroupsController < ApplicationController
     @title = Title.find(params[:id])
     @component_group = ComponentGroup.new(title_id: @title.id)
     @component_group_cv = ControlledVocabulary.component_group_cv
+    @itemloclist = cs_itemloclist(@title.physical_objects, User.current_user_object)
   end
 
   # POST /component_groups
@@ -41,6 +42,7 @@ class ComponentGroupsController < ApplicationController
           ).save!
           # post MDPI, override rules - last arg is true
           ws = WorkflowStatus.build_workflow_status(WorkflowStatus::QUEUED_FOR_PULL_REQUEST, po, true)
+          ws.component_group = @component_group
           ws.comment = @component_group.group_summary
           po.current_workflow_status = ws
           po.workflow_statuses << ws
