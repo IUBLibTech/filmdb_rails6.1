@@ -29,7 +29,7 @@ class WorkflowController < ApplicationController
 			response["success"] = false
 			response["error"] = "Could not find a Physical Object with barcode: #{params[:iu_barcode]}"
 		else
-			cs_resp = JSON.parse(cs_itemloc(@po.iu_barcode))
+			cs_resp = JSON.parse(cs_itemloc(@po.iu_barcode, po))
 			cs_loc = cs_resp["item"].first["status"]
 
 			response[:success] = true
@@ -46,17 +46,17 @@ class WorkflowController < ApplicationController
 			if @po.is_a? EquipmentTechnology
 				response[:type] = "#{@po.medium}"
 				# remove all "regular" PO storage locations if they're there
-				response[:options] = (AlfHelper::EQUIVALENCIES[cs_loc] -
+				response[:options] = (CaiaSoftStatusHelper::EQUIVALENCIES[cs_loc] -
 					[WorkflowStatus::AWAITING_FREEZER, WorkflowStatus::IN_FREEZER, WorkflowStatus::IN_STORAGE_AWAITING_INGEST, WorkflowStatus::IN_STORAGE_INGESTED]).sort
 			else
 				response[:type] = "#{@po.medium} (#{@po.gauge}) - #{@po.titles_text}"
 				equiv = fdb_cs_locs_equivalent?(@po.current_workflow_status.status_name, response[:caiasoft_location])
 				response[:equivalent_locs] = equiv
-				if cs_loc == AlfHelper::IN_ALF
-					response[:options] = [AlfHelper::IN_ALF]
+				if cs_loc == CaiaSoftStatusHelper::IN_ALF
+					response[:options] = [CaiaSoftStatusHelper::IN_ALF]
 					response[:equivalent_locs] = true
 				else
-					response[:options] = equiv ? (AlfHelper::EQUIVALENCIES[cs_loc] - [WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE]).sort : []
+					response[:options] = equiv ? (CaiaSoftStatusHelper::EQUIVALENCIES[cs_loc] - [WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE]).sort : []
 				end
 			end
 		end
@@ -210,8 +210,7 @@ class WorkflowController < ApplicationController
 			flash[:warning] = 'You did not specify any Physical Objects to pull'
 		else
 			ids = ids.split(',')
-			pos = PhysicalObject.where(id: ids)
-			bad_req = []
+			pos = PhysicalObject.where(id: ids).includes(:caia_soft_item_loc)
 			begin
 				push_pull_request(pos, User.current_user_object)
 				if @pr.caia_soft_upload_success
@@ -398,11 +397,11 @@ class WorkflowController < ApplicationController
 		else
 			cs_itemloclist([po])
 			@itemloclist = cs_itemloclist([po])
-			alf_status = status_from_cs_response(po.iu_barcode)
+			alf_status = status_from_itemloclist(po.iu_barcode)
 			not_found = alf_status == AlfHelper::NOT_FOUND
-			alf_location = location_from_cs_response(po.iu_barcode)
+			alf_location = location_from_itemloclist(po.iu_barcode)
 			cur_loc = po.current_workflow_status.status_name
-			conflict = !EQUIVALENCIES[alf_status].include?(po.current_workflow_status.status_name)
+			conflict = !AlfHelper.equivalent_statuses?(alf_status, po.current_workflow_status)
 			# eq tech is not stored in ALF so ignore what it may report and special case
 			if po.medium == "Equipment/Technology"
 				if cur_loc == WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE

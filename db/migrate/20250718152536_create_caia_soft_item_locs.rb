@@ -1,5 +1,6 @@
 class CreateCaiaSoftItemLocs < ActiveRecord::Migration[8.0]
   def change
+    drop_table :caia_soft_item_locs if table_exists? :caia_soft_item_locs
     create_table :caia_soft_item_locs do |t|
       t.bigint :iu_barcode
       t.integer :physical_object_id, limit: 8

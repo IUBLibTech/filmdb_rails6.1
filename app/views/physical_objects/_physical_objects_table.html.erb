@@ -14,9 +14,9 @@
   <tbody>
   <% @physical_objects.each do |physical_object| %>
 	<%
-		status = status_from_cs_response(physical_object.iu_barcode)
+		status = status_from_itemloclist(physical_object.iu_barcode)
 		# on the filter page, we need to special case Queued For Pull Request as it is not a physical location
-		conflict = !AlfHelper::EQUIVALENCIES[status].include?(physical_object.current_workflow_status.status_name) && physical_object.current_workflow_status.status_name != WorkflowStatus::QUEUED_FOR_PULL_REQUEST
+		conflict = !AlfHelper.equivalent_statuses?(status, physical_object.current_workflow_status.status_name) && physical_object.current_workflow_status.status_name != WorkflowStatus::QUEUED_FOR_PULL_REQUEST
 	%>
     <tr class=<%= "digitized_tr" if physical_object.digitized? %>>
       <td>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_130156) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_29_190844) do
   create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
     t.text "description"
@@ -79,6 +79,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_130156) do
     t.string "last_status_update"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "mismatch"
     t.index ["iu_barcode"], name: "index_caia_soft_item_locs_on_iu_barcode", unique: true
     t.index ["physical_object_id"], name: "index_caia_soft_item_locs_on_physical_object_id", unique: true
   end

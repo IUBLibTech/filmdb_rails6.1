@@ -228,7 +228,7 @@ class PhysicalObject < ApplicationRecord
 
 	# FIXME: see #storage_location for details and timeline
 	def alf_storage_loc
-		json = cs_itemloc(iu_barcode)
+		json = cs_itemloc(iu_barcode, self)
 		if json["item"][0]["status"] == AlfHelper::NOT_FOUND
 			if alf_shelf.blank?
 				"#{self.current_workflow_status} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
@@ -248,7 +248,7 @@ class PhysicalObject < ApplicationRecord
 	end
 
 	def alf_itemloc
-		json = cs_itemloc(iu_barcode)
+		json = cs_itemloc(iu_barcode, self)
 		json["item"][0]["status"]
 	end
 

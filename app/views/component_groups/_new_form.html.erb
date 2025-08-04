@@ -27,7 +27,7 @@
     <% @title.physical_objects.each do |p| %>
     <% p = p.specific %>
     <%
-      alf_status = status_from_cs_response(p.iu_barcode)
+      alf_status = status_from_itemloclist(p.iu_barcode)
       in_alf = alf_status == AlfHelper::IN_ALF
       freezer_item = p.current_workflow_status.is_freezer_storage?
       fdb_in = (p.current_workflow_status.status_name == WorkflowStatus::IN_STORAGE_INGESTED)

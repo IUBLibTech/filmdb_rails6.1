@@ -1,4 +1,10 @@
+# This class (mostly) represents physical locations in IULMIA's workflow. There are a few that are more conceptual though:
+# QUEUED_FOR_PULL_REQUEST and PULL_REQUESTED can refer to anywhere in ALF's workflow up to the point of delivery.
+# All locations are defined in WorkflowStatusesHelper as those values are used all over the application and typing
+# WorkflowStatus::SOME_STATUS_WITH_A_LONG_NAME gets cumbersome... Code still needs cleaning up for this.
+#
 class WorkflowStatus < ApplicationRecord
+	include WorkflowStatusesHelper
 	belongs_to :physical_object
 	belongs_to :component_group, optional: true
 	belongs_to :user, class_name: 'User', foreign_key: 'created_by'
@@ -8,51 +14,8 @@ class WorkflowStatus < ApplicationRecord
 	WORKFLOW_TYPES = ['Storage', 'In Workflow', 'Shipped', 'Deaccessioned']
 	WORK_LOCATIONS = [User::WORK_LOCATION_ALF, User::WORK_LOCATION_WELLS ]
 
-
 	MDPI = 'MDPI'
 	IULMIA = 'IULMIA'
-
-	# all status names
-	AWAITING_FREEZER = 'Awaiting Freezer'
-	BEST_COPY_ALF = 'Evaluation (ALF)'
-	BEST_COPY_WELLS = 'Evaluation (Wells)'
-	BEST_COPY_MDPI_WELLS = 'Evaluation (Wells)'
-	DEACCESSIONED = 'Deaccessioned'
-	IN_CAGE = 'In Cage (ALF)'
-	IN_FREEZER = 'In Freezer'
-	IN_WORKFLOW_ALF = 'In Workflow (ALF)'
-	IN_WORKFLOW_WELLS = 'In Workflow (Wells)'
-	ISSUES_SHELF = 'Issues Shelf (ALF)'
-	JUST_INVENTORIED_WELLS = 'Just Inventoried (Wells)'
-	JUST_INVENTORIED_ALF = 'Just Inventoried (ALF)'
-	MOLD_ABATEMENT = 'Mold Abatement'
-	MISSING = 'Missing'
-
-	# 7/2025 the values for IN_STORAGE_INGESTED and IN_STORAGE_AWAITING_INGEST were changed from OLD_IN_STORAGE_INGESTED
-	# and OLD_IN_STORAGE_AWAITING_INGEST to their "NEW" counterparts. This was done because IULMIA does not store its
-	# Equipement/Technology objects in ALF and it was unclear to users. The migration which corrected WorkflowStatus status_names
-	# in the database will raise an error in either running the migration or rolling it back if these values are not correct
-	# for the action needed.
-	#
-	NEW_IN_STORAGE_INGESTED = 'In ALF (Ingested)'
-	NEW_IN_STORAGE_AWAITING_INGEST = 'In ALF (Awaiting Ingest)'
-	OLD_IN_STORAGE_INGESTED = "In Storage (Ingested)"
-	OLD_IN_STORAGE_AWAITING_INGEST = "In Storage (Awaiting Ingest)"
-	IN_STORAGE_INGESTED = NEW_IN_STORAGE_INGESTED
-	IN_STORAGE_AWAITING_INGEST = NEW_IN_STORAGE_AWAITING_INGEST
-
-	PULL_REQUESTED = 'Pull Requested'
-	QUEUED_FOR_PULL_REQUEST = 'Queued for Pull Request'
-	RECEIVED_FROM_STORAGE_STAGING = 'Returned to Pull Requested'
-	SHIPPED_EXTERNALLY = 'Shipped Externally'
-	TWO_K_FOUR_K_SHELVES = "Digitization Shelf"
-	WELLS_TO_ALF_CONTAINER = 'Wells to ALF Container'
-
-	# DO NOT USE in STATUSES_TO_NEXT_WORKFLOW: this is a special storage location used for ALL Eq/Tech POs ONLY! Do not add it to
-	# the rule hash because the rules hash does not differentiate between PO mediums. Anywhere an Eq/Tech needs to move here,
-	# force the workflow status creation with override=true in the method
-	IN_STORAGE_INGESTED_OFFSITE = "In Storage (Offsite)"
-
 
 	# Workflow status locations which define a Physical Object as "active"
 	ACTIVE_WORKFLOW = [PULL_REQUESTED, QUEUED_FOR_PULL_REQUEST, IN_WORKFLOW_WELLS, IN_WORKFLOW_ALF, SHIPPED_EXTERNALLY, JUST_INVENTORIED_WELLS, JUST_INVENTORIED_ALF]

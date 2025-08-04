@@ -18,7 +18,7 @@
 					<span class="red">No Pull Request object found!</span>
 				<% end %>
 			</td>
-			<% status = status_from_cs_response(p.iu_barcode) %>
+			<% status = status_from_itemloclist(p.iu_barcode) %>
 			<td class="<%= status != "Out on Physical Retrieval" ? "warning" : "" %>">
 				<%= status %>
 			</td>

@@ -17,7 +17,7 @@
 		<%
 			storage_name = p.last_known_storage_location
 			freezer_item = WorkflowStatus.is_freezer_storage?(storage_name)
-			alf_status = status_from_cs_response(p.iu_barcode)
+			alf_status = status_from_itemloclist(p.iu_barcode)
 			in_alf = alf_status == AlfHelper::IN_ALF
 			can_pull = freezer_item || in_alf || p.last_known_storage_location == WorkflowStatus::IN_STORAGE_AWAITING_INGEST
 		%>
@@ -36,8 +36,8 @@
 		<td><%= p.has_attribute?(:can_size) ? p.can_size : ''%></td>
 		<td><%= p.medium_name %></td>
 		<td><%= p.current_workflow_status.user.name %></td>
-		<td class="<%= can_pull ? "" : "warning" %>"><%= storage_name %></td>
-		<% if can_pull %>
+		<td class="<%= can_pull && in_alf ? "" : "warning" %>"><%= storage_name %></td>
+		<% if can_pull && in_alf %>
 			<td><%= alf_status %></td>
 		<% else %>
 			<% if freezer_item %>
