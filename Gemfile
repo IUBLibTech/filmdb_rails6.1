@@ -58,13 +58,6 @@ gem 'active_record-acts_as'
 # HairTrigger lets you create and manage database triggers in a concise, db-agnostic, Rails-y way.
 gem 'hairtrigger'
 
-# managed through yarn now
-# gem 'sweetalert2'
-# Use jquery as the JavaScript library
-# gem 'jquery-rails', '>= 4.1.1'
-# jquery UI asset pipeline
-# gem 'jquery-ui-rails'
-
 # gem for utilizing the solr server
 gem 'sunspot_rails'
 gem 'sunspot_solr'
@@ -84,7 +77,7 @@ gem 'bcrypt_pbkdf'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # jquery UI asset pipeline
-gem "jquery-ui-rails", ">= 7.0.0"
+gem "jquery-ui-rails", ">= 8.0.0"
 
 # this gem hasn't been updated since 2018... it bundles sweet alert 2, but an older version 9.x. I think... when checking
 # the sweet alert documentation make sure to look at older versions
@@ -114,7 +107,7 @@ group :development, :local, :local_p do
   gem 'listen', '~> 3.3'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  gem 'net-imap', require: false
+  gem "net-imap", ">= 0.4.20", require: false
   gem 'net-pop', require: false
 end
 
@@ -138,11 +131,13 @@ gem "activerecord", ">= 6.1.7.1"
 gem "activestorage", ">= 6.1.7.7"
 # Use Puma as the app server
 gem "puma", ">= 5.6.8"
-gem "rack", ">= 2.2.8.1"
+gem "rack", ">= 2.2.14"
 gem "rails-html-sanitizer", ">= 1.4.4"
 gem "loofah", ">= 2.19.1"
-gem "nokogiri", ">= 1.15.6"
+gem "nokogiri", ">= 1.18.9"
 gem "actionpack", ">= 6.1.7.4"
 gem "actionview", ">= 6.1.7.3"
 gem "activesupport", ">= 6.1.7.5"
 gem "globalid", ">= 1.0.1"
+gem "thor", ">= 1.4.0"
+gem "uri", ">= 1.0.3"
