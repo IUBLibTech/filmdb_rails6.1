@@ -389,7 +389,7 @@ module AlfHelper
 
 	def save_itemloclist(pos)
 		pos.each_with_index do |p|
-			save_itemloc(item_from_itemloclist(po.iu_barcode), po)
+			save_itemloc(item_from_itemloclist(po.iu_barcode), p)
 		end
 	end
 
