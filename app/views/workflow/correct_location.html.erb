@@ -15,11 +15,10 @@
     <tr>
       <td><b><%= AlfHelper::OUT_OF_ALF %></b></td>
       <td>This means the physical object has been retrieved from ALF storage and delivered to IULMIA. It could be
-        anywhere in workflow but <b><i>not</i></b> in a storage location managed by IULMIA staff (the item is stored in
-        and managed by ALF</td>
+        anywhere in workflow but <b><i>not</i></b> in a storage location managed by IULMIA staff (the item is stored in a space managed by ALF)</td>
     </tr>
     <tr>
-      <td><b><%= AlfHelper::IN_ALF %></b></td><td>This means the item has been returned to its ALF-managed storage location.
+      <td><b><%= AlfHelper::IN_ALF %></b></td><td>This means the physical object has been returned to its ALF-managed storage location.
       The only option in this case is <%= WorkflowStatus::IN_STORAGE_INGESTED %></td>
     </tr>
     </tbody>
