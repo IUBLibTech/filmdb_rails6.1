@@ -29,7 +29,7 @@ class WorkflowController < ApplicationController
 			response["success"] = false
 			response["error"] = "Could not find a Physical Object with barcode: #{params[:iu_barcode]}"
 		else
-			cs_resp = JSON.parse(cs_itemloc(@po.iu_barcode, @po))
+			cs_resp = cs_itemloc(@po.iu_barcode, @po)
 			cs_loc = cs_resp["item"].first["status"]
 
 			response[:success] = true
