@@ -53,10 +53,10 @@ class WorkflowController < ApplicationController
 				equiv = fdb_cs_locs_equivalent?(@po.current_workflow_status.status_name, response[:caiasoft_location])
 				response[:equivalent_locs] = equiv
 				if cs_loc == CaiaSoftStatusHelper::IN_ALF
-					response[:options] = [CaiaSoftStatusHelper::IN_ALF]
+					response[:options] = [WorkflowStatus::IN_STORAGE_INGESTED]
 					response[:equivalent_locs] = true
 				else
-					response[:options] = equiv ? (CaiaSoftStatusHelper::EQUIVALENCIES[cs_loc] - [WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE]).sort : []
+					response[:options] = (CaiaSoftStatusHelper::EQUIVALENCIES[cs_loc] - [WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE]).sort
 				end
 			end
 		end

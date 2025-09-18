@@ -56,7 +56,10 @@ module AlfHelper
 			WorkflowStatus::JUST_INVENTORIED_ALF, WorkflowStatus::JUST_INVENTORIED_WELLS, WorkflowStatus::AWAITING_FREEZER,
 			WorkflowStatus::IN_FREEZER, WorkflowStatus::IN_STORAGE_AWAITING_INGEST, WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE,
 			WorkflowStatus::MISSING, WorkflowStatus::SHIPPED_EXTERNALLY, WorkflowStatus::DEACCESSIONED, WorkflowStatus::IN_WORKFLOW_ALF,
-			WorkflowStatus::IN_WORKFLOW_WELLS
+			WorkflowStatus::IN_WORKFLOW_WELLS,
+			# somewhere in older workflow it was possible to pull request an item that was never sent to ALF - include this as
+			# a valid status when ALF has never ingested the item
+			WorkflowStatus::PULL_REQUESTED
 		],
 		WAITING_ON_INCOMING_ACCESSION_STREAM => [WorkflowStatus::IN_STORAGE_AWAITING_INGEST],
 		IN_ACCESSION_PROCESS => [WorkflowStatus::IN_STORAGE_AWAITING_INGEST],
