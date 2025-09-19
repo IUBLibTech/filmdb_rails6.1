@@ -3,6 +3,9 @@
   This will permanently remove a Physical Object from all workflow, views, and search unless specifically searching for
   Deaccessioned Physical Objects
 </p>
+<p class="warn">
+  Make sure to notify ALF that the item has been deaccessioned.
+</p>
 <%= form_for @physical_object, url: {controller: 'workflow', action: 'deaccession_ajax_post'}, method: :post do |f| %>
   <table class="_50">
     <tr>

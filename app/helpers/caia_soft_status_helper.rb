@@ -45,10 +45,10 @@ module CaiaSoftStatusHelper
     WAITING_ON_INCOMING_ACCESSION_STREAM => [IN_STORAGE_AWAITING_INGEST],
     IN_ACCESSION_PROCESS => [IN_STORAGE_AWAITING_INGEST],
     COMMITTED => [WorkflowStatus::IN_STORAGE_INGESTED],
-    DEACCESSIONED => [DEACCESSIONED],
+    DEACCESSIONED => [WorkflowStatus::DEACCESSIONED],
     OUT_OF_ALF => [
       IN_WORKFLOW_WELLS, IN_WORKFLOW_ALF, SHIPPED_EXTERNALLY,
-      MISSING, BEST_COPY_MDPI_WELLS, BEST_COPY_WELLS, BEST_COPY_ALF
+      MISSING, BEST_COPY_WELLS, BEST_COPY_ALF
     ],
     PULLED_E_RETRIEVAL => [WorkflowStatus::IN_STORAGE_INGESTED], # FIXME: check if this is correct
     OUT_ON_SHIP_SERVICE => [WorkflowStatus::IN_STORAGE_INGESTED], # FIXME: stands for "Special Handling, Internal & Preservation" - should it be treated like it's still in ALF hands?

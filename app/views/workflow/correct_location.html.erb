@@ -1,25 +1,21 @@
 <div>
   <h4>How Correcting Location Works</h4>
   <p>
-    Scan a barcode below to see Filmdb's last know location compared to what ALF's inventory system reports. ALF is always
-    assumed to be correct, so location choices are based on what ALF reports as follows:
+    Scan a barcode to check Filmdb against ALF. ALF’s location is always correct.
   </p>
   <table>
     <tbody>
-    <tr><th>ALF Reports</th><th>Possible Filmdb Locations</th></tr>
+    <tr><th>ALF Status</th><th>Possible Filmdb Statuses</th></tr>
     <tr>
       <td><b><%= AlfHelper::NOT_FOUND %></b></td>
-      <td>This means the physical object hasn't been ingested into ALF's inventory system. The physical object could be
-        anywhere in workflow or any IULMIA-managed storage location: <%= [WorkflowStatus::AWAITING_FREEZER, WorkflowStatus::IN_FREEZER, WorkflowStatus::IN_STORAGE_INGESTED_OFFSITE].join(", ") %></td>
+      <td>Not officially deposited into ALF; could be anywhere in workflow or IULMIA-managed storage.</td>
     </tr>
     <tr>
       <td><b><%= AlfHelper::OUT_OF_ALF %></b></td>
-      <td>This means the physical object has been retrieved from ALF storage and delivered to IULMIA. It could be
-        anywhere in workflow but <b><i>not</i></b> in a storage location managed by IULMIA staff (the item is stored in a space managed by ALF)</td>
+      <td>Retrieved from ALF; anywhere in workflow but not in IULMIA-managed storage.</td>
     </tr>
     <tr>
-      <td><b><%= AlfHelper::IN_ALF %></b></td><td>This means the physical object has been returned to its ALF-managed storage location.
-      The only option in this case is <%= WorkflowStatus::IN_STORAGE_INGESTED %></td>
+      <td><b><%= AlfHelper::IN_ALF %></b></td><td>Returned to ALF; only valid location is “In ALF (Ingested).”</td>
     </tr>
     </tbody>
   </table>
@@ -60,7 +56,7 @@
     <table class="response_table">
       <tbody>
       <tr><td id="thing" colspan="2"></td></tr>
-      <tr><th>ALF Expected Location</th><th>Filmdb Expected Location</th></tr>
+      <tr><th>ALF Status</th><th>Filmdb Status</th></tr>
       <tr id="loc_row" class="locs">
         <td id="cs_loc"></td><td id="fdb_loc"></td>
       </tr>
