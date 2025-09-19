@@ -1,0 +1,21 @@
+class: rails
+dependencies:
+    hard: {}
+    soft: {}
+nagios:
+    check: true
+    level: 0
+    notify: false
+proxy:
+    host: filmdb-dev.dlib.indiana.edu
+    path: /
+system:
+    autostart: false
+    environment: devel
+    group: service_rails_admins
+    name: filmdb
+    path: /srv/services/filmdb-devel-8320
+    port: 8320
+    runtime: null
+    user: app_filmdb
+

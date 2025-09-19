@@ -70,4 +70,13 @@ class User < ApplicationRecord
 		end
 	end
 
+	# returns WorkflowStatus::IN_WORKFLOW_ALF/WELLS depending on which location the user is corrent logged in at
+	def current_workflow_location
+		if worksite_location == WORK_LOCATION_ALF
+			WorkflowStatus::IN_WORKFLOW_ALF
+		else
+			WorkflowStatus::IN_WORKFLOW_WELLS
+		end
+	end
+
 end

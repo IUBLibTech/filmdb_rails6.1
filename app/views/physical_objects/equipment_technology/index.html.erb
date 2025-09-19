@@ -8,6 +8,7 @@
     <th>Type</th>
     <th>Box</th>
     <th>Collection</th>
+    <th>Location</th>
     <th>Actions</th>
   </tr>
   </thead>
@@ -22,7 +23,7 @@
       <td><%= physical_object.gauge %><br><%= physical_object.related_media_format_gauges %></td>
       <td><%= physical_object.box_number %></td>
       <td><%= physical_object.collection&.name %></td>
-
+      <td><%= physical_object.current_workflow_status.status_name %></td>
       <td>
         <%= link_to 'Show', physical_object.acting_as %> <br/>
         <%= link_to 'Edit', edit_physical_object_path(physical_object.acting_as) %>

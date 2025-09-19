@@ -32,6 +32,10 @@ class UserPolicy < ApplicationPolicy
 		current_user_object.can_delete?
 	end
 
+  def can_change_location?
+		current_user_object.can_update_physical_object_location?
+	end
+
   def can_add_cv?
 		current_user_object.can_add_cv?
 	end

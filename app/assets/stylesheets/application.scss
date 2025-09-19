@@ -216,15 +216,20 @@ table.version_table > tbody > tr > td > input {
     display: none;
 }
 
-.warning {
-    background-color: red;
-    color: black;
-    padding: 5px;
-
-}
 .warn {
     font-weight: bold;
     color: red;
+}
+.noti {
+    font-weight: bold;
+    color: green;
+}
+
+.warning {
+    background-color: red !important;
+    color: black;
+    padding: 5px;
+
 }
 #selected_titles > .warning, #physical_objects > .warning {
 	margin: 0;
@@ -403,6 +408,9 @@ td#color {
 ._48_pr_2 {
     width: 48%;
     padding-right: 2%;
+}
+._65 {
+    width: 65%;
 }
 ._75 {
     width: 75%;
@@ -1074,4 +1082,10 @@ div.po_error_div > ul {
     cursor: pointer;
     padding: 15px;
     border-radius: 4px;
+}
+.title_td {
+    max-width: 471px;
+}
+.title_td > a {
+    white-space: pre;
 }

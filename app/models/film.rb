@@ -6,6 +6,11 @@ class Film < ApplicationRecord
   validates :gauge, presence: true
   validates :shrinkage, numericality: {allow_blank: true}
 
+  # If you need to revert migration 20250721130156_add_place_for_freezer_to25.rb,
+  # you will also need to change "2.5 (place for freezer)" back to its original value of "2.5". The migration will fail,
+  # raising an exception if you do not.
+  PLACE_IN_FREEZER_VALS = ["3.0 (place for freezer)", "2.5 (place for freezer)"]
+
   # nested_form gem doesn't integrate with active_record-acts_as gem when objects are CREATED, it results in double
   # object creation from form submissions. Edits/deletes seem to work fine however. Use this in the initializer to omit
   # processing these nested attributes
@@ -57,6 +62,10 @@ class Film < ApplicationRecord
       picture_composite_picture: "Composite", picture_intertitles_only: "Intertitles Only", picture_credits_only: "Credits Only",
       picture_picture_effects: "Picture Effects", picture_picture_outtakes: "Outtakes", picture_kinescope: "Kinescope", picture_titles: 'Titles',
       picture_text: 'Text'
+  }
+  FRAME_RATE_FIELDS = [:fps_12, :fps_16, :fps_18, :fps_24, :fps_25]
+  FRAME_RATE_FIELDS_HUMANIZED = {
+    fps_12: "12 fp", fps_16: "16 fps", fps_18: "18 fps", fps_24: "24 fps", fps_25: "25 fps"
   }
   COLOR_BW_FIELDS = [
       :color_bw_bw_toned, :color_bw_bw_tinted, :color_bw_bw_hand_coloring, :color_bw_bw_stencil_coloring, :color_bw_bw_black_and_white
@@ -122,11 +131,11 @@ class Film < ApplicationRecord
   CONDITION_FIELDS_HUMANIZED = { ad_strip: "AD Strip" }
 
   # Merge all of the humanized field maps together so the search space is singular
-  HUMANIZED_SYMBOLS = GENERATION_FIELDS_HUMANIZED.merge(VERSION_FIELDS_HUMANIZED.merge(BASE_FIELDS_HUMANIZED.merge(
+  HUMANIZED_SYMBOLS = FRAME_RATE_FIELDS_HUMANIZED.merge(GENERATION_FIELDS_HUMANIZED.merge(VERSION_FIELDS_HUMANIZED.merge(BASE_FIELDS_HUMANIZED.merge(
       STOCK_FIELDS_HUMANIZED.merge(PICTURE_TYPE_FIELDS_HUMANIZED.merge(COLOR_FIELDS_HUMANIZED.merge(
           ASPECT_RATIO_FIELDS_HUMANIZED.merge(SOUND_FORMAT_FIELDS_HUMANIZED.merge(
               SOUND_CONTENT_FIELDS_HUMANIZED.merge(SOUND_CONFIGURATION_FIELDS_HUMANIZED.merge(CONDITION_FIELDS_HUMANIZED))
-          ))))))))
+          )))))))))
 
   def initialize(args = {})
     super
@@ -169,8 +178,16 @@ class Film < ApplicationRecord
     "#{gauge} #{medium}"
   end
 
+  # Tests whether a Film object should be stored in the freezer.
+  # As of 7/2025 the "new" way to calculate whether a film belongs in the freezer is as follows:
+  # Anything with AD Strip >= 2.5 goes to the freezer. Additionally, "2.5" has been replaced
+  # with "2.5 (place for freezer)".
+  #
+  # WE ARE NO LONGER ALLOWING ITEMS WITH FREEZER "STORAGE HISTORY" TO RETURN
+  # TO THE FREEZER UNLESS AD STRIP TEST HAS BEEN PERFORMED AND WARRANTS THAT!
   def place_in_freezer?
-    ad_strip.to_f >= 2.5
+    return true if PLACE_IN_FREEZER_VALS.include?(ad_strip)
+    false
   end
 
   def self.write_xlsx_header_row(worksheet)

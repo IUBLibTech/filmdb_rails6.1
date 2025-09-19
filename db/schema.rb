@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_03_152113) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_29_190844) do
   create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
     t.text "description"
@@ -62,6 +62,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_03_152113) do
     t.datetime "updated_at", precision: nil
     t.boolean "ready_to_ship", default: false
     t.boolean "shipped", default: false
+  end
+
+  create_table "caia_soft_item_locs", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
+    t.bigint "iu_barcode"
+    t.bigint "physical_object_id"
+    t.string "status"
+    t.string "container"
+    t.string "address"
+    t.string "location"
+    t.string "footprint"
+    t.string "container_type"
+    t.string "collection"
+    t.string "material"
+    t.string "accession_date"
+    t.string "last_status_update"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "mismatch"
+    t.index ["iu_barcode"], name: "index_caia_soft_item_locs_on_iu_barcode", unique: true
+    t.index ["physical_object_id"], name: "index_caia_soft_item_locs_on_physical_object_id", unique: true
   end
 
   create_table "collections", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -423,6 +443,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_03_152113) do
     t.boolean "color_bw_color_gaspar"
     t.boolean "stock_ilford"
     t.boolean "aspect_ratio_1_75_1"
+    t.boolean "fps_12"
+    t.boolean "fps_16"
+    t.boolean "fps_18"
+    t.boolean "fps_24"
+    t.boolean "fps_25"
   end
 
   create_table "languages", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -454,13 +479,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_03_152113) do
     t.string "date"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
-  end
-
-  create_table "physical_object_ephemeras", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.integer "physical_object_id"
-    t.integer "ephemera_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "physical_object_old_barcodes", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -627,14 +645,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_03_152113) do
     t.string "date"
     t.integer "total_episodes"
     t.bigint "spreadsheet_id"
-  end
-
-  create_table "shipping_metadata", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "workflow_status_id"
-    t.text "notes"
-    t.bigint "shipped_by"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "spread_sheet_searches", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|

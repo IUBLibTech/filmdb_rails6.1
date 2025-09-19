@@ -40,7 +40,7 @@
       <%= @physical_object.humanize_boolean_fields(Film::PICTURE_TYPE_FIELDS) %>
     </div>
     <div class="clear">
-      <b >Frame Rate&nbsp;</b><%= @physical_object.frame_rate %>
+      <b >Frame Rate&nbsp;</b><%= @physical_object.humanize_boolean_fields(Film::FRAME_RATE_FIELDS) %>
     </div>
     <div id="" class="">
       <b class="block">Color&nbsp;</b>

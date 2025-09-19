@@ -1,5 +1,5 @@
 class PullRequestsController < ApplicationController
-
+	include AlfHelper
 	def index
 		@page = (params[:page].nil? ? 1 : params[:page].to_i)
 		@count = PullRequest.all.size
@@ -9,6 +9,7 @@ class PullRequestsController < ApplicationController
 	def show
 		@pull_request = PullRequest.find(params[:id])
 		physical_objects = @pull_request.physical_objects
+		@itemloclist = cs_itemloclist(physical_objects, User.current_user_object)
 		@ingested = []
 		@not_ingested = []
 		physical_objects.each do |p|

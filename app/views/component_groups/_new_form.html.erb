@@ -20,51 +20,58 @@
       <th>Barcode</th>
       <th>Gauge/Format</th>
       <th>Generation</th>
-      <th>Location</th>
+      <th>Filmdv Location</th>
+      <th>ALF Location</th>
       <th>Digitized?</th>
-<!--      <th>Scan Resolution</th>-->
-<!--      <th>Color Space</th>-->
-<!--      <th>Clean</th>-->
-<!--      <th>Return on Reel</th>-->
     </tr>
     <% @title.physical_objects.each do |p| %>
     <% p = p.specific %>
+    <%
+      alf_status = status_from_itemloclist(p.iu_barcode)
+      in_alf = alf_status == AlfHelper::IN_ALF
+      freezer_item = p.current_workflow_status.is_freezer_storage?
+      fdb_in = (p.current_workflow_status.status_name == WorkflowStatus::IN_STORAGE_INGESTED)
+      fdb_in_awaiting = (p.current_workflow_status.status_name == WorkflowStatus::IN_STORAGE_AWAITING_INGEST)
+      can_pull = in_alf || freezer_item || fdb_in_awaiting
+    %>
       <tr class=<%= "digitized_tr" if p.digitized? %>>
-        <% if p.current_location == WorkflowStatus::DEACCESSIONED  %>
+        <% if !can_pull  %>
           <td class="warning"><%= p.iu_barcode %></td>
         <% else %>
           <td class="<%= @active && @component_group.physical_objects.include?(p) ? 'dont_uncheck' : ''%>">
-            <% if p.in_active_workflow? %>
-              <span class="red_red"><b>In Active Workflow</b></span>
-            <% else %>
+            <% if can_pull %>
               <%= check_box_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][selected]", '',
                                 @component_group.physical_objects.include?(p), data: {"medium": p.medium}, class: 'po_select',
                                 disabled: false, title: p.medium
               %>
+            <% else %>
+              <span class="red_red"><b>Can't Pull</b></span>
             <% end %>
-            [<%= p.iu_barcode %>]
+            <%= link_to p.iu_barcode, physical_object_path(p.acting_as) %>
           </td>
         <% end %>
         <td><%= p.medium_name %></td>
         <td><%= p.humanize_boolean_generation_fields %></td>
-        <td><%= p.current_location %></td>
+
+        <% # determine if theres a problem in Filmdb %>
+        <% if !can_pull%>
+            <td class="warning"><%= p.current_location %></td>
+        <% else %>
+          <td><%= p.current_location %></td>
+        <% end %>
+
+        <% if (!can_pull && in_alf) || (fdb_in && !in_alf) %>
+          <td class="warning"><%= alf_status %></td>
+        <% else %>
+          <td><%= alf_status %></td>
+        <% end %>
+
+
         <% if p.digitized? %>
           <td><%= link_to "Yes", digiprovs_path(p.acting_as)%></td>
         <% else %>
           <td><%= p.digitized.nil? ? "N/A" : p.digitized %></td>
         <% end %>
-<!--        <td>-->
-          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][scan_resolution]", options_for_select(ComponentGroup::SCAN_RESOLUTIONS.collect{|s| [s, s]}, p.active_scan_settings&.scan_resolution)  %>
-<!--        </td>-->
-<!--        <td>-->
-          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][color_space]", options_for_select(ComponentGroup::COLOR_SPACES.collect{|s| [s,s]}, p.active_scan_settings&.color_space) %>
-<!--        </td>-->
-<!--        <td>-->
-          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][clean]", options_for_select(ComponentGroup::CLEAN.collect{|s| [s, s]}, p.active_scan_settings&.clean) %>
-<!--        </td>-->
-<!--        <td>-->
-          <%#= select_tag "component_group[component_group_physical_objects][#{p.acting_as.id}][return_on_reel]", options_for_select([["No", false], ["Yes", true]], p.active_scan_settings&.return_on_reel) %>
-<!--        </td>-->
       </tr>
     <% end %>
     <tr>

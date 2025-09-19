@@ -199,6 +199,10 @@ Rails.application.routes.draw do
   post '/workflow/receive_from_storage/', to: 'workflow#new_process_receive_from_storage', as: 'process_received_from_storage'
   #post '/workflow/receive_from_storage_wells/', to: 'workflow#new_process_receive_from_storage', as: 'process_received_from_storage_wells'
 
+  get '/workflow/correct_location', to: "workflow#correct_location", as: "correct_location"
+  get '/workflow/ajax_correct_location_options/:iu_barcode', to: 'workflow#ajax_correct_location_options', as: 'correct_location_options'
+  post '/workflow/correct_location', to: "workflow#correct_location_update", as: "correct_location_update"
+
   get '/workflow/ship', to: 'workflow#show_ship_to_vendor', as: "show_ship_to_vendor"
   patch '/workflow/ship', to: "workflow#patch_ship_to_vendor", as: "ship_to_vendor"
   get '/workflow/ajax_ship_lookup/:barcode', to: "workflow#ajax_ship_lookup", as: "ajax_ship_lookup"

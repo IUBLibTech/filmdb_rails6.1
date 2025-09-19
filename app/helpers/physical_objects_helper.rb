@@ -204,8 +204,10 @@ module PhysicalObjectsHelper
         :catalog_key, :compilation, :format_notes, :digitized, :photo_link,
 
         # film specific attributes
-        :gauge, :reel_number, :can_size, :footage, :frame_rate, :ad_strip, :ad_strip_timestamp, :shrinkage, :mold,
+        :gauge, :reel_number, :can_size, :footage, :ad_strip, :ad_strip_timestamp, :shrinkage, :mold,
         :missing_footage, :condition_rating, :condition_notes, :research_value, :research_value_notes, :multiple_items_in_can,
+        :fps_12, :fps_16, :fps_18, :fps_24, :fps_25,
+
         # version attributes
         :first_edition, :second_edition, :third_edition, :fourth_edition, :abridged, :short, :long, :sample,
         :preview, :revised, :version_original, :captioned, :excerpt, :catholic, :domestic, :trailer, :english, :television,

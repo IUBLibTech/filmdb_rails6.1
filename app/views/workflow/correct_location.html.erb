@@ -1,0 +1,215 @@
+<div>
+  <h4>How Correcting Location Works</h4>
+  <p>
+    Scan a barcode to check Filmdb against ALF. ALF’s location is always correct.
+  </p>
+  <table>
+    <tbody>
+    <tr><th>ALF Status</th><th>Possible Filmdb Statuses</th></tr>
+    <tr>
+      <td><b><%= AlfHelper::NOT_FOUND %></b></td>
+      <td>Not officially deposited into ALF; could be anywhere in workflow or IULMIA-managed storage.</td>
+    </tr>
+    <tr>
+      <td><b><%= AlfHelper::OUT_OF_ALF %></b></td>
+      <td>Retrieved from ALF; anywhere in workflow but not in IULMIA-managed storage.</td>
+    </tr>
+    <tr>
+      <td><b><%= AlfHelper::IN_ALF %></b></td><td>Returned to ALF; only valid location is “In ALF (Ingested).”</td>
+    </tr>
+    </tbody>
+  </table>
+  <h4>Correct Physical Object Location</h4>
+  <div class="left _35 mr_10">
+      <%= form_for 'physical_object', url: correct_location_update_url, method: :post, html: {id: "change_form"} do |f| %>
+          <table>
+            <tr>
+              <th>IU Barcode</th>
+              <td>
+                <%= f.text_field :iu_barcode %>
+              </td>
+            </tr>
+            <tr>
+              <th>Correct Location</th>
+              <td><%= select_tag "physical_object[location]" %></td>
+            </tr>
+            <tr>
+              <th colspan="2">
+                Reason For Correction
+              </th>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <%= text_area_tag "physical_object[comment]" %>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2"><%= f.submit "Update Location", id: "submit" %></td>
+            </tr>
+          </table>
+      <% end %>
+  </div>
+  <div id="info_div" class="left _65">
+    <div class="error">
+
+    </div>
+    <table class="response_table">
+      <tbody>
+      <tr><td id="thing" colspan="2"></td></tr>
+      <tr><th>ALF Status</th><th>Filmdb Status</th></tr>
+      <tr id="loc_row" class="locs">
+        <td id="cs_loc"></td><td id="fdb_loc"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <h4 class="m_top_10px">Workflow History</h4>
+    <table class="workflow">
+      <tbody id="workflow_body">
+      <tr>
+        <th>Date</th>
+        <th>Physical Location</th>
+        <th>Updater</th>
+        <th>In Workflow for Title</th>
+        <th>Workflow Comment</th>
+      </tr>
+      <tr class="wf">
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script type="text/javascript">
+    let errDiv = $(".error")
+    let resp_table = $(".response_table");
+    let select = $("#physical_object_location");
+    let locRow = $("#loc_row")
+    let response = null;
+    $(document).ready(function() {
+        $('#physical_object_iu_barcode').bind("input", function(event) {
+            $('p.warning').remove();
+            $('p.notice').remove();
+            let valid = validateIUBarcode($(this));
+            if (valid) {
+                let url = './ajax_correct_location_options/'+$(this).val();
+                $.ajax({
+                    url: url,
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        swal({
+                            title: 'Ajax Error',
+                            text: 'An error occured while making an AJAX call. When this dialog closes, Filmdb will redirect to the underlying error page. Please screen shot the error page and forward it to Carmel.'
+                        }, function() {
+                            window.location.replace(url)
+                        });
+                    },
+                    success: function(result) {
+                        clearAll();
+                        response = result;
+                        if (result["success"]) {
+                            $("#fdb_loc").html(result["filmdb_location"])
+                            $("#cs_loc").html(result["caiasoft_location"])
+                            $("#thing").html(result["type"])
+                            resp_table.show();
+                            if (result["filmdb_location"] == "<%= WorkflowStatus::IN_STORAGE_INGESTED %>" && result["caiasoft_location"] == "<%= AlfHelper::IN_ALF %>") {
+                                errDiv.html("Filmdb and ALF both report the item is <%= WorkflowStatus::IN_STORAGE_INGESTED %>. No corrections are necessary").show();
+                                populateInfo();
+                                locRow.removeClass("bad")
+                            } else {
+                                populateInfo()
+                                locRow.addClass("bad")
+                            }
+                        } else {
+                            $(".error").show().html(result["error"])
+                        }
+                    }
+                })
+            } else {
+                clearAll();
+            }
+        });
+        $("#change_form").submit(validateForm)
+    });
+
+    function setBcFromParam() {
+        let bc = window.location.href.split("/").pop();
+        if (isValidBarcode(bc)) {
+            $("#physical_object_iu_barcode").val(bc).trigger("input");
+        }
+    }
+
+    function populateInfo() {
+        let options = response["options"]
+        for (let i = 0; i < options.length; i++) {
+            let el = document.createElement("option");
+            el.textContent = options[i];
+            el.value = options[i];
+            select.append(el);
+        }
+
+        let workflow = response["workflow"]
+        for (let i = 0; i < workflow.length; i++) {
+            let status = workflow[i];
+            let tr = document.createElement("tr");
+            tr.classList.add("wf")
+            document.getElementById("workflow_body").appendChild(tr);
+            for (let x = 0; x < 5; x++) {
+                let td = document.createElement("td")
+                td.appendChild(document.createTextNode(status[x]))
+                tr.appendChild(td)
+            }
+        }
+    }
+
+    function validateForm(event) {
+        if (response == null) {
+            swal({
+                icon: "error",
+                title: "Please scan a barcode",
+                text: "You must scan a barcode, select a location, and then provide a reason to change a Physical Objects location",
+            });
+            return false;
+        } else if ($("#physical_object_comment").val().trim() === '') {
+            swal({
+                icon: "error",
+                title: "Reason Required",
+                text: "You must provide a reason for changing the location of the Physical Object."
+            })
+            return false;
+        } else if (bothInStorage()) {
+            swal({
+                icon: "error",
+                title: "Both Report In Storage",
+                text: "Both Filmdb and ALF report the physical object is in storage. You cannot adjust the location when they agree!",
+            });
+            return false;
+        } else if ($("#physical_object_location option").size() === 0) {
+            swal({
+                icon: "error",
+                title: "Cannot Move",
+                text: "This physical Object cannot be moved through this page. If you need to Deaccession or mark something"+
+                  " Missing/Found, please use those pages instead. If you feel you should be able to complete this action "+
+                  "on this page please contact Carmel or the developer.",
+            });
+            return false;
+        }
+    }
+    function clearAll() {
+        response = null;
+        errDiv.html("").hide();
+        resp_table.hide();
+        select.find("option").remove();
+        select.prop("disabled", false);
+        $(".wf").remove();
+    }
+
+    function parseDate(timestamp) {
+        let date = Date.parse(timestamp)
+        return String(date.getMonth()).padStart(2)+"/"+String(date.getDay()).padStart(2)+"/"+date.getYear();
+    }
+
+    function bothInStorage() {
+        return response["filmdb_location"] == "<%= WorkflowStatus::IN_STORAGE_INGESTED %>" && response["caiasoft_location"] == "<%= AlfHelper::IN_ALF %>"
+    }
+
+</script>

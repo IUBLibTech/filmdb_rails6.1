@@ -45,6 +45,7 @@ class PhysicalObject < ApplicationRecord
 	has_many :physical_object_accompanying_documentations
 	has_many :accompanying_documentations, through: :physical_object_accompanying_documentations
 
+	has_one :caia_soft_item_loc
 	# has_many :physical_object_accompanying_documentations, class: AccompanyingDocumentation
 	# has_many :accompanying_documentations, through: :physical_object_accompanying_documentations
 
@@ -59,27 +60,40 @@ class PhysicalObject < ApplicationRecord
 	attr_accessor :workflow
 	attr_accessor :updated
 
-	# handling this manually in physical_objects_controller#update
-	#before_save :record_barcode_changes
-	# def record_barcode_changes(po_id, old)
-	# 	PhysicalObjectOldBarcode.new(physical_object_id: po_id, iu_barcode: old).save!
-	# end
-
 	# returns all physical whose workflow status matches any specified in *status - use WorkflowStatus status constants as values
-	#
 	# FIXME: PhysicalObject.joins(:current_workflow_status).where("workflow_statuses.status_name = '#{WorkflowStatus::QUEUED_FOR_PULL_REQUEST}'")
 	scope :where_current_workflow_status_is, lambda { |offset, limit, digitized, *status|
 		# status values are concatenated into an array so if you want to pass an array of values (constants stored in other classes for instance) the passed array is wrapped in
 		# an enclosing array. flattening it allows an array to be passed and leaves any params passed the 'normal' way untouched
 		status = status.flatten
 
-		sql = "SELECT physical_objects.* "+
-			"FROM ( SELECT workflow_statuses.physical_object_id "+
-			  "FROM (	SELECT physical_object_id, max(created_at) AS status FROM workflow_statuses GROUP BY physical_object_id) AS x "+
-			    "INNER JOIN workflow_statuses on (workflow_statuses.physical_object_id = x.physical_object_id AND x.status = workflow_statuses.created_at) "+
-			    "WHERE workflow_statuses.status_name in (#{status.map(&:inspect).join(', ')})) as y INNER JOIN physical_objects on physical_object_id = physical_objects.id #{(offset.nil? || limit.nil?) ? '' : "LIMIT #{limit} OFFSET #{offset}"}"+
-				(digitized ? " WHERE physical_objects.digitized = true" : "")
-		PhysicalObject.find_by_sql(sql)
+		if digitized
+			pos = PhysicalObject.where(digitized: true)
+		end
+		pos = (digitized ? pos : PhysicalObject).joins(:current_workflow_status).where("status_name in (?)", status.join(",")).includes(:titles).order("titles.title_text ASC")
+		if offset && limit
+			pos = pos.offset(offset).limit(limit)
+		end
+		pos
+
+		# sql = "SELECT physical_objects.* "+
+		# 	"FROM ( SELECT workflow_statuses.physical_object_id "+
+		# 	  "FROM (	SELECT physical_object_id, max(created_at) AS status FROM workflow_statuses GROUP BY physical_object_id) AS x "+
+		# 	    "INNER JOIN workflow_statuses on (workflow_statuses.physical_object_id = x.physical_object_id AND x.status = workflow_statuses.created_at) "+
+		# 	    "WHERE workflow_statuses.status_name in (#{status.map(&:inspect).join(', ')})) as y INNER JOIN physical_objects on physical_object_id = physical_objects.id #{(offset.nil? || limit.nil?) ? '' : "LIMIT #{limit} OFFSET #{offset}"}"+
+		# 		(digitized ? " WHERE physical_objects.digitized = true" : "")
+		# PhysicalObject.find_by_sql(sql)
+	}
+
+	scope :missing_titles, lambda {
+		# grab pos that are not represented in PhysicalObjectTitles
+		pots = PhysicalObjectTitle.all.pluck(:physical_object_id)
+		no_pot = PhysicalObject.where.not(id: pots)
+		# grab po ids from PhysicalObjectTitles whose title is not in the titles table
+		tids= Title.all.pluck(:id)
+		no_tid_pids = PhysicalObjectTitle.where.not(title_id: tids)
+		no_tid = PhysicalObject.where(id: no_tid_pids)
+		no_pot + no_tid
 	}
 
 	# returns all physical whose workflow status matches any specified in *status - use WorkflowStatus status constants as values
@@ -98,7 +112,7 @@ class PhysicalObject < ApplicationRecord
 		ActiveRecord::Base::connection.execute(sql).first[0]
 	}
 
-	FREEZER_AD_STRIP_VALS = ControlledVocabulary.where(model_attribute: ':ad_strip').order('value DESC').limit(3).collect{ |cv| cv.value } if ActiveRecord::Base.connection.table_exists? 'controlled_vocabularies'
+	FREEZER_AD_STRIP_VALS = ControlledVocabulary.where(model_attribute: ':ad_strip').order('value DESC').limit(2).collect{ |cv| cv.value } if ActiveRecord::Base.connection.table_exists? 'controlled_vocabularies'
 
 	MEDIA_TYPES = ['Moving Image', 'Recorded Sound', 'Still Image', 'Text', 'Three Dimensional Object', 'Software', 'Mixed Material']
 
@@ -169,6 +183,20 @@ class PhysicalObject < ApplicationRecord
 		current_workflow_status.status_name == WorkflowStatus::PULL_REQUESTED
 	end
 
+	# returns the pull request object that put this PO in active workflow or nil if the PO is not in active workflow
+	def active_pull_request
+		if active?
+			last = physical_object_pull_requests.last
+			if last
+				last.pull_request
+			else
+				nil
+			end
+		else
+			nil
+		end
+	end
+
 	def in_storage?
 		WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage'].include?(current_location)
 	end
@@ -185,6 +213,11 @@ class PhysicalObject < ApplicationRecord
 	def title_text
 
 	end
+
+	def awaiting_ingest?
+		current_workflow_status.status_name == WorkflowStatus::IN_STORAGE_AWAITING_INGEST
+	end
+
 	def no_collection
 		self.collection.blank?
 	end
@@ -193,19 +226,30 @@ class PhysicalObject < ApplicationRecord
 		pull_requests.last.requester
 	end
 
-	# FIXME: see #storage_location right below
+	# FIXME: see #storage_location for details and timeline
 	def alf_storage_loc
-		resp = cs_itemloc_curl(iu_barcode)
-		json = JSON.parse(resp)
-		if json["item"][0]["status"] == "Item not Found"
+		json = cs_itemloc(iu_barcode, self)
+		if json["item"][0]["status"] == AlfHelper::NOT_FOUND
 			if alf_shelf.blank?
 				"#{self.current_workflow_status} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
 			else
 				"#{alf_shelf} / <i class='red_red'><b>(Not Ingested)</b></i>".html_safe
 			end
+		elsif json["item"][0]["status"] == AlfHelper::DEACCESSIONED
+			"<i class='red_red'><b>Deaccessioned by ALF</b></i>".html_safe
 		else
-				"#{alf_building(json["item"][0]["location"])} / #{json["item"][0]["status"]}"
+				"#{alf_building(json["item"][0]["location"])} / #{json["item"][0]["status"]}".html_safe
 		end
+	end
+
+	# checks whether the PO has ever been stored in the freezer or awaiting the freezer
+	def has_freezer_history?
+		workflow_statuses.any?{ |ws| ws.status_name == WorkflowStatus::IN_FREEZER || ws.status_name == WorkflowStatus::AWAITING_FREEZER }
+	end
+
+	def alf_itemloc
+		json = cs_itemloc(iu_barcode, self)
+		json["item"][0]["status"]
 	end
 
 	# takes an ALF row/shelf/bin location and converts it to one of the following: ALF 1, ALF 2, ALF 3
@@ -232,7 +276,7 @@ class PhysicalObject < ApplicationRecord
 		val.to_f.to_s == val.to_s || val.to_i.to_s == val.to_s
 	end
 
-	# FIXME: alf_storage_loc needs to replace this for DISPLAY but it is used for return to storage and a few other things.
+	# FIXME: alf_storage_loc needs to replace this for DISPLAY but it is still necessary as long as IULMIA manages freezer items
 	# There will be a transitional period where both will be needed
 	def storage_location
 		stats = workflow_statuses.where("status_name in (#{WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage'].map{ |s| "'#{s}'"}.join(',')})").order('created_at ASC')
@@ -249,7 +293,7 @@ class PhysicalObject < ApplicationRecord
 			if self.specific.class == Film && self.specific.ad_strip && FREEZER_AD_STRIP_VALS.include?(self.specific.ad_strip)
 				WorkflowStatus::AWAITING_FREEZER
 			else
-				WorkflowStatus::IN_STORAGE_INGESTED
+				WorkflowStatus::IN_STORAGE_AWAITING_INGEST
 			end
 		end
 	end
@@ -579,6 +623,76 @@ class PhysicalObject < ApplicationRecord
 
 	def humanize_boolean_generation_fields
 		self.specific.humanize_boolean_fields(self.specific.class.const_get(:GENERATION_FIELDS))
+	end
+
+
+	# This is a convenience method for CONSOLE TESTING - DO NOT USE IN real website or migration code.
+	# Deletes the current workflow status and replaces it with it's immediate predecessor. This method will do nothing
+	# if the PO only has a single workflow status (like Just Inventoried), it will raise an exception
+	def revert_current_workflow_status
+		raise "Only one WorkflowStatus present - PO must have at least one." if workflow_statuses.size <= 1
+		index = workflow_statuses.index(current_workflow_status)
+		current = current_workflow_status
+		prev = workflow_statuses[index - 1]
+		current.destroy!
+		update!(current_workflow_status_id: prev.id)
+	end
+
+	# Currently only Film items are stored in the freezer so that Class overrides this method with Film-specific details why
+	# any given object might need to be stored in the freezer
+	def place_in_freezer?
+		if medium == "Film"
+			specific.place_in_freezer?
+		else
+			false
+		end
+	end
+
+	# Checks workflow statuses from NEWEST to oldest for the first storage location encountered.
+	# This is necessary becaust of the freezer and how it has both correct and incorrect Films in it that have no ad strip
+	# test. We're now trying to slowly correct this with the 7/2025 version of Film#place_in_freezer?
+	def last_known_storage_location
+		workflow_statuses.order(id: :desc).each do |ws|
+			return ws.status_name if WorkflowStatus.is_storage_status?(ws.status_name)
+		end
+		nil
+	end
+
+	# created for the migration 20250717160152_clean_up_barcode_mess.rb because POs don't do cascading deletes.
+	#
+	# When old_barcodes were first introduced a bug was discovered that allowed old barcodes to be reused on POs and/or be
+	# changed to old barcodes for other POs. The bug was identified and fixed (2021?), but cleanup was never performed.
+	# Carmel determined that several records needed to be deleted, and identified which POs whould have old barcodes removed
+	# from their associates.
+	# SEE JIRA story: https://iu-uits.atlassian.net/browse/IUFD-1278 for the spreadsheet detailing how POs should be processed
+	def remove_all_trace_fom_db
+		physical_object_old_barcodes.delete_all
+		physical_object_accompanying_documentations.delete_all
+		physical_object_dates.delete_all
+		physical_object_original_identifiers.delete_all
+		physical_object_pull_requests.delete_all
+		physical_object_titles.delete_all
+		component_group_physical_objects.delete_all
+		languages.delete_all
+		edge_codes.delete_all
+		boolean_conditions.delete_all
+		value_conditions.delete_all
+		Digiprov.where(physical_object_id: id).delete_all
+		CageShelfPhysicalObject.where(physical_object_id: id).delete_all
+		WorkflowStatus.where(physical_object_id: id).delete_all
+		self.specific.delete
+		self.delete
+	end
+
+	# created along with remove_all_trace_from_db to handle the old_barcodes associations that needed to be removed from
+	# the database
+	# SEE JIRA story: https://iu-uits.atlassian.net/browse/IUFD-1278 for the spreadsheet detailing how POs should be processed
+	def self.remove_old_bc(barcode, po_id)
+		poob = PhysicalObjectOldBarcode.where(iu_barcode: barcode, physical_object_id: po_id).first
+		if poob.nil?
+			raise "Something wrong!!!"
+		end
+			poob.delete
 	end
 
 end
