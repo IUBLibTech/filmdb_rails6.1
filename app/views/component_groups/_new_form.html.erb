@@ -20,7 +20,7 @@
       <th>Barcode</th>
       <th>Gauge/Format</th>
       <th>Generation</th>
-      <th>Filmdv Location</th>
+      <th>Filmdb Location</th>
       <th>ALF Location</th>
       <th>Digitized?</th>
     </tr>
@@ -31,8 +31,9 @@
       in_alf = alf_status == AlfHelper::IN_ALF
       freezer_item = p.current_workflow_status.is_freezer_storage?
       fdb_in = (p.current_workflow_status.status_name == WorkflowStatus::IN_STORAGE_INGESTED)
+      already_queued = (p.current_workflow_status.status_name == WorkflowStatus::QUEUED_FOR_PULL_REQUEST)
       fdb_in_awaiting = (p.current_workflow_status.status_name == WorkflowStatus::IN_STORAGE_AWAITING_INGEST)
-      can_pull = in_alf || freezer_item || fdb_in_awaiting
+      can_pull = (in_alf || freezer_item || fdb_in_awaiting) && !already_queued
     %>
       <tr class=<%= "digitized_tr" if p.digitized? %>>
         <% if !can_pull  %>
@@ -60,7 +61,8 @@
           <td><%= p.current_location %></td>
         <% end %>
 
-        <% if (!can_pull && in_alf) || (fdb_in && !in_alf) %>
+        <% # is ALF restricting the pull somehow? %>
+        <% if (!can_pull && !already_queued) || (fdb_in && !in_alf) %>
           <td class="warning"><%= alf_status %></td>
         <% else %>
           <td><%= alf_status %></td>

@@ -30,7 +30,7 @@ class CaiaSoftItemLoc < ApplicationRecord
   HEADER_DEACCESSION_DATE = "De-accession Date"
 
   def perform
-    Logger.info("CaiaSoftItemLoc#perform - checking if any physical objects that are awaiting ingest have been accessioned by ALF")
+    Rails.logger.info("CaiaSoftItemLoc#perform - checking if any physical objects that are awaiting ingest have been accessioned by ALF")
     CaiaSoftItemLoc.check_awaiting_storage
   end
 
@@ -70,14 +70,17 @@ class CaiaSoftItemLoc < ApplicationRecord
   end
 
   def self.sync_all_physical_objects
-    Logger.info "Beginning sync of all PhysicalObjects with CaiaSoft"
+    puts "Beginning sync of all PhysicalObjects with CaiaSoft"
     start = Time.now
-    all = PhysicalObject.where(medium: ["Film", "Video", "Recorded Sound"]).includes(:caia_soft_item_loc)
-    all.slice(500).each do |pos|
-      cs_itemloclist(pos)
+    count = PhysicalObject.all.size
+    completed = 0
+    PhysicalObject.where(medium: ["Film", "Video", "Recorded Sound"]).includes(:caia_soft_item_loc).find_in_batches(batch_size: 500) do |pos|
+      CaiaSoftItemLoc.new.cs_itemloclist(pos)
+      completed += 500
+      puts "\tCompleted #{completed} of #{count}"
     end
     duration = Time.now - start
-    Logger.info "CaiaSoft sync took #{Time.at(duration).utc.strftime("%H:%M:%S")}"
+    puts "CaiaSoft sync took #{Time.at(duration).utc.strftime("%H:%M:%S")}"
   end
 
   def self.parse_nightly_backup(path = "#{Rails.root}/tmp/EODINV_iualf_20250727_101511.txt")

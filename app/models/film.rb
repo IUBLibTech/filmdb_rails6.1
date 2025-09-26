@@ -100,7 +100,7 @@ class Film < ApplicationRecord
       :sound_format_optical_variable_area_bilateral,
       :sound_format_optical_variable_area_dual_bilateral, :sound_format_optical_variable_area_unilateral,
       :sound_format_optical_variable_area_dual_unilateral, :sound_format_optical_variable_area_rca_duplex,
-      :sound_format_optical_variable_density_multiple_density,
+      :sound_format_optical_variable_density_multiple_density, :sound_format_optical_variable_area_maurer
   # sound content attributes
   ]
   SOUND_FORMAT_FIELDS_HUMANIZED = {
