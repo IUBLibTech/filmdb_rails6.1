@@ -71,7 +71,7 @@ module AlfHelper
 		],
 		PULLED_E_RETRIEVAL => [WorkflowStatus::IN_STORAGE_INGESTED], # FIXME: check if this is correct
 		OUT_ON_SHIP_SERVICE => [WorkflowStatus::IN_STORAGE_INGESTED], # FIXME: stands for "Special Handling, Internal & Preservation" - should it be treated like it's still in ALF hands?
-		IN_ALF => [WorkflowStatus::IN_STORAGE_INGESTED],
+		IN_ALF => [WorkflowStatus::IN_STORAGE_INGESTED, WorkflowStatus::QUEUED_FOR_PULL_REQUEST],
 		IN_QUEUE_REFILE => [WorkflowStatus::IN_STORAGE_INGESTED],
 		IN_QUEUE_PHYSICAL_RETRIEVAL => [WorkflowStatus::PULL_REQUESTED],
 		IN_QUEUE_E_RETRIEVAL => [WorkflowStatus::IN_STORAGE_INGESTED],
@@ -90,9 +90,11 @@ module AlfHelper
 	# equivalent from Filmdb's perspective.
 	def self.equivalent_statuses?(alf_status, filmdb_status)
 		filmdb_status = filmdb_status.status_name if filmdb_status.is_a? WorkflowStatus
-		#raise "#{alf_status} is not an ALF status!" unless EQUIVALENCIES.keys.include?(alf_status)
-		#raise "#{filmdb_status} is not a valid Filmdb WorkflowStatus!" unless WorkflowStatus::ALL_STATUSES.include?(filmdb_status)
-		EQUIVALENCIES[alf_status].include?(filmdb_status)
+		# raise "#{alf_status} is not an ALF status!" unless EQUIVALENCIES.keys.include?(alf_status)
+		# raise "#{filmdb_status} is not a valid Filmdb WorkflowStatus!" unless WorkflowStatus::ALL_STATUSES.include?(filmdb_status)
+		possible = EQUIVALENCIES[alf_status]
+		raise "#{alf_status} is not a known status..." if possible.nil?
+		possible.include?(filmdb_status)
 	end
 
 	# this method is responsible for generating and uploading the pull request to ALF's inventory system, CaiaSoft.
@@ -102,21 +104,28 @@ module AlfHelper
 		# transaction in case anything goes wrong while writing the upload file and saving the PullRequest object
 		# see #generate_upload_file for details
 		if physical_objects.length > 0
-			# this executes a system curl call which connects to caiasoft, checks the success of the call and creates @pr
+			# curl call to caiasoft, creates @pr from the response
 			result = cs_upload_curl(physical_objects, user)
 			# Make sure the curl process exited successfully and if yes, parse the result
 			exit_status = $?.exitstatus
 			if exit_status == 0
 				response = JSON.parse(result)
+				# pull requests from non-prod environments have their stop code set to DO_NOT_DELIVER which denies the
+				# pull request, however, success is still true.
 				if response["success"] == true
 					@pr.caia_soft_upload_success = true
 					@pr.caia_soft_response = result
 					@pr.save!
 					@pr.physical_objects.each do |p|
-						ws = WorkflowStatus.build_workflow_status(WorkflowStatus::PULL_REQUESTED, p)
-						p.workflow_statuses << ws
-						p.current_workflow_status = ws
-						p.save!
+						# need to check the deby status of each PO to see if its workflow status should be updated to pull requested
+						# pull requests from non-prod environments will have deny = "Y"
+						deny = field_from_pull_request_response(response, "deny", p.iu_barcode)
+						if deny && deny == "N"
+							ws = WorkflowStatus.build_workflow_status(WorkflowStatus::PULL_REQUESTED, p)
+							p.workflow_statuses << ws
+							p.current_workflow_status = ws
+							p.save!
+						end
 					end
 				else
 					@pr.caia_soft_upload_success = false
@@ -135,40 +144,6 @@ module AlfHelper
 	# 	return match
 	# end
 
-	private
-	# def generate_pull_file_contents(physical_objects, user)
-	# 	str = []
-	# 	physical_objects.each do |po|
-	# 		if po.storage_location == WorkflowStatus::IN_STORAGE_INGESTED
-	# 			str << populate_line(po, user)
-	# 		end
-	# 	end
-	# 	str
-	# end
-
-	def populate_line(po, user)
-		pl = nil
-		if po.active_component_group.deliver_to_alf?
-			pl = PULL_LINE_MDPI
-		else
-			pl = PULL_LINE_WELLS
-		end
-		pl.gsub(':IU_BARCODE', po.iu_barcode.to_s).gsub(':TITLE', po.titles_text.truncate(20, omission: '')).gsub(':EMAIL_ADDRESS', user.email_address)
-	end
-
-	# generates a filename including path of the format <path>/<date>.<process_number>.webform.file where date is the
-	# date the function is called and formated yyyymmdd, and process_number is a 0 padded 5 digit number repesenting the
-	# (hopefully) id of the PullRequest the file will be associated with
-	def gen_file_name
-		#"./tmp/#{Date.today.strftime("%Y%m%d")}.#{gen_process_number}.webform.file"
-		pre = Rails.application.credentials[:use_caia_soft] ? "alfrequest." : ""
-		File.join(Rails.root, 'tmp', "#{pre}#{Date.today.strftime("%Y%m%d")}.#{gen_process_number}.webform.file")
-	end
-
-	def gen_process_number
-		id = PullRequest.maximum(:id)
-		sprintf "%05d", (id.nil? ? 1 : id+1)
-	end
 
 	# used for pull requests, this utilizes system curl command to send a JSON payload to CaiaSoft's
 	# API at .../api/circrequests/v1
@@ -238,6 +213,41 @@ module AlfHelper
 		@itemloclist
 	end
 
+	private
+	# def generate_pull_file_contents(physical_objects, user)
+	# 	str = []
+	# 	physical_objects.each do |po|
+	# 		if po.storage_location == WorkflowStatus::IN_STORAGE_INGESTED
+	# 			str << populate_line(po, user)
+	# 		end
+	# 	end
+	# 	str
+	# end
+
+	def populate_line(po, user)
+		pl = nil
+		if po.active_component_group.deliver_to_alf?
+			pl = PULL_LINE_MDPI
+		else
+			pl = PULL_LINE_WELLS
+		end
+		pl.gsub(':IU_BARCODE', po.iu_barcode.to_s).gsub(':TITLE', po.titles_text.truncate(20, omission: '')).gsub(':EMAIL_ADDRESS', user.email_address)
+	end
+
+	# generates a filename including path of the format <path>/<date>.<process_number>.webform.file where date is the
+	# date the function is called and formated yyyymmdd, and process_number is a 0 padded 5 digit number repesenting the
+	# (hopefully) id of the PullRequest the file will be associated with
+	def gen_file_name
+		#"./tmp/#{Date.today.strftime("%Y%m%d")}.#{gen_process_number}.webform.file"
+		pre = Rails.application.credentials[:use_caia_soft] ? "alfrequest." : ""
+		File.join(Rails.root, 'tmp', "#{pre}#{Date.today.strftime("%Y%m%d")}.#{gen_process_number}.webform.file")
+	end
+
+	def gen_process_number
+		id = PullRequest.maximum(:id)
+		sprintf "%05d", (id.nil? ? 1 : id+1)
+	end
+
 	def write_payload_to_file(payload, user)
 		filename = File.join(Rails.root, 'tmp', "#{user.username}_pull_request.json")
 		if File.exist? filename
@@ -277,7 +287,7 @@ module AlfHelper
 				elsif p.last_known_storage_location == WorkflowStatus::IN_STORAGE_AWAITING_INGEST
 					payload << cs_line(p, user, "Item should be in IULMIA's awaiting accession area")
 				end
-				@pr.physical_object_pull_requests << PhysicalObjectPullRequest.new(physical_object_id: p.id, pull_request_id: @pr.id)
+				@pr.physical_object_pull_requests.build(physical_object_id: p.id, pull_request_id: @pr.id)
 			end
 			@pr.json_payload = payload.to_s
 		end
@@ -368,6 +378,14 @@ module AlfHelper
 		end
 	end
 
+	def field_from_pull_request_response(response, field, barcode)
+		response["results"].each do |item|
+			if item["item"] == barcode.to_s
+				return item[field]
+			end
+		end
+	end
+
 	# compares a Filmdb workflow status name to a CaiaSoft "status" (location) to see if they are functionally equivalent
 	def fdb_cs_locs_equivalent?(fdb_location, cs_location)
 		AlfHelper.equivalent_statuses?(cs_location, fdb_location)
@@ -387,12 +405,12 @@ module AlfHelper
 		cs.copy_json(item)
 		cs.physical_object = po
 		cs.mismatch = !fdb_cs_locs_equivalent?(po.current_workflow_status, cs.status)
-		cs.save!
+		cs.save
 	end
 
 	def save_itemloclist(pos)
 		pos.each_with_index do |p|
-			save_itemloc(item_from_itemloclist(p.iu_barcode), p)
+			save_itemloc(item_from_itemloclist(p.iu_barcode), p) unless [30000160219865, 30000165999677].include?(p.iu_barcode)
 		end
 	end
 
