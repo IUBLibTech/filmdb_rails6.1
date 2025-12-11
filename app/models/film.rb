@@ -45,12 +45,12 @@ class Film < ApplicationRecord
 
   STOCK_FIELDS = [
     :stock_3_m,:stock_agfa_gevaert, :stock_agfa, :stock_ansco, :stock_dupont, :stock_ferrania, :stock_fuji, :stock_gevaert,
-    :stock_ilford, :stock_kodak, :stock_orwo, :stock_pathe, :stock_unknown
+    :stock_ilford, :stock_kodak, :stock_orwo, :stock_pathe, :stock_technicolor, :stock_unknown
   ]
   STOCK_FIELDS_HUMANIZED = {
     stock_3_m: '3M', stock_agfa: 'Agfa', stock_agfa_gevaert: 'Agfa-Gevaert', stock_ansco: "Ansco", stock_dupont: 'Dupont',
     stock_ferrania: "Ferrania",stock_fuji: "Fuji", stock_gevaert: "Gevaert", stock_ilford: "Ilford",stock_kodak: "Kodak",
-    stock_orwo: "Orwo",  stock_pathe: 'Pathe', stock_unknown: "Unknown"
+    stock_orwo: "Orwo",  stock_pathe: 'Pathe', stock_technicolor: "Technicolor", stock_unknown: "Unknown"
   }
 
   PICTURE_TYPE_FIELDS = [

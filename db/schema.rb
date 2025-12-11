@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_29_190844) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_11_143531) do
   create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
     t.text "description"
@@ -448,6 +448,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_29_190844) do
     t.boolean "fps_18"
     t.boolean "fps_24"
     t.boolean "fps_25"
+    t.boolean "stock_technicolor"
   end
 
   create_table "languages", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -479,6 +480,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_29_190844) do
     t.string "date"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
+  end
+
+  create_table "physical_object_ephemeras", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "physical_object_id"
+    t.integer "ephemera_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "physical_object_old_barcodes", id: :integer, charset: "utf8mb3", collation: "utf8mb3_unicode_ci", force: :cascade do |t|
@@ -645,6 +653,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_29_190844) do
     t.string "date"
     t.integer "total_episodes"
     t.bigint "spreadsheet_id"
+  end
+
+  create_table "shipping_metadata", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "workflow_status_id"
+    t.text "notes"
+    t.bigint "shipped_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "spread_sheet_searches", id: :integer, charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|

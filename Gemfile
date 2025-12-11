@@ -90,7 +90,6 @@ gem 'config'
 # roo adds XLSX read-only support
 gem "roo"
 
-gem 'caxlsx'
 gem 'caxlsx_rails'
 
 group :development, :local, :test, :local_p, :laptop do
