@@ -60,7 +60,7 @@ textarea {
 }
 
 #branding {
-    background-image: image-url('branding1.jpg');
+    background-image: image-url('branding2.png');
     width: 1000px;
     height: 150px;
     cursor: pointer;
@@ -72,10 +72,11 @@ textarea {
     background: -webkit-linear-gradient(#718EA4, rgba(113,142,164,0)); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(#718EA4, rgba(113,142,164,0)); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(#718EA4, rgba(113,142,164,0)); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(#718EA4, rgba(113,142,164,0)); /* Standard syntax (must be last) */
-    padding: 10px 5px 104px;
+    background: linear-gradient(#718EA4, rgba(113,142,164,0.9)); /* Standard syntax (must be last) */
+    padding: 10px 5px 12px;
     color: #805215;
     cursor: default;
+    border-radius: 5px 0 0 0;
 }
 
 div#menu {
@@ -841,9 +842,9 @@ div.check_box > div {
 
  div#release {
 	 position: relative;
-	 top: 85px;
-	 left: 13px;
-	 color: #911e0c;
+	 top: 72px;
+	 left: 4px;
+	 color: white;
 	 font-weight: bold;
  }
 
