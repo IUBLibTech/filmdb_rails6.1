@@ -6,6 +6,7 @@ module CaiaSoftStatusHelper
   WAITING_ON_INCOMING_ACCESSION_STREAM = "Item Waiting on Incoming Accession Stream"
   IN_ACCESSION_PROCESS = "Item In Accession Process"
   COMMITTED = "Item Committed"
+  WAITING_ON_RETRIEVAL_QUEUE = "Item Waiting on the Retrieval Request Queue"
   DEACCESSIONED = "Item has been Deaccessioned"
   OUT_OF_ALF = "Out on Physical Retrieval"
   PULLED_E_RETRIEVAL = "Pulled for E-Retrieval"
