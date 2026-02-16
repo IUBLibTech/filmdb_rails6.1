@@ -54,6 +54,7 @@ module CaiaSoftStatusHelper
     PULLED_E_RETRIEVAL => [WorkflowStatus::IN_STORAGE_INGESTED], # FIXME: check if this is correct
     OUT_ON_SHIP_SERVICE => [WorkflowStatus::IN_STORAGE_INGESTED], # FIXME: stands for "Special Handling, Internal & Preservation" - should it be treated like it's still in ALF hands?
     IN_ALF => [WorkflowStatus::IN_STORAGE_INGESTED],
+    WAITING_ON_RETRIEVAL_QUEUE => [WorkflowStatus::PULL_REQUESTED],
     IN_QUEUE_REFILE => [WorkflowStatus::IN_STORAGE_INGESTED],
     IN_QUEUE_PHYSICAL_RETRIEVAL => [PULL_REQUESTED],
     IN_QUEUE_E_RETRIEVAL => [WorkflowStatus::IN_STORAGE_INGESTED],

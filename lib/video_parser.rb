@@ -55,7 +55,7 @@ class VideoParser < CsvParser
   def parse_csv
     parse_headers(@csv[0])
     if @parse_headers_msg.size > 0
-      @spreadsheet_submission.update_attributes(failure_message: @parse_headers_msg, successful_submission: false, submission_progress: 100)
+      @spreadsheet_submission.update(failure_message: @parse_headers_msg, successful_submission: false, submission_progress: 100)
     else
       @cv = ControlledVocabulary.physical_object_cv('Video')
       @l_cv = ControlledVocabulary.language_cv
@@ -94,8 +94,8 @@ class VideoParser < CsvParser
           if error_msg.length > 0
             raise ManualRollBackError
           else
-            @spreadsheet_submission.update_attributes(successful_submission: true, submission_progress: 100)
-            @spreadsheet.update_attributes(successful_upload: true)
+            @spreadsheet_submission.update(successful_submission: true, submission_progress: 100)
+            @spreadsheet.update(successful_upload: true)
           end
         end
       rescue Exception => error
@@ -108,7 +108,7 @@ class VideoParser < CsvParser
         unless @em.blank?
           error_msg << @em.html_safe
         end
-        @spreadsheet_submission.update_attributes(failure_message: error_msg, successful_submission: false, submission_progress: 100)
+        @spreadsheet_submission.update(failure_message: error_msg, successful_submission: false, submission_progress: 100)
       end
     end
   end
@@ -120,7 +120,6 @@ class VideoParser < CsvParser
     @parse_headers_msg = ''
     # read all of the file's column headers
     row.each_with_index { |header, i|
-      puts "[#{header.strip}, #{i}]"
       if @headers.keys.include?(header.strip)
         @parse_headers_msg << "The header <b>#{header.strip}</b> was duplicated at column #{i}<br/>"
       elsif header.blank?
@@ -155,8 +154,13 @@ class VideoParser < CsvParser
     end
     # date created
     begin
-      d = Date.strptime(row[column_index DATE_CREATED], '%Y/%m/%d')
-      po.date_inventoried = d
+      text = row[column_index DATE_CREATED]
+      if text.blank?
+        po.date_inventoried = Date.today
+      else
+        d = Date.strptime(row[column_index DATE_CREATED], '%Y/%m/%d')
+        po.date_inventoried = d
+      end
     rescue
       po.errors.add(:date, "Unable to parse date created")
     end
