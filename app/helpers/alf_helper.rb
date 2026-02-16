@@ -91,8 +91,8 @@ module AlfHelper
 	# equivalent from Filmdb's perspective.
 	def self.equivalent_statuses?(alf_status, filmdb_status)
 		filmdb_status = filmdb_status.status_name if filmdb_status.is_a? WorkflowStatus
-		# raise "#{alf_status} is not an ALF status!" unless EQUIVALENCIES.keys.include?(alf_status)
-		# raise "#{filmdb_status} is not a valid Filmdb WorkflowStatus!" unless WorkflowStatus::ALL_STATUSES.include?(filmdb_status)
+		raise "#{alf_status} is not an ALF status!" unless EQUIVALENCIES.keys.include?(alf_status)
+		raise "#{filmdb_status} is not a valid Filmdb WorkflowStatus!" unless WorkflowStatus::ALL_STATUSES.include?(filmdb_status)
 		possible = EQUIVALENCIES[alf_status]
 		raise "#{alf_status} is not a known status..." if possible.nil?
 		possible.include?(filmdb_status)
