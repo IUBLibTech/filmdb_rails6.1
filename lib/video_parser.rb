@@ -481,7 +481,9 @@ class VideoParser < CsvParser
       ws = WorkflowStatus.build_workflow_status(location, po, true)
       po.workflow_statuses << ws
     else
-      po.errors.add(:location, "Unknown or malformed Current Location field: #{location}")
+      ws = WorkflowStatus.build_workflow_status(WorkflowStatusesHelper::IN_STORAGE_INGESTED, po, false)
+      po.workflow_statuses << ws
+      #po.errors.add(:location, "Unknown or malformed Current Location field: #{location}")
     end
   end
   def parse_alf_shelf_location(po, row)
