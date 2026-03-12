@@ -51,12 +51,15 @@ class CsvParser
   def parse_spreadsheet_medium
     headers = @csv[0]
     medium_index = -1
-    @csv[0].each_with_index do |h, i|
-      if h == 'Medium'
-        medium_index = i
+    @csv[0].each_with_index do |header, index|
+      # excel puts a leading UTF encoder at the beginning of the file.
+      if header.delete("\uFEFF") == 'Medium'
+        medium_index = index
         break
       end
     end
     @csv[1][medium_index]
   end
+
+
 end

@@ -119,7 +119,6 @@ class FilmParser < CsvParser
     @parse_headers_msg = ''
     # read all of the file's column headers
     row.each_with_index { |header, i|
-      puts "[#{header}, #{i}]"
       if @headers.keys.include?(header)
         @parse_headers_msg << "The header <b>#{header}</b> was duplicated at column #{i}<br/>"
       elsif header.blank?
