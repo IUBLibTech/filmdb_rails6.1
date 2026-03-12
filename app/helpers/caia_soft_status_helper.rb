@@ -7,6 +7,10 @@ module CaiaSoftStatusHelper
   IN_ACCESSION_PROCESS = "Item In Accession Process"
   COMMITTED = "Item Committed"
   WAITING_ON_RETRIEVAL_QUEUE = "Item Waiting on the Retrieval Request Queue"
+  # CaiaSoft introduced a new, undocumented status mid 2025. It had a typo with a trailing whitespace. They were
+  # notified and they documented it but did not correct the trailing whitespace so the documentation does not match
+  # the actual in-production status. This is to cover that.
+  WAITING_ON_RETRIEVAL_QUEUE_TYPO = "Item Waiting on the Retrieval Request Queue "
   DEACCESSIONED = "Item has been Deaccessioned"
   OUT_OF_ALF = "Out on Physical Retrieval"
   PULLED_E_RETRIEVAL = "Pulled for E-Retrieval"
@@ -55,6 +59,7 @@ module CaiaSoftStatusHelper
     OUT_ON_SHIP_SERVICE => [WorkflowStatus::IN_STORAGE_INGESTED], # FIXME: stands for "Special Handling, Internal & Preservation" - should it be treated like it's still in ALF hands?
     IN_ALF => [WorkflowStatus::IN_STORAGE_INGESTED],
     WAITING_ON_RETRIEVAL_QUEUE => [WorkflowStatus::PULL_REQUESTED],
+    WAITING_ON_RETRIEVAL_QUEUE_TYPO => [WorkflowStatus::PULL_REQUESTED],
     IN_QUEUE_REFILE => [WorkflowStatus::IN_STORAGE_INGESTED],
     IN_QUEUE_PHYSICAL_RETRIEVAL => [PULL_REQUESTED],
     IN_QUEUE_E_RETRIEVAL => [WorkflowStatus::IN_STORAGE_INGESTED],
