@@ -9,7 +9,7 @@ class Film < ApplicationRecord
   # If you need to revert migration 20250721130156_add_place_for_freezer_to25.rb,
   # you will also need to change "2.5 (place for freezer)" back to its original value of "2.5". The migration will fail,
   # raising an exception if you do not.
-  PLACE_IN_FREEZER_VALS = ["3.0 (place for freezer)", "2.5 (place for freezer)"]
+  PLACE_IN_FREEZER_VALS = ["3.0 (place for freezer)", "2.5 (place for freezer)", "2.0 (place for freezer)"]
 
   # nested_form gem doesn't integrate with active_record-acts_as gem when objects are CREATED, it results in double
   # object creation from form submissions. Edits/deletes seem to work fine however. Use this in the initializer to omit
@@ -178,16 +178,15 @@ class Film < ApplicationRecord
     "#{gauge} #{medium}"
   end
 
-  # Tests whether a Film object should be stored in the freezer.
-  # As of 7/2025 the "new" way to calculate whether a film belongs in the freezer is as follows:
-  # Anything with AD Strip >= 2.5 goes to the freezer. Additionally, "2.5" has been replaced
-  # with "2.5 (place for freezer)".
+  # Determines whether a Film object should be stored in the freezer.
+  # As of 4/2026 anything with AD Strip >= 2.0 goes to the freezer.
+  # Additionally, "2.0" has been replaced
+  # with "2.0 (place for freezer)".
   #
   # WE ARE NO LONGER ALLOWING ITEMS WITH FREEZER "STORAGE HISTORY" TO RETURN
   # TO THE FREEZER UNLESS AD STRIP TEST HAS BEEN PERFORMED AND WARRANTS THAT!
   def place_in_freezer?
-    return true if PLACE_IN_FREEZER_VALS.include?(ad_strip)
-    false
+    PLACE_IN_FREEZER_VALS.include?(ad_strip)
   end
 
   def self.write_xlsx_header_row(worksheet)

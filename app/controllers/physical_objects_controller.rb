@@ -279,14 +279,9 @@ class PhysicalObjectsController < ApplicationController
       flash[:warning] = "#{bc} is a #{@physical_object.specific.class}, not a Film"
     else
       set_cv
-      nitrate = @physical_object.specific.base_nitrate
       @physical_object.specific.update(ad_strip: adv)
       @physical_object.specific.update(ad_strip_timestamp: Date.today)
       flash[:notice] = "Physical Object [#{bc}] was updated with AD Strip Value: #{adv}"
-      # Filmdb no longer emails notification about nitrate
-      # if @physical_object.specific.base_nitrate && !nitrate
-      #   notify_nitrate(@physical_object)
-      # end
     end
     redirect_to edit_ad_strip_path
   end
