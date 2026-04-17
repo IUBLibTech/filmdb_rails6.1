@@ -277,10 +277,10 @@ class PhysicalObject < ApplicationRecord
 	end
 
 	# FIXME: alf_storage_loc needs to replace this for DISPLAY but it is still necessary as long as IULMIA manages freezer items
-	# There will be a transitional period where both will be needed
+	# Currently in a transitional period where both are needed
 	def storage_location
 		stats = workflow_statuses.where("status_name in (#{WorkflowStatus::STATUS_TYPES_TO_STATUSES['Storage'].map{ |s| "'#{s}'"}.join(',')})").order('created_at ASC')
-		# anything with ad_strip > 2.0 must go to the freezer. If it's never been in the freezer if must go to awaiting freezer first for prep.
+		# anything with ad_strip > 2.0 must go to the freezer. If it's never been in the freezer it must go to awaiting freezer first for prep.
 		# If it was last in the freezer, it should be returned to the freezer. Otherwise, the item is returned to its last storage location,
 		# or ingested if it has yet to be put anywhere in storage
 		if stats.size > 0

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_11_143531) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_130825) do
   create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
     t.text "description"
