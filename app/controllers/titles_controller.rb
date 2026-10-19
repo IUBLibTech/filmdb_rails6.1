@@ -214,7 +214,18 @@ class TitlesController < ApplicationController
   def destroy
     authorize Title
     if @title.physical_objects.size == 0
-      @title.destroy
+      Title.transaction do
+        cgs = @title.component_groups
+        cgs.each do |g|
+          if g.physical_objects.size == 0
+            g.destroy!
+          else
+            # reassign first po first title to the CG to maintain workflow history integrity
+            g.update!(title_id: g.physical_objects.first.titles.first.id)
+          end
+        end
+        @title.destroy
+      end
       respond_to do |format|
         format.html { redirect_to titles_url, notice: 'Title was successfully destroyed.' }
         format.json { head :no_content }

@@ -209,6 +209,7 @@ class Film < ApplicationRecord
     ]
   end
   def write_xlsx_row(t, worksheet)
+    ac = accompanying_documentations
     worksheet.add_row [iu_barcode, mdpi_barcode, titles_text, t.title_text, t.series_title_text, t.series_part, t.country_of_origin,
                        t.summary, (t.title_original_identifiers.collect {|i| "#{i.identifier} [#{i.identifier_type}]"}.join(', ') if t.title_original_identifiers.any?), (t.title_publishers.collect {|pub| "#{pub.name} [#{pub.publisher_type}]"}.join(', ') if t.title_publishers.any?), (t.title_creators.collect {|c| "#{c.name} [#{c.role}]"}.join(', ') unless t.title_creators.size == 0),
                        (t.title_genres.collect {|g| g.genre}.join(', ') unless t.title_genres.size == 0), (t.title_forms.collect {|f| f.form}.join(', ') unless t.title_forms.size == 0), (t.title_dates.collect {|d| "#{d.date_text} [#{d.date_type}]"}.join(', ') unless t.title_dates.size == 0),
@@ -221,7 +222,7 @@ class Film < ApplicationRecord
                        humanize_aspect_ratio_fields, anamorphic, sound,
                        bool_to_yes_no(close_caption), humanize_sound_format_fields, humanize_sound_content_fields, humanize_sound_configuration_fields,
                        track_count, (languages.collect {|l| "#{l.language} [#{l.language_type}]"}.join(', ') unless languages.size == 0), format_notes,
-                       accompanying_documentations, accompanying_documentation_location, condition_rating, condition_notes,
+                       ac.map(&:description).join(" | "), ac.map(&:location).join(" | "), condition_rating, condition_notes,
                        research_value, research_value_notes, ad_strip, shrinkage, mold,
                        ((boolean_conditions.collect {|c| "#{c.condition_type} (#{c.comment})"} + value_conditions.collect {|c| "#{c.condition_type}: #{c.value} (#{c.comment})"}).join(' | ') unless (boolean_conditions.size == 0 && value_conditions.size == 0)),
                        missing_footage, miscellaneous, conservation_actions, t.modifier&.username]

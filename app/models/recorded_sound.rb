@@ -129,6 +129,7 @@ class RecordedSound < ApplicationRecord
                       ]
   end
   def write_xlsx_row(t, worksheet)
+    ac = accompanying_documentations
     worksheet.add_row [iu_barcode, mdpi_barcode, titles_text, t.title_text,
                        t.series_title_text, t.series_part, t.country_of_origin,
                        t.summary, (t.title_original_identifiers.collect {|i| "#{i.identifier} [#{i.identifier_type}]"}.join(', ') if t.title_original_identifiers.any?),
@@ -148,7 +149,7 @@ class RecordedSound < ApplicationRecord
                        bool_to_yes_no(multiple_items_in_can), playback,
                        humanize_sound_format_fields, humanize_sound_content_fields, humanize_sound_configuration_fields,
                        (languages.collect {|l| "#{l.language} [#{l.language_type}]"}.join(', ') unless languages.size == 0), format_notes,
-                       accompanying_documentations, accompanying_documentation_location, condition_rating, condition_notes,
+                       ac.map(&:description).join(" | "), ac.map(&:location).join(" | "), condition_rating, condition_notes,
                        research_value, research_value_notes,
                        ((boolean_conditions.collect {|c| "#{c.condition_type} (#{c.comment})"} + value_conditions.collect {|c| "#{c.condition_type}: #{c.value} (#{c.comment})"}).join(' | ') unless (boolean_conditions.size == 0 && value_conditions.size == 0)),
                        miscellaneous, conservation_actions, t.modifier&.username]

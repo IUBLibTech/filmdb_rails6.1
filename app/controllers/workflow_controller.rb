@@ -628,7 +628,7 @@ class WorkflowController < ApplicationController
 					flash.now[:warning] = "Only Films can be moved to the Freezer. #{po.iu_barcode} is a #{po.medium_name}"
 				else
 					po = po.specific
-					if Films::PLACE_IN_FREEZER_VALS.include? po.ad_strip
+					if Film::PLACE_IN_FREEZER_VALS.include? po.ad_strip
 						ws = WorkflowStatus.build_workflow_status(params[:location], po, true)
 						po.workflow_statuses << ws
 						po.current_workflow_status = ws

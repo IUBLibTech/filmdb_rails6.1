@@ -5,6 +5,8 @@ class PhysicalObject < ApplicationRecord
 	include ActiveModel::Validations
 	include PhysicalObjectsHelper
 
+	after_create :copy_created_at_to_date_inventoried
+
 	#belongs_to :title
 	belongs_to :spreadsheet, optional: true
 	belongs_to :collection, autosave: true, optional: true
@@ -565,7 +567,11 @@ class PhysicalObject < ApplicationRecord
 	end
 
 	def created_at
-		date_inventoried
+		if date_inventoried.blank?
+			super.created_at
+		else
+			date_inventoried
+		end
 	end
 	def created_at=(val)
 		super
@@ -694,5 +700,10 @@ class PhysicalObject < ApplicationRecord
 		end
 			poob.delete
 	end
+
+	def copy_created_at_to_date_inventoried
+		update_column(:date_inventoried, self[:created_at])
+	end
+
 
 end

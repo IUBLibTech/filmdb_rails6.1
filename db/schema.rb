@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_03_130825) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_16_161437) do
   create_table "accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
     t.string "location"
     t.text "description"
@@ -465,6 +465,32 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_03_130825) do
     t.bigint "user_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "ocg_first_title_by_po", id: false, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "physical_object_id"
+    t.bigint "title_id"
+  end
+
+  create_table "ocg_orphaned_component_groups", id: false, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "component_group_id", default: 0, null: false
+    t.bigint "orphaned_title_id", null: false
+  end
+
+  create_table "ocg_orphaned_group_po_titles", id: false, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "component_group_id"
+    t.integer "workflow_status_id", default: 0, null: false
+    t.bigint "physical_object_id"
+    t.string "status_name", collation: "utf8mb3_unicode_ci"
+    t.bigint "po_first_title_id"
+  end
+
+  create_table "ocg_title_proposals", id: false, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "component_group_id", default: 0, null: false
+    t.bigint "orphaned_title_id", null: false
+    t.integer "workflow_status_id", default: 0, null: false
+    t.bigint "source_physical_object_id"
+    t.bigint "new_title_id"
   end
 
   create_table "physical_object_accompanying_documentations", charset: "utf8mb4", collation: "utf8mb4_bin", force: :cascade do |t|
