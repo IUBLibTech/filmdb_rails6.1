@@ -63,7 +63,7 @@ class SessionsController < ActionController::Base
 
   def destroy
     sign_out
-    redirect_to "#{which_iu_login}/cas/logout"
+    redirect_to "#{which_iu_login}/cas/logout", allow_other_host: true
   end
 
   private
