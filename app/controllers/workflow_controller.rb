@@ -46,7 +46,7 @@ class WorkflowController < ApplicationController
 			if @po.is_a? EquipmentTechnology
 				response[:type] = "#{@po.medium}"
 				# remove all "regular" PO storage locations if they're there
-				response[:options] = (CaiaSoftStatusHelper::EQUIVALENCIES[cs_loc] -
+				response[:options] = (EQUIVALENCIES[cs_loc] -
 					[WorkflowStatus::AWAITING_FREEZER, WorkflowStatus::IN_FREEZER, WorkflowStatus::IN_STORAGE_AWAITING_INGEST, WorkflowStatus::IN_STORAGE_INGESTED]).sort
 			else
 				response[:type] = "#{@po.medium} (#{@po.gauge}) - #{@po.titles_text}"

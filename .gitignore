@@ -39,6 +39,7 @@
 
 # IU Libraries infrastructure stuffs
 .iul_service.yaml
+.iul_service.yaml.pristine
 .iul_contacts.y*
 bin/iul_start*
 bin/iul_stop*

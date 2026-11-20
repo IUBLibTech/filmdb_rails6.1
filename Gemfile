@@ -44,6 +44,7 @@ gem 'ldap_groups_lookup'
 # handles pagination
 gem 'pagy'
 
+
 # gems for connecting over ssh
 # Ubuntu 20.04+ uses openssl 3.0 and the ruby builds of net-scp are STILL dependent on openssl 1.0...
 # this relies on openssl 1, replaced with net-sftp
@@ -91,7 +92,7 @@ gem 'config'
 gem "roo"
 
 gem 'caxlsx_rails'
-
+gem 'csv'
 group :development, :local, :test, :local_p, :laptop do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
